@@ -1,0 +1,20 @@
+language: csharp
+mono: none
+matrix:
+  include:
+    - os: windows
+    - os: linux
+      dotnet: 3.1.300
+    - os: osx
+      dotnet: 3.1.300
+
+install:
+  - cd HashLib4CSharp.Tests
+  - dotnet restore
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install dotnetcore-sdk --version=3.1.300; fi
+
+script:
+  - dotnet build
+  - dotnet test

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <LangVersion>7</LangVersion>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <Company>StugSoft</Company>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <PlatformTarget>AnyCPU</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HashLib4CSharp\HashLib4CSharp.csproj" />
+    </ItemGroup>
+
+</Project>

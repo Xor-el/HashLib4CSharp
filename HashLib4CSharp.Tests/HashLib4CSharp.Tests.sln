@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashLib4CSharp.Tests", "HashLib4CSharp.Tests.csproj", "{7D079E4A-EDC9-4A92-A67B-DEC4F9DC8B30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashLib4CSharp", "..\HashLib4CSharp\HashLib4CSharp.csproj", "{4FA969B5-15AF-4DA5-AE1A-479CC3CC9443}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D079E4A-EDC9-4A92-A67B-DEC4F9DC8B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D079E4A-EDC9-4A92-A67B-DEC4F9DC8B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D079E4A-EDC9-4A92-A67B-DEC4F9DC8B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D079E4A-EDC9-4A92-A67B-DEC4F9DC8B30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FA969B5-15AF-4DA5-AE1A-479CC3CC9443}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FA969B5-15AF-4DA5-AE1A-479CC3CC9443}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FA969B5-15AF-4DA5-AE1A-479CC3CC9443}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FA969B5-15AF-4DA5-AE1A-479CC3CC9443}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

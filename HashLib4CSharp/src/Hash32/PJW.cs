@@ -1,0 +1,55 @@
+using System.Diagnostics;
+using HashLib4CSharp.Base;
+using HashLib4CSharp.Interfaces;
+using HashLib4CSharp.Utils;
+
+namespace HashLib4CSharp.Hash32
+{
+    internal sealed class PJW : Hash, IHash32, ITransformBlock
+    {
+        private const uint UInt32MaxValue = 4294967295;
+        private const uint BitsInUnsignedInt = sizeof(uint) * 8;
+        private const uint ThreeQuarters = (BitsInUnsignedInt * 3) >> 2;
+        private const uint OneEighth = BitsInUnsignedInt >> 3;
+        private const uint HighBits = UInt32MaxValue << (int) (BitsInUnsignedInt - OneEighth);
+
+        private uint _hash;
+
+        internal PJW()
+            : base(4, 1)
+        {
+        }
+
+        public override IHash Clone() => new PJW {_hash = _hash, BufferSize = BufferSize};
+
+        public override void Initialize() => _hash = 0;
+
+        public override IHashResult TransformFinal()
+        {
+            var result = new HashResult(_hash);
+            Initialize();
+            return result;
+        }
+
+        public override void TransformBytes(byte[] data, int index, int length)
+        {
+            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            Debug.Assert(index >= 0);
+            Debug.Assert(length >= 0);
+            Debug.Assert(index + length <= data.Length);
+            var i = index;
+            var hash = _hash;
+            while (length > 0)
+            {
+                hash = (hash << (int) OneEighth) + data[i];
+                var test = hash & HighBits;
+                if (test != 0)
+                    hash = (hash ^ (test >> (int) ThreeQuarters)) & ~HighBits;
+                i++;
+                length--;
+            }
+
+            _hash = hash;
+        }
+    }
+}
