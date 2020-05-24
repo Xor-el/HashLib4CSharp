@@ -216,12 +216,15 @@ namespace HashLib4CSharp.KDF
         // Minimum and maximum number of passes
         private const int MIN_ITERATIONS = 1;
 
-        private byte[] _digest;
-        private readonly byte[] _password;
+        private byte[] _digest, _password;
         private Block[] _memory;
-        private readonly Argon2Parameters _parameters;
+        private Argon2Parameters _parameters;
         private int _segmentLength, _laneLength;
 
+
+        private PBKDFArgon2NotBuiltIn()
+        {
+        }
 
         /// <summary>
         /// Initialise the <see cref="PBKDFArgon2NotBuiltIn" />
@@ -289,6 +292,30 @@ namespace HashLib4CSharp.KDF
         public override string Name => GetType().Name;
 
         public override string ToString() => Name;
+
+        public override IKDFNotBuiltIn Clone() =>
+            new PBKDFArgon2NotBuiltIn()
+            {
+                _digest = ArrayUtils.Clone(_digest),
+                _password = ArrayUtils.Clone(_password),
+                _memory = DeepCopyBlockArray(_memory),
+                _parameters = _parameters.Clone(),
+                _segmentLength = _segmentLength,
+                _laneLength = _laneLength
+            };
+
+        private static Block[] DeepCopyBlockArray(Block[] blocks)
+        {
+            if (blocks == null) throw new ArgumentNullHashLibException(nameof(blocks));
+            var result = new Block[blocks.Length];
+
+            for (var idx = 0; idx < result.Length; idx++)
+            {
+                result[idx] = blocks[idx].Clone();
+            }
+
+            return result;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void DoInit(Argon2Parameters parameters)
@@ -894,6 +921,12 @@ namespace HashLib4CSharp.KDF
             {
                 ArrayUtils.ZeroFill(V);
             }
+
+            public Block Clone() =>
+                new Block
+                {
+                    V = ArrayUtils.Clone(V)
+                };
 
             public unsafe void FromBytes(byte[] input)
             {

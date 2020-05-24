@@ -13,14 +13,14 @@ namespace HashLib4CSharp.Tests
     internal abstract class KDFTestBase : HashTestBase
     {
         protected int ByteCount { get; set; }
-        protected IKDFNotBuiltIn KDFInstance { get; set; }
+        protected IKDFNotBuiltIn KdfInstance { get; set; }
         protected byte[] Password { get; set; }
         protected byte[] Salt { get; set; }
         protected static int Zero => 0;
 
         [Test]
         public void TestInvalidByteCountThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() => KDFInstance.GetBytes(Zero));
+            Assert.Throws<ArgumentOutOfRangeHashLibException>(() => KdfInstance.GetBytes(Zero));
 
         [Test]
         public void TestCancellationTokenWorks()
@@ -29,7 +29,18 @@ namespace HashLib4CSharp.Tests
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
             Assert.CatchAsync<OperationCanceledException>(() =>
-                KDFInstance.GetBytesAsync(ByteCount, cancellationTokenSource.Token));
+                KdfInstance.GetBytesAsync(ByteCount, cancellationTokenSource.Token));
+        }
+
+        [Test]
+        public void TestKdfCloningWorks()
+        {
+            var kdfInstanceClone = KdfInstance.Clone();
+
+            var result = KdfInstance.GetBytes(ByteCount);
+            var resultClone = kdfInstanceClone.GetBytes(ByteCount);
+
+            AssertAreEqual(result, resultClone, $"Error in '{KdfInstance.Name}' cloning");
         }
 
         [Test]
@@ -40,8 +51,8 @@ namespace HashLib4CSharp.Tests
             AssertAreEqual(ExpectedString, ActualString);
         }
 
-        private byte[] SyncComputation() => KDFInstance.GetBytes(ByteCount);
-        private async Task<byte[]> ASyncComputation() => await KDFInstance.GetBytesAsync(ByteCount);
+        private byte[] SyncComputation() => KdfInstance.GetBytes(ByteCount);
+        private async Task<byte[]> ASyncComputation() => await KdfInstance.GetBytesAsync(ByteCount);
     }
 
     internal abstract class PBKDF2HMACTestBase : KDFTestBase
@@ -56,7 +67,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestNullPasswordThrowsCorrectException() =>
             Assert.Throws<ArgumentNullHashLibException>(() =>
-               _ = HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashInstance, NullBytes, Salt, Iteration));
+                _ = HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashInstance, NullBytes, Salt, Iteration));
 
         [Test]
         public void TestNullSaltThrowsCorrectException() =>
@@ -72,7 +83,7 @@ namespace HashLib4CSharp.Tests
         public void TestCorrectResultIsComputed()
         {
             ActualString = Converters.ConvertBytesToHexString
-                (KDFInstance.GetBytes(ByteCount));
+                (KdfInstance.GetBytes(ByteCount));
 
             AssertAreEqual(ExpectedString, ActualString);
         }
@@ -80,7 +91,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public async Task TestCorrectResultIsComputedAsync()
         {
-            var result = await KDFInstance.GetBytesAsync(ByteCount);
+            var result = await KdfInstance.GetBytesAsync(ByteCount);
 
             ActualString = Converters.ConvertBytesToHexString(result);
 
@@ -108,10 +119,10 @@ namespace HashLib4CSharp.Tests
             Password = Converters.ConvertStringToBytes(password, Encoding.ASCII);
             Salt = Converters.ConvertStringToBytes(salt, Encoding.ASCII);
 
-            KDFInstance = HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(Password,
+            KdfInstance = HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(Password,
                 Salt, cost, blockSize, parallelism);
 
-            ActualString = Converters.ConvertBytesToHexString(KDFInstance.GetBytes(outputSize));
+            ActualString = Converters.ConvertBytesToHexString(KdfInstance.GetBytes(outputSize));
 
             AssertAreEqual(ExpectedString, ActualString);
         }

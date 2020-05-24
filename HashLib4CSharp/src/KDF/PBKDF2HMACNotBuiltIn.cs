@@ -9,16 +9,20 @@ namespace HashLib4CSharp.KDF
 {
     internal sealed class PBKDF2HMACNotBuiltIn : KDFNotBuiltIn, IPBKDF2HMACNotBuiltIn
     {
-        private readonly IHMACNotBuiltIn _hmacNotBuiltIn;
-        private readonly byte[] _password, _salt, _buffer;
-        private readonly uint _iterations;
-        private uint _block;
-        private readonly int _blockSize;
-        private int _startIndex, _endIndex;
+        private IHMACNotBuiltIn _hmacNotBuiltIn;
+        private byte[] _password;
+        private byte[] _salt;
+        private byte[] _buffer;
+        private uint _iterations, _block;
+        private int _blockSize, _startIndex, _endIndex;
 
         private const string InvalidByteCount = "byteCount must be a value greater than zero.";
         private const string InvalidIndex = "Invalid start or end index in the internal buffer.";
         private const string IterationTooSmall = "Iteration must be greater than zero.";
+
+        private PBKDF2HMACNotBuiltIn()
+        {
+        }
 
         internal PBKDF2HMACNotBuiltIn(IHash underlyingHash, byte[] password,
             byte[] salt, uint iterations)
@@ -139,6 +143,20 @@ namespace HashLib4CSharp.KDF
         public override string Name => $"{GetType().Name}({_hmacNotBuiltIn.Name})";
 
         public override string ToString() => Name;
+
+        public override IKDFNotBuiltIn Clone() =>
+            new PBKDF2HMACNotBuiltIn
+            {
+                _hmacNotBuiltIn = (IHMACNotBuiltIn) _hmacNotBuiltIn.Clone(),
+                _password = ArrayUtils.Clone(_password),
+                _salt = ArrayUtils.Clone(_salt),
+                _buffer = ArrayUtils.Clone(_buffer),
+                _iterations = _iterations,
+                _block = _block,
+                _blockSize = _blockSize,
+                _startIndex = _startIndex,
+                _endIndex = _endIndex
+            };
 
         // initializes the state of the operation.
         private void Initialize()

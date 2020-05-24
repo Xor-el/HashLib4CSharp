@@ -125,13 +125,13 @@ namespace HashLib4CSharp.Tests
         {
             XofInstance.Initialize();
             XofInstance.TransformBytes(ZeroToOneHundredAndNinetyNineBytes);
-            var XofInstanceClone = (IXOF) XofInstance.Clone();
+            var xofInstanceClone = (IXOF) XofInstance.Clone();
 
             var result = new byte[XofInstance.XofSizeInBits >> 3];
-            var resultClone = new byte[XofInstanceClone.XofSizeInBits >> 3];
+            var resultClone = new byte[xofInstanceClone.XofSizeInBits >> 3];
 
             XofInstance.DoOutput(result, 0, (ulong) result.Length);
-            XofInstanceClone.DoOutput(resultClone, 0, (ulong) resultClone.Length);
+            xofInstanceClone.DoOutput(resultClone, 0, (ulong) resultClone.Length);
 
             AssertAreEqual(result, resultClone, $"Error in '{XofInstance.Name}' cloning");
         }

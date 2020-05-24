@@ -14,8 +14,8 @@ namespace HashLib4CSharp.KDF
     /// </remarks>
     internal sealed class PBKDFScryptNotBuiltIn : KDFNotBuiltIn, IPBKDFScryptNotBuiltIn
     {
-        private readonly byte[] _password, _salt;
-        private readonly int _cost, _blockSize, _parallelism;
+        private byte[] _password, _salt;
+        private int _cost, _blockSize, _parallelism;
 
         private const string InvalidByteCount = "byteCount must be a value greater than zero.";
         private const string InvalidCost = "Cost parameter must be > 1 and a power of 2.";
@@ -26,6 +26,10 @@ namespace HashLib4CSharp.KDF
             "Parallelism parameter must be >= 1 and <= {0} (based on block size of {1})";
 
         private const string RoundsMustBeEven = "Number of Rounds Must be Even";
+
+        private PBKDFScryptNotBuiltIn()
+        {
+        }
 
         internal PBKDFScryptNotBuiltIn(byte[] password, byte[] salt,
             int cost, int blockSize, int parallelism)
@@ -94,6 +98,16 @@ namespace HashLib4CSharp.KDF
         public override string Name => GetType().Name;
 
         public override string ToString() => Name;
+
+        public override IKDFNotBuiltIn Clone() =>
+            new PBKDFScryptNotBuiltIn()
+            {
+                _password = ArrayUtils.Clone(_password),
+                _salt = ArrayUtils.Clone(_salt),
+                _cost = _cost,
+                _blockSize = _blockSize,
+                _parallelism = _parallelism
+            };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ClearArray<T>(T[] input) => ArrayUtils.ZeroFill(input);

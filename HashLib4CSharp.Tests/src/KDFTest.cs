@@ -20,7 +20,7 @@ namespace HashLib4CSharp.Tests
             Password = new byte[] {0x70, 0x61, 0x73, 0x73, 0x77, 0x6F, 0x72, 0x64};
             Salt = new byte[] {0x78, 0x57, 0x8E, 0x5A, 0x5D, 0x63, 0xCB, 0x06};
             ByteCount = 24;
-            KDFInstance =
+            KdfInstance =
                 HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashFactory.Crypto.CreateSHA1(), Password, Salt, 2048);
         }
     }
@@ -34,7 +34,7 @@ namespace HashLib4CSharp.Tests
             Password = new byte[] {0x70, 0x61, 0x73, 0x73, 0x77, 0x6F, 0x72, 0x64};
             Salt = new byte[] {0x73, 0x61, 0x6C, 0x74};
             ByteCount = 32;
-            KDFInstance =
+            KdfInstance =
                 HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashFactory.Crypto.CreateSHA2_256(), Password, Salt,
                     100000);
         }
@@ -47,7 +47,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             ByteCount = 32;
-            KDFInstance =
+            KdfInstance =
                 HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(EmptyBytes, EmptyBytes, 16, 1, 1);
         }
 
@@ -146,7 +146,7 @@ namespace HashLib4CSharp.Tests
             ctx = Converters.ConvertStringToBytes(ctxString, Encoding.UTF8);
             fullInput = Enumerable.Range(0, 1 << 15).Select(i => (byte) (i % 251)).ToArray();
             ByteCount = 32;
-            KDFInstance =
+            KdfInstance =
                 HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(EmptyBytes, EmptyBytes);
         }
 
@@ -168,9 +168,9 @@ namespace HashLib4CSharp.Tests
                 var chunkedInput = new byte[Convert.ToInt32(vector[0])];
                 Array.Copy(fullInput, chunkedInput, chunkedInput.Length);
 
-                KDFInstance = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(chunkedInput, ctx);
+                KdfInstance = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(chunkedInput, ctx);
 
-                var output = KDFInstance.GetBytes(vector[3].Length >> 1);
+                var output = KdfInstance.GetBytes(vector[3].Length >> 1);
 
                 AssertAreEqual(output, Converters.ConvertHexStringToBytes(vector[3]),
                     "test vector mismatch");
@@ -185,9 +185,9 @@ namespace HashLib4CSharp.Tests
                 var chunkedInput = new byte[Convert.ToInt32(vector[0])];
                 Array.Copy(fullInput, chunkedInput, chunkedInput.Length);
 
-                KDFInstance = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(chunkedInput, ctx);
+                KdfInstance = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(chunkedInput, ctx);
 
-                var output = await KDFInstance.GetBytesAsync(vector[3].Length >> 1);
+                var output = await KdfInstance.GetBytesAsync(vector[3].Length >> 1);
 
                 AssertAreEqual(output, Converters.ConvertHexStringToBytes(vector[3]),
                     "test vector mismatch");
@@ -221,7 +221,7 @@ namespace HashLib4CSharp.Tests
                 .WithSecret(Secret)
                 .WithSalt(Salt);
 
-            KDFInstance =
+            KdfInstance =
                 HashFactory.KDF.PBKDFArgon2.CreatePBKDFArgon2(Password,
                     Argon2ParametersBuilder.DefaultBuilder().Build());
         }

@@ -8,13 +8,17 @@ namespace HashLib4CSharp.KDF
 {
     internal sealed class PBKDFBlake3NotBuiltIn : KDFNotBuiltIn, IPBKDFBlake3NotBuiltIn
     {
-        private readonly byte[] _srcKey;
-        private readonly IXOF _xof;
+        private byte[] _srcKey;
+        private IXOF _xof;
 
         private const int derivationIVLen = 32;
         private const uint flagDeriveKeyContext = 1 << 5;
         private const uint flagDeriveKeyMaterial = 1 << 6;
 
+
+        private PBKDFBlake3NotBuiltIn()
+        {
+        }
 
         // derives a subkey from ctx and srcKey. ctx should be hardcoded,
         // globally unique, and application-specific. A good format for ctx strings is:
@@ -37,10 +41,10 @@ namespace HashLib4CSharp.KDF
             var ivWords = ArrayUtils.Clone(Blake3.IV);
 
             // construct the derivation Hasher and get the derivationIV
-            var derivationIV = new Blake3(derivationIVLen, ivWords, flagDeriveKeyContext)
+            var derivationIv = new Blake3(derivationIVLen, ivWords, flagDeriveKeyContext)
                 .ComputeBytes(ctx).GetBytes();
 
-            fixed (byte* srcPtr = derivationIV)
+            fixed (byte* srcPtr = derivationIv)
             {
                 fixed (uint* destPtr = ivWords)
                 {
@@ -54,6 +58,13 @@ namespace HashLib4CSharp.KDF
         public override void Clear() => ArrayUtils.ZeroFill(_srcKey);
 
         public override string ToString() => Name;
+
+        public override IKDFNotBuiltIn Clone() =>
+            new PBKDFBlake3NotBuiltIn()
+            {
+                _srcKey = ArrayUtils.Clone(_srcKey),
+                _xof = (IXOF) _xof.Clone()
+            };
 
         public override byte[] GetBytes(int byteCount)
         {

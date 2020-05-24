@@ -12,9 +12,11 @@ namespace HashLib4CSharp.KDF
 
         public abstract Task<byte[]> GetBytesAsync(int byteCount,
             CancellationToken cancellationToken = default(CancellationToken));
-        
+
         public abstract string Name { get; }
 
         public abstract override string ToString();
+
+        public abstract IKDFNotBuiltIn Clone();
     }
 }

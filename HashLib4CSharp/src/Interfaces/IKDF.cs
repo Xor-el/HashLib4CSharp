@@ -24,6 +24,7 @@ namespace HashLib4CSharp.Interfaces
 
     public interface IKDFNotBuiltIn : IKDF
     {
+        IKDFNotBuiltIn Clone();
     }
 
     public interface IPBKDF2HMAC : IKDFNotBuiltIn
