@@ -372,6 +372,7 @@ namespace HashLib4CSharp.Crypto
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static Blake3ChunkState CreateBlake3ChunkState(uint[] iv, ulong chunkCounter, uint flags) =>
                 new Blake3ChunkState
                 {
