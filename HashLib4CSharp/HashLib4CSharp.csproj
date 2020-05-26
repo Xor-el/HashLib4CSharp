@@ -6,16 +6,17 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <Title>HashLib4CSharp</Title>
         <Authors>Ugochukwu Mmaduekwe</Authors>
-        <Description>HashLib4CSharp is a .NET library that provides an easy to use interface for computing hashes and checksums of strings (with a specified encoding), files, streams, byte arrays and untyped data.</Description>
+        <Description>HashLib4CSharp is a C# library that provides an easy to use interface for computing hashes and checksums of strings (with a specified encoding), files, streams, byte arrays and untyped data.</Description>
         <Copyright>Copyright 2020 Ugochukwu Mmaduekwe</Copyright>
         <RepositoryType>git</RepositoryType>
         <PackageReleaseNotes>Initial 1.0.0 release</PackageReleaseNotes>
         <Company>StugSoft</Company>
-        <PackageTags>hash</PackageTags>
+        <PackageTags>hash crypto cryptography</PackageTags>
         <PackageLicenseUrl></PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/Xor-el/HashLib4CSharp</RepositoryUrl>
+        <RepositoryUrl>https://github.com/Xor-el/HashLib4CSharp.git</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/Xor-el/HashLib4CSharp</PackageProjectUrl>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
