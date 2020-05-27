@@ -1,5 +1,5 @@
 # HashLib4CSharp
-[![License](http://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Xor-el/HashLib4CSharp/blob/master/LICENSE) [![Build Status](https://travis-ci.com/Xor-el/HashLib4CSharp.svg?branch=master)](https://travis-ci.org/Xor-el/HashLib4CSharp) [![Nuget](https://img.shields.io/nuget/v/HashLib4CSharp)](https://www.nuget.org/packages/HashLib4CSharp/) ![Nuget](https://img.shields.io/nuget/dt/HashLib4CSharp)
+[![License](http://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Xor-el/HashLib4CSharp/blob/master/LICENSE.txt) [![Build Status](https://travis-ci.com/Xor-el/HashLib4CSharp.svg?branch=master)](https://travis-ci.org/Xor-el/HashLib4CSharp) [![Nuget](https://img.shields.io/nuget/v/HashLib4CSharp)](https://www.nuget.org/packages/HashLib4CSharp/) [![Nuget](https://img.shields.io/nuget/dt/HashLib4CSharp)](https://www.nuget.org/packages/HashLib4CSharp/)
 
 HashLib4CSharp is a comprehensive, high performance and easy to use hashing library written in C#.
 it provides flexible interfaces that makes usage a breeze.
