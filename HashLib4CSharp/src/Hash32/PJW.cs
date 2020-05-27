@@ -1,3 +1,20 @@
+/*
+(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
+{ *                             HashLib4CSharp Library                              * }
+{ *                      Copyright (c) 2020 Ugochukwu Mmaduekwe                     * }
+{ *                 GitHub Profile URL <https://github.com/Xor-el>                  * }
+
+{ *  Distributed under the MIT software license, see the accompanying LICENSE file  * }
+{ *          or visit http://www.opensource.org/licenses/mit-license.php.           * }
+
+{ *                              Acknowledgements:                                  * }
+{ *                                                                                 * }
+{ *   This library was sponsored by Sphere 10 Software (https://www.sphere10.com)   * }
+{ *         for the purposes of supporting the XXX (https://YYY) project.           * }
+{ *                                                                                 * }
+(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
+*/
+
 using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -7,7 +24,7 @@ namespace HashLib4CSharp.Hash32
 {
     internal sealed class PJW : Hash, IHash32, ITransformBlock
     {
-        private const uint UInt32MaxValue = 4294967295;
+        private const uint UInt32MaxValue = uint.MaxValue;
         private const uint BitsInUnsignedInt = sizeof(uint) * 8;
         private const uint ThreeQuarters = (BitsInUnsignedInt * 3) >> 2;
         private const uint OneEighth = BitsInUnsignedInt >> 3;

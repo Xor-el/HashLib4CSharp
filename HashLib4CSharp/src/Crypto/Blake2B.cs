@@ -1,3 +1,20 @@
+/*
+(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
+{ *                             HashLib4CSharp Library                              * }
+{ *                      Copyright (c) 2020 Ugochukwu Mmaduekwe                     * }
+{ *                 GitHub Profile URL <https://github.com/Xor-el>                  * }
+
+{ *  Distributed under the MIT software license, see the accompanying LICENSE file  * }
+{ *          or visit http://www.opensource.org/licenses/mit-license.php.           * }
+
+{ *                              Acknowledgements:                                  * }
+{ *                                                                                 * }
+{ *   This library was sponsored by Sphere 10 Software (https://www.sphere10.com)   * }
+{ *         for the purposes of supporting the XXX (https://YYY) project.           * }
+{ *                                                                                 * }
+(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
+*/
+
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -1806,7 +1823,7 @@ namespace HashLib4CSharp.Crypto
         public override IHashResult TransformFinal()
         {
             var buffer = GetResult();
-            Debug.Assert((ulong)buffer.Length == XofSizeInBits >> 3);
+            Debug.Assert((ulong) buffer.Length == XofSizeInBits >> 3);
             Initialize();
 
             return new HashResult(buffer);
