@@ -15,8 +15,7 @@ namespace HashLib4CSharp.PerformanceBenchmark
             {
                 PerformanceBenchmark.DoBenchmark(ref logger);
 
-                foreach (var log in logger)
-                    Console.WriteLine(log);
+                Console.WriteLine(string.Join("\n\r", logger));
 
                 Console.WriteLine("\n\rPerformance Benchmark Finished");
 

@@ -332,10 +332,7 @@ namespace HashLib4CSharp.Base
         public virtual IHash Clone() =>
             throw new NotImplementedHashLibException(string.Format(CloneNotYetImplemented, Name));
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         public abstract void Initialize();
 
