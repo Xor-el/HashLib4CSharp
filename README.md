@@ -12,6 +12,35 @@ Development is coordinated on [GitHub](https://github.com/Xor-el/HashLib4CSharp)
 
 All functionality of the library is tested using [nunit](https://github.com/nunit/nunit).
 
+### Usage Sample
+----------------------------------------
+
+
+```c#
+using System;
+using System.Text;
+using HashLib4CSharp.Base;
+
+public class Program
+{
+	public static void Main()
+	{
+		// single line mode
+		var result = HashFactory.Crypto.CreateMD5().ComputeString("Hello C#", Encoding.UTF8).ToString();
+		Console.WriteLine(result);
+		// split mode
+		var hash = HashFactory.Crypto.CreateMD5();
+		hash.Initialize();
+		hash.TransformString("Hello", Encoding.UTF8);
+		hash.TransformString(" C#", Encoding.UTF8);
+		result = hash.TransformFinal().ToString();
+		Console.WriteLine(result);
+	}
+}
+```
+
+More usage samples can be found in ``HashLib4CSharp.Tests`` folder.
+
 ### Tip Jar
 ----------------------------------------
 
