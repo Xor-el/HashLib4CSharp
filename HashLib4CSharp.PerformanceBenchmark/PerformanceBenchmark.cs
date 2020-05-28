@@ -12,10 +12,7 @@ namespace HashLib4CSharp.PerformanceBenchmark
     {
         private static Random Random { get; }
 
-        static PerformanceBenchmark()
-        {
-            Random = new Random();
-        }
+        static PerformanceBenchmark() => Random = new Random();
 
         private static string Calculate(IHash hashInstance, string namePrefix = "", int size = 64 * 1024)
         {
