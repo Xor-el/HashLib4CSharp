@@ -41,7 +41,7 @@ namespace HashLib4CSharp.Crypto
         private const ulong IV7 = 0x5BE0CD19137E2179;
 
 
-        protected readonly Blake2BConfig Config;
+        internal readonly Blake2BConfig Config;
         protected Blake2BTreeConfig TreeConfig;
         private readonly bool _doTransformKeyBlock;
 

@@ -23,7 +23,11 @@ namespace HashLib4CSharp.Interfaces
         void Clear();
     }
 
-    public interface IHMAC : IMAC
+    public interface IMACNotBuiltIn : IMAC
+    {
+    }
+
+    public interface IHMAC : IMACNotBuiltIn
     {
     }
 
@@ -32,7 +36,7 @@ namespace HashLib4CSharp.Interfaces
         byte[] WorkingKey { get; }
     }
 
-    public interface IKMAC : IMAC
+    public interface IKMAC : IMACNotBuiltIn
     {
     }
 
@@ -40,7 +44,7 @@ namespace HashLib4CSharp.Interfaces
     {
     }
 
-    public interface IBlake2MAC : IMAC
+    public interface IBlake2MAC : IMACNotBuiltIn
     {
     }
 

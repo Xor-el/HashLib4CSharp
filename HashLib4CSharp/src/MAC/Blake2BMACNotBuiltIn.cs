@@ -42,7 +42,7 @@ namespace HashLib4CSharp.MAC
 
         public byte[] Key
         {
-            get => _key;
+            get => ArrayUtils.Clone(_key);
             set => _key = value != null
                 ? ArrayUtils.Clone(value)
                 : throw new ArgumentNullHashLibException(nameof(value));
@@ -52,7 +52,11 @@ namespace HashLib4CSharp.MAC
 
         public void Clear() => ArrayUtils.ZeroFill(_key);
 
-        public override void Initialize() => _hash.Initialize();
+        public override void Initialize()
+        {
+            ((Blake2B) _hash).Config.Key = _key;
+            _hash.Initialize();
+        }
 
         public override IHashResult TransformFinal() => _hash.TransformFinal();
 

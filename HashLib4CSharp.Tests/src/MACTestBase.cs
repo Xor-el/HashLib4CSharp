@@ -1,9 +1,28 @@
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
+using NUnit.Framework;
 
 namespace HashLib4CSharp.Tests
 {
     internal abstract class MACTestBase : AlgorithmTestBase
+    {
+        protected IMACNotBuiltIn MacInstance { get; set; }
+        protected IMACNotBuiltIn MacInstanceTwo { get; set; }
+
+        [Test]
+        public void ChangeKeyAndInitializeWorks()
+        {
+            ExpectedString = MacInstanceTwo.ComputeBytes(DefaultDataBytes).ToString();
+            MacInstance.Key = OneToNineBytes;
+            MacInstance.Initialize();
+            MacInstance.TransformBytes(DefaultDataBytes);
+            ActualString = MacInstance.TransformFinal().ToString();
+
+            AssertAreEqual(ExpectedString, ActualString);
+        }
+    }
+
+    internal abstract class HMACTestBase : MACTestBase
     {
     }
 

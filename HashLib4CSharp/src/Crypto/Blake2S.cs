@@ -40,7 +40,7 @@ namespace HashLib4CSharp.Crypto
         private const uint IV6 = 0x1F83D9AB;
         private const uint IV7 = 0x5BE0CD19;
 
-        protected readonly Blake2SConfig Config;
+        internal readonly Blake2SConfig Config;
         protected Blake2STreeConfig TreeConfig;
         private readonly bool _doTransformKeyBlock;
 
