@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using HashLib4CSharp.Crypto;
@@ -50,8 +51,8 @@ namespace HashLib4CSharp.KDF
         // two different applications into using the same context string.
         internal unsafe PBKDFBlake3NotBuiltIn(byte[] srcKey, byte[] ctx)
         {
-            if (srcKey == null) throw new ArgumentNullHashLibException(nameof(srcKey));
-            if (ctx == null) throw new ArgumentNullHashLibException(nameof(ctx));
+            if (srcKey == null) throw new ArgumentNullException(nameof(srcKey));
+            if (ctx == null) throw new ArgumentNullException(nameof(ctx));
 
             _srcKey = ArrayUtils.Clone(srcKey);
 

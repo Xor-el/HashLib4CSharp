@@ -15,10 +15,10 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.IO;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
-using HashLib4CSharp.Utils;
 
 namespace HashLib4CSharp.NullDigest
 {
@@ -41,10 +41,10 @@ namespace HashLib4CSharp.NullDigest
         }
 
         public override int HashSize =>
-            throw new NotImplementedHashLibException(string.Format(HashSizeNotImplemented, Name));
+            throw new NotImplementedException(string.Format(HashSizeNotImplemented, Name));
 
         public override int BlockSize =>
-            throw new NotImplementedHashLibException(string.Format(BlockSizeNotImplemented, Name));
+            throw new NotImplementedException(string.Format(BlockSizeNotImplemented, Name));
 
         public override IHash Clone()
         {
@@ -95,7 +95,7 @@ namespace HashLib4CSharp.NullDigest
 
         public override void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             if (data.Length > 0)
             {
                 _out.Write(data, index, length);

@@ -47,7 +47,7 @@ namespace HashLib4CSharp.Checksum
         protected unsafe void LocalCrcCompute(uint[][] crcTable, byte[] data, int index,
             int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);

@@ -21,7 +21,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using HashLib4CSharp.Interfaces;
-using HashLib4CSharp.Utils;
 
 namespace HashLib4CSharp.Base
 {
@@ -69,7 +68,7 @@ namespace HashLib4CSharp.Base
                     ? null
                     : Enumerable.Repeat(Type.Missing, constructorInfo.GetParameters().Length).ToArray(), null);
 
-            if (hashInstance == null) throw new NullReferenceHashLibException(UnExpectedError);
+            if (hashInstance == null) throw new NullReferenceException(UnExpectedError);
 
             var buffer = Buffer.ToArray();
 
@@ -89,7 +88,7 @@ namespace HashLib4CSharp.Base
 
         public override void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             if (data.Length == 0) return;
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);

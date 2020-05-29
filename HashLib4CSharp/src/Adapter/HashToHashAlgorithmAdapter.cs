@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using HashLib4CSharp.Interfaces;
@@ -30,14 +31,14 @@ namespace HashLib4CSharp.Adapter
         {
             _hash = hash != null
                 ? hash.Clone()
-                : throw new ArgumentNullHashLibException(nameof(hash));
+                : throw new ArgumentNullException(nameof(hash));
             HashSizeValue = _hash.HashSize * 8;
             Initialize();
         }
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
-            if (array == null) throw new ArgumentNullHashLibException(nameof(array));
+            if (array == null) throw new ArgumentNullException(nameof(array));
             Debug.Assert(cbSize >= 0);
             Debug.Assert(ibStart >= 0);
             Debug.Assert(ibStart + cbSize <= array.Length);

@@ -45,7 +45,7 @@ namespace HashLib4CSharp.Crypto
         internal Blake2BP(int hashSize, byte[] key)
             : base(hashSize, BlockSizeInBytes)
         {
-            if (key == null) throw new ArgumentNullHashLibException(nameof(key));
+            if (key == null) throw new ArgumentNullException(nameof(key));
 
             _key = ArrayUtils.Clone(key);
             _leafHashes = new Blake2B[ParallelismDegree];
@@ -97,7 +97,7 @@ namespace HashLib4CSharp.Crypto
 
         public override unsafe void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);

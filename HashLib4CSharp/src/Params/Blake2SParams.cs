@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using HashLib4CSharp.Enum;
 using HashLib4CSharp.Utils;
 
@@ -42,7 +43,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value < 1 || value > 32)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidHashSize,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidHashSize,
                         value));
                 _hashSize = value;
             }
@@ -53,10 +54,10 @@ namespace HashLib4CSharp.Params
             get => ArrayUtils.Clone(_key);
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 var keyLength = value.Length;
                 if (keyLength > 32)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidKeyLength,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidKeyLength,
                         keyLength));
                 _key = ArrayUtils.Clone(value);
             }
@@ -67,10 +68,10 @@ namespace HashLib4CSharp.Params
             get => ArrayUtils.Clone(_salt);
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 var saltLength = value.Length;
                 if (saltLength != 0 && saltLength != 8)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidSaltLength,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidSaltLength,
                         saltLength));
                 _salt = ArrayUtils.Clone(value);
             }
@@ -81,10 +82,10 @@ namespace HashLib4CSharp.Params
             get => _personalization != null ? ArrayUtils.Clone(_personalization) : null;
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 var personalizationLength = value.Length;
                 if (personalizationLength != 0 && personalizationLength != 8)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(Blake2SErrorStrings.InvalidPersonalizationLength, personalizationLength));
                 _personalization = ArrayUtils.Clone(value);
             }
@@ -159,7 +160,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value > ((ulong) 1 << 48) - 1)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidNodeOffset,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidNodeOffset,
                         value));
                 _nodeOffset = value;
             }
@@ -177,7 +178,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value < 1)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidMaxDepth,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidMaxDepth,
                         value));
                 _maxDepth = value;
             }
@@ -189,7 +190,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value > 32)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(Blake2SErrorStrings.InvalidInnerHashSize, value));
                 _innerHashSize = value;
             }
@@ -237,14 +238,14 @@ namespace HashLib4CSharp.Params
         private static void VerifyConfigS(Blake2SConfig config, Blake2STreeConfig treeConfig, bool isSequential)
         {
             if (config.HashSize < 1 || config.HashSize > 32)
-                throw new ArgumentOutOfRangeHashLibException(
+                throw new ArgumentException(
                     string.Format(Blake2SErrorStrings.InvalidHashSize, config.HashSize));
 
             if (config.Key.Length != 0)
             {
                 var keyLength = config.Key.Length;
                 if (keyLength > 32)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidKeyLength,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidKeyLength,
                         keyLength));
             }
 
@@ -252,7 +253,7 @@ namespace HashLib4CSharp.Params
             {
                 var saltLength = config.Salt.Length;
                 if (saltLength != 8)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidSaltLength,
+                    throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidSaltLength,
                         saltLength));
             }
 
@@ -260,18 +261,18 @@ namespace HashLib4CSharp.Params
             {
                 var personalizationLength = config.Personalization.Length;
                 if (personalizationLength != 8)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(Blake2SErrorStrings.InvalidPersonalizationLength, personalizationLength));
             }
 
             if (treeConfig == null) return;
             if (isSequential & treeConfig.InnerHashSize != 0)
             {
-                throw new ArgumentOutOfRangeHashLibException("treeConfig.InnerHashSize");
+                throw new ArgumentException("treeConfig.InnerHashSize");
             }
 
             if (treeConfig.InnerHashSize > 32)
-                throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2SErrorStrings.InvalidInnerHashSize,
+                throw new ArgumentException(string.Format(Blake2SErrorStrings.InvalidInnerHashSize,
                     treeConfig.InnerHashSize));
         }
 

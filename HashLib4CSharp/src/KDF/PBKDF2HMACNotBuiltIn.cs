@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,13 +45,13 @@ namespace HashLib4CSharp.KDF
         internal PBKDF2HMACNotBuiltIn(IHash underlyingHash, byte[] password,
             byte[] salt, uint iterations)
         {
-            if (password == null) throw new ArgumentNullHashLibException(nameof(password));
-            if (salt == null) throw new ArgumentNullHashLibException(nameof(salt));
-            if (iterations <= 0) throw new ArgumentOutOfRangeHashLibException(IterationTooSmall);
+            if (password == null) throw new ArgumentNullException(nameof(password));
+            if (salt == null) throw new ArgumentNullException(nameof(salt));
+            if (iterations <= 0) throw new ArgumentException(IterationTooSmall);
 
             _password = ArrayUtils.Clone(password);
             _salt = ArrayUtils.Clone(salt);
-            var hash = underlyingHash?.Clone() ?? throw new ArgumentNullHashLibException(nameof(underlyingHash));
+            var hash = underlyingHash?.Clone() ?? throw new ArgumentNullException(nameof(underlyingHash));
             _hmacNotBuiltIn = HMACNotBuiltIn.CreateHMAC(hash, _password);
 
             _iterations = iterations;
@@ -75,12 +76,12 @@ namespace HashLib4CSharp.KDF
         /// </summary>
         /// <param name="byteCount">The number of pseudo-random key bytes to generate.</param>
         /// <returns>A byte array filled with pseudo-random key bytes.</returns>
-        /// <exception cref="ArgumentOutOfRangeHashLibException">byteCount must be greater than zero.</exception>
-        /// <exception cref="IndexOutOfRangeHashLibException">invalid start index or end index of internal buffer.</exception>
+        /// <exception cref="ArgumentException">byteCount must be greater than zero.</exception>
+        /// <exception cref="IndexOutOfRangeException">invalid start index or end index of internal buffer.</exception>
         public override unsafe byte[] GetBytes(int byteCount)
         {
             if (byteCount <= 0)
-                throw new ArgumentOutOfRangeHashLibException(InvalidByteCount);
+                throw new ArgumentException(InvalidByteCount);
 
             var key = new byte[byteCount];
 
@@ -108,7 +109,7 @@ namespace HashLib4CSharp.KDF
             }
 
             if (_startIndex != 0 && _endIndex != 0)
-                throw new IndexOutOfRangeHashLibException(InvalidIndex);
+                throw new IndexOutOfRangeException(InvalidIndex);
 
             while (offset < byteCount)
             {

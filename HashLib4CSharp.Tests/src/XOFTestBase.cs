@@ -15,7 +15,7 @@ namespace HashLib4CSharp.Tests
         {
             XofInstance.Initialize();
             XofInstance.TransformBytes(SmallLettersAToEBytes);
-            Assert.Throws<ArgumentNullHashLibException>(() => XofInstance.DoOutput(NullBytes, 0, 0));
+            Assert.Throws<ArgumentNullException>(() => XofInstance.DoOutput(NullBytes, 0, 0));
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace HashLib4CSharp.Tests
             XofInstance.Initialize();
             var output = new byte[(XofInstance.XofSizeInBits >> 3) + 1];
             XofInstance.TransformBytes(SmallLettersAToEBytes);
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 XofInstance.DoOutput(output, 0, (ulong) output.Length));
         }
 
@@ -34,7 +34,7 @@ namespace HashLib4CSharp.Tests
             XofInstance.Initialize();
             var output = new byte[XofInstance.XofSizeInBits >> 3];
             XofInstance.TransformBytes(SmallLettersAToEBytes);
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 XofInstance.DoOutput(output, 1, (ulong) output.Length));
         }
 
@@ -117,7 +117,7 @@ namespace HashLib4CSharp.Tests
             XofInstance.TransformBytes(SmallLettersAToEBytes);
             XofInstance.DoOutput(output, 0, (ulong) output.Length);
             // this call below should raise exception since we have already read from the Xof
-            Assert.Throws<InvalidOperationHashLibException>(() => XofInstance.TransformBytes(SmallLettersAToEBytes));
+            Assert.Throws<InvalidOperationException>(() => XofInstance.TransformBytes(SmallLettersAToEBytes));
         }
 
         [Test]

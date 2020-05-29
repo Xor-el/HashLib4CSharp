@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
-using HashLib4CSharp.Utils;
 using NUnit.Framework;
 
 namespace HashLib4CSharp.Tests
@@ -156,11 +155,11 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestHashingNullDataThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() => HashInstance.ComputeBytes(NullBytes));
+            Assert.Throws<ArgumentNullException>(() => HashInstance.ComputeBytes(NullBytes));
 
         [Test]
         public void TestHashingNullDataIncrementalThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
             {
                 HashInstance.Initialize();
                 HashInstance.TransformBytes(NullBytes, 0, 0);
@@ -409,11 +408,11 @@ namespace HashLib4CSharp.Tests
     {
         [Test]
         public void TestQueryingHashSizeThrowsCorrectException() =>
-            Assert.Throws<NotImplementedHashLibException>(() => { _ = HashInstance.HashSize; });
+            Assert.Throws<NotImplementedException>(() => { _ = HashInstance.HashSize; });
 
         [Test]
         public void TestQueryingBlockSizeThrowsCorrectException() =>
-            Assert.Throws<NotImplementedHashLibException>(() => { _ = HashInstance.BlockSize; });
+            Assert.Throws<NotImplementedException>(() => { _ = HashInstance.BlockSize; });
     }
 
     internal abstract class ByteKeyAlgorithmTestBase : AlgorithmTestBase
@@ -436,11 +435,11 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() => ((IHashWithKey) HashInstance).Key = NullBytes);
+            Assert.Throws<ArgumentNullException>(() => ((IHashWithKey) HashInstance).Key = NullBytes);
 
         [Test]
         public void TestSettingKeyWithLengthLessThanDefinedSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
             {
                 var hashWithKey = (IHashWithKey) HashInstance;
                 hashWithKey.Key = GenerateByteArrayInRange(0x0, hashWithKey.KeyLength - 1);
@@ -448,7 +447,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingKeyWithLengthGreaterThanDefinedSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
             {
                 var hashWithKey = (IHashWithKey) HashInstance;
                 hashWithKey.Key = GenerateByteArrayInRange(0x0, ((IHashWithKey) HashInstance).KeyLength + 1);
@@ -551,16 +550,16 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullHashInstanceInHMACThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.HMAC.CreateHMAC(NullHashInstance, EmptyBytes));
 
         [Test]
         public void TestSettingNullKeyInHMACThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() => HMACInstance.Key = NullBytes);
+            Assert.Throws<ArgumentNullException>(() => HMACInstance.Key = NullBytes);
 
         [Test]
         public void TestHMACOfNullDataThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() => HMACInstance.ComputeBytes(NullBytes));
+            Assert.Throws<ArgumentNullException>(() => HMACInstance.ComputeBytes(NullBytes));
 
         [Test]
         public void TestHMACWithDefaultDataShortKey()

@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Crypto;
@@ -45,7 +46,7 @@ namespace HashLib4CSharp.MAC
             get => ArrayUtils.Clone(_key);
             set => _key = value != null
                 ? ArrayUtils.Clone(value)
-                : throw new ArgumentNullHashLibException(nameof(value));
+                : throw new ArgumentNullException(nameof(value));
         }
 
         public override IHash Clone() => new Blake2BMACNotBuiltIn(_hash.Clone(), Key) {BufferSize = BufferSize};
@@ -62,7 +63,7 @@ namespace HashLib4CSharp.MAC
 
         public override void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);

@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
@@ -63,7 +64,7 @@ namespace HashLib4CSharp.Hash64
 
         public override unsafe void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);
@@ -251,7 +252,7 @@ namespace HashLib4CSharp.Hash64
             }
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 if (value.Length == 0)
                 {
                     Key00 = Key0;
@@ -260,7 +261,7 @@ namespace HashLib4CSharp.Hash64
                 else
                 {
                     if (value.Length != KeyLength)
-                        throw new ArgumentOutOfRangeHashLibException(string.Format(InvalidKeyLength, KeyLength));
+                        throw new ArgumentException(string.Format(InvalidKeyLength, KeyLength));
 
                     fixed (byte* valuePtr = value)
                     {

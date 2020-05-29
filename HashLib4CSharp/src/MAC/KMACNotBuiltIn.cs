@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Crypto;
@@ -70,7 +71,7 @@ namespace HashLib4CSharp.MAC
 
         public override void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);
@@ -84,7 +85,7 @@ namespace HashLib4CSharp.MAC
             get => ArrayUtils.Clone(_key);
             set => _key = value != null
                 ? ArrayUtils.Clone(value)
-                : throw new ArgumentNullHashLibException(nameof(value));
+                : throw new ArgumentNullException(nameof(value));
         }
 
         public override string Name => GetType().Name;
@@ -120,15 +121,15 @@ namespace HashLib4CSharp.MAC
         private KMAC128(IHash hash, byte[] kmacKey,
             ulong outputLengthInBits) : base((int) Enum.HashSize.HashSize128)
         {
-            Hash = hash ?? throw new ArgumentNullHashLibException(nameof(hash));
+            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
             ((IXOF) Hash).XofSizeInBits = outputLengthInBits;
         }
 
         internal KMAC128(byte[] kmacKey, byte[] customization,
             ulong outputLengthInBits) : this(
-            new CShake_128(KmacBytes ?? throw new ArgumentNullHashLibException(nameof(KmacBytes)),
-                customization ?? throw new ArgumentNullHashLibException(nameof(customization))), kmacKey,
+            new CShake_128(KmacBytes ?? throw new ArgumentNullException(nameof(KmacBytes)),
+                customization ?? throw new ArgumentNullException(nameof(customization))), kmacKey,
             outputLengthInBits)
         {
         }
@@ -143,15 +144,15 @@ namespace HashLib4CSharp.MAC
         private KMAC256(IHash hash, byte[] kmacKey,
             ulong outputLengthInBits) : base((int) Enum.HashSize.HashSize256)
         {
-            Hash = hash ?? throw new ArgumentNullHashLibException(nameof(hash));
+            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
             ((IXOF) Hash).XofSizeInBits = outputLengthInBits;
         }
 
         internal KMAC256(byte[] kmacKey, byte[] customization,
             ulong outputLengthInBits) : this(
-            new CShake_256(KmacBytes ?? throw new ArgumentNullHashLibException(nameof(KmacBytes)),
-                customization ?? throw new ArgumentNullHashLibException(nameof(customization))), kmacKey,
+            new CShake_256(KmacBytes ?? throw new ArgumentNullException(nameof(KmacBytes)),
+                customization ?? throw new ArgumentNullException(nameof(customization))), kmacKey,
             outputLengthInBits)
         {
         }
@@ -170,7 +171,7 @@ namespace HashLib4CSharp.MAC
             var xofSizeInBytes = xofSizeInBits >> 3;
 
             if ((xofSizeInBytes & 0x07) != 0 || xofSizeInBytes < 1)
-                throw new ArgumentOutOfRangeHashLibException(InvalidXofSize);
+                throw new ArgumentException(InvalidXofSize);
 
             ((IXOF) Hash).XofSizeInBits = xofSizeInBits;
         }
@@ -190,13 +191,13 @@ namespace HashLib4CSharp.MAC
     {
         private KMAC128XOF(IHash hash, byte[] kmacKey) : base((int) Enum.HashSize.HashSize128)
         {
-            Hash = hash ?? throw new ArgumentNullHashLibException(nameof(hash));
+            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
         }
 
         internal KMAC128XOF(byte[] kmacKey, byte[] customization) : this(
-            new CShake_128(KmacBytes ?? throw new ArgumentNullHashLibException(nameof(KmacBytes)),
-                customization ?? throw new ArgumentNullHashLibException(nameof(customization))), kmacKey)
+            new CShake_128(KmacBytes ?? throw new ArgumentNullException(nameof(KmacBytes)),
+                customization ?? throw new ArgumentNullException(nameof(customization))), kmacKey)
         {
         }
 
@@ -213,13 +214,13 @@ namespace HashLib4CSharp.MAC
     {
         private KMAC256XOF(IHash hash, byte[] kmacKey) : base((int) Enum.HashSize.HashSize256)
         {
-            Hash = hash ?? throw new ArgumentNullHashLibException(nameof(hash));
+            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
         }
 
         internal KMAC256XOF(byte[] kmacKey, byte[] customization) : this(
-            new CShake_256(KmacBytes ?? throw new ArgumentNullHashLibException(nameof(KmacBytes)),
-                customization ?? throw new ArgumentNullHashLibException(nameof(customization))), kmacKey)
+            new CShake_256(KmacBytes ?? throw new ArgumentNullException(nameof(KmacBytes)),
+                customization ?? throw new ArgumentNullException(nameof(customization))), kmacKey)
         {
         }
 

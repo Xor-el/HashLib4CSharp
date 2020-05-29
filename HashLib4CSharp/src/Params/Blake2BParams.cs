@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using HashLib4CSharp.Enum;
 using HashLib4CSharp.Utils;
 
@@ -41,7 +42,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value < 1 || value > 64)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidHashSize,
+                    throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidHashSize,
                         value));
                 _hashSize = value;
             }
@@ -52,10 +53,10 @@ namespace HashLib4CSharp.Params
             get => ArrayUtils.Clone(_key);
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 var keyLength = value.Length;
                 if (keyLength > 64)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidKeyLength,
+                    throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidKeyLength,
                         keyLength));
                 _key = ArrayUtils.Clone(value);
             }
@@ -66,10 +67,10 @@ namespace HashLib4CSharp.Params
             get => ArrayUtils.Clone(_salt);
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 var saltLength = value.Length;
                 if (saltLength != 0 && saltLength != 16)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidSaltLength,
+                    throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidSaltLength,
                         saltLength));
                 _salt = ArrayUtils.Clone(value);
             }
@@ -80,10 +81,10 @@ namespace HashLib4CSharp.Params
             get => ArrayUtils.Clone(_personalization);
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 var personalizationLength = value.Length;
                 if (personalizationLength != 0 && personalizationLength != 16)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(Blake2BErrorStrings.InvalidPersonalizationLength, personalizationLength));
                 _personalization = ArrayUtils.Clone(value);
             }
@@ -170,7 +171,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value < 1)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidMaxDepth,
+                    throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidMaxDepth,
                         value));
                 _maxDepth = value;
             }
@@ -182,7 +183,7 @@ namespace HashLib4CSharp.Params
             set
             {
                 if (value > 64)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(Blake2BErrorStrings.InvalidInnerHashSize, value));
                 _innerHashSize = value;
             }
@@ -230,14 +231,14 @@ namespace HashLib4CSharp.Params
         private static void VerifyConfigB(Blake2BConfig config, Blake2BTreeConfig treeConfig, bool isSequential)
         {
             if (config.HashSize < 1 || config.HashSize > 64)
-                throw new ArgumentOutOfRangeHashLibException(
+                throw new ArgumentException(
                     string.Format(Blake2SErrorStrings.InvalidHashSize, config.HashSize));
 
             if (config.Key.Length != 0)
             {
                 var keyLength = config.Key.Length;
                 if (keyLength > 64)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidKeyLength,
+                    throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidKeyLength,
                         keyLength));
             }
 
@@ -245,7 +246,7 @@ namespace HashLib4CSharp.Params
             {
                 var saltLength = config.Salt.Length;
                 if (saltLength != 16)
-                    throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidSaltLength,
+                    throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidSaltLength,
                         saltLength));
             }
 
@@ -253,18 +254,18 @@ namespace HashLib4CSharp.Params
             {
                 var personalizationLength = config.Personalization.Length;
                 if (personalizationLength != 16)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(Blake2BErrorStrings.InvalidPersonalizationLength, personalizationLength));
             }
 
             if (treeConfig == null) return;
             if (isSequential & treeConfig.InnerHashSize != 0)
             {
-                throw new ArgumentOutOfRangeHashLibException("treeConfig.InnerHashSize");
+                throw new ArgumentException("treeConfig.InnerHashSize");
             }
 
             if (treeConfig.InnerHashSize > 64)
-                throw new ArgumentOutOfRangeHashLibException(string.Format(Blake2BErrorStrings.InvalidInnerHashSize,
+                throw new ArgumentException(string.Format(Blake2BErrorStrings.InvalidInnerHashSize,
                     treeConfig.InnerHashSize));
         }
 

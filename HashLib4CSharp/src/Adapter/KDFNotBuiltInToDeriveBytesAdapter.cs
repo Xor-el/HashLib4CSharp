@@ -15,9 +15,9 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Security.Cryptography;
 using HashLib4CSharp.Interfaces;
-using HashLib4CSharp.Utils;
 
 namespace HashLib4CSharp.Adapter
 {
@@ -29,7 +29,7 @@ namespace HashLib4CSharp.Adapter
         {
             _kdfNotBuiltIn = kdfNotBuiltIn != null
                 ? kdfNotBuiltIn.Clone()
-                : throw new ArgumentNullHashLibException(nameof(kdfNotBuiltIn));
+                : throw new ArgumentNullException(nameof(kdfNotBuiltIn));
         }
 
         public override byte[] GetBytes(int cb) => _kdfNotBuiltIn.GetBytes(cb);

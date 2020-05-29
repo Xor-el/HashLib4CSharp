@@ -15,9 +15,9 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
-using HashLib4CSharp.Utils;
 
 namespace HashLib4CSharp.Hash32
 {
@@ -30,7 +30,7 @@ namespace HashLib4CSharp.Hash32
 
         protected override IHashResult ComputeAggregatedBytes(byte[] data)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
 
             int i1, i2;
 

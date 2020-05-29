@@ -579,7 +579,7 @@ namespace HashLib4CSharp.Crypto
             var xofSizeInBytes = xofSizeInBits >> 3;
 
             if ((xofSizeInBits & 0x07) != 0 || xofSizeInBytes < 1)
-                throw new ArgumentOutOfRangeHashLibException(InvalidXofSize);
+                throw new ArgumentException(InvalidXofSize);
 
             _xofSizeInBits = xofSizeInBits;
         }
@@ -593,13 +593,13 @@ namespace HashLib4CSharp.Crypto
         public virtual unsafe void DoOutput(byte[] dest, ulong destOffset,
             ulong outputLength)
         {
-            if (dest == null) throw new ArgumentNullHashLibException(nameof(dest));
+            if (dest == null) throw new ArgumentNullException(nameof(dest));
 
             if ((ulong) dest.Length - destOffset < outputLength)
-                throw new ArgumentOutOfRangeHashLibException(OutputBufferTooShort);
+                throw new ArgumentException(OutputBufferTooShort);
 
             if (DigestPosition + outputLength > XofSizeInBits >> 3)
-                throw new ArgumentOutOfRangeHashLibException(OutputLengthOverflow);
+                throw new ArgumentException(OutputLengthOverflow);
 
             if (!Finalized)
             {
@@ -640,7 +640,7 @@ namespace HashLib4CSharp.Crypto
         public override void TransformBytes(byte[] data, int index, int length)
         {
             if (Finalized)
-                throw new InvalidOperationHashLibException(
+                throw new InvalidOperationException(
                     string.Format(WriteToXofAfterRead, Name));
 
             base.TransformBytes(data, index, length);
@@ -715,8 +715,8 @@ namespace HashLib4CSharp.Crypto
         protected CShake(int hashSize, byte[] n, byte[] s)
             : base(hashSize)
         {
-            if (n == null) throw new ArgumentNullHashLibException(nameof(n));
-            if (s == null) throw new ArgumentNullHashLibException(nameof(s));
+            if (n == null) throw new ArgumentNullException(nameof(n));
+            if (s == null) throw new ArgumentNullException(nameof(s));
 
             N = ArrayUtils.Clone(n);
             S = ArrayUtils.Clone(s);
@@ -784,7 +784,7 @@ namespace HashLib4CSharp.Crypto
 
         public static byte[] BytePad(byte[] input, int w)
         {
-            if (input == null) throw new ArgumentNullHashLibException(nameof(input));
+            if (input == null) throw new ArgumentNullException(nameof(input));
             var buffer = ArrayUtils.Concatenate(LeftEncode((ulong) w), input);
             var padLength = w - buffer.Length % w;
             return ArrayUtils.Concatenate(buffer, new byte[padLength]);
@@ -792,7 +792,7 @@ namespace HashLib4CSharp.Crypto
 
         public static byte[] EncodeString(byte[] input)
         {
-            if (input == null) throw new ArgumentNullHashLibException(nameof(input));
+            if (input == null) throw new ArgumentNullException(nameof(input));
             return input.Length == 0
                 ? LeftEncode(0)
                 : ArrayUtils.Concatenate(LeftEncode((ulong) input.Length * 8), input);

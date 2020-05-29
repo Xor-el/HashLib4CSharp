@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,8 +52,8 @@ namespace HashLib4CSharp.KDF
         internal PBKDFScryptNotBuiltIn(byte[] password, byte[] salt,
             int cost, int blockSize, int parallelism)
         {
-            if (password == null) throw new ArgumentNullHashLibException(nameof(password));
-            if (salt == null) throw new ArgumentNullHashLibException(nameof(salt));
+            if (password == null) throw new ArgumentNullException(nameof(password));
+            if (salt == null) throw new ArgumentNullException(nameof(salt));
             ValidatePBKDFScryptInputs(cost, blockSize, parallelism);
 
             _password = ArrayUtils.Clone(password);
@@ -72,19 +73,19 @@ namespace HashLib4CSharp.KDF
             int parallelism)
         {
             if (cost <= 1 || !IsPowerOf2(cost))
-                throw new ArgumentOutOfRangeHashLibException(InvalidCost);
+                throw new ArgumentException(InvalidCost);
 
             // Only value of blockSize that cost (as an int) could be exceeded for is 1
             if (blockSize == 1 && cost >= 65536)
-                throw new ArgumentOutOfRangeHashLibException(BlockSizeAndCostIncompatible);
+                throw new ArgumentException(BlockSizeAndCostIncompatible);
 
             if (blockSize < 1)
-                throw new ArgumentOutOfRangeHashLibException(BlockSizeTooSmall);
+                throw new ArgumentException(BlockSizeTooSmall);
 
             var maxParallel = int.MaxValue / (128 * blockSize * 8);
 
             if (parallelism < 1 || parallelism > maxParallel)
-                throw new ArgumentOutOfRangeHashLibException(
+                throw new ArgumentException(
                     string.Format(InvalidParallelism, maxParallel, blockSize));
         }
 
@@ -99,11 +100,11 @@ namespace HashLib4CSharp.KDF
         /// </summary>
         /// <param name="byteCount">The number of pseudo-random key bytes to generate.</param>
         /// <returns>A byte array filled with pseudo-random key bytes.</returns>
-        /// /// <exception cref="ArgumentOutOfRangeHashLibException">byteCount must be greater than zero.</exception>
+        /// /// <exception cref="ArgumentException">byteCount must be greater than zero.</exception>
         public override byte[] GetBytes(int byteCount)
         {
             if (byteCount <= 0)
-                throw new ArgumentOutOfRangeHashLibException(InvalidByteCount);
+                throw new ArgumentException(InvalidByteCount);
 
             return MfCrypt(_password, _salt, _cost, _blockSize, _parallelism, byteCount);
         }
@@ -163,13 +164,13 @@ namespace HashLib4CSharp.KDF
         private static void SalsaCore(int rounds, uint[] input, uint[] x)
         {
             if (input.Length != 16)
-                throw new ArgumentOutOfRangeHashLibException("");
+                throw new ArgumentException("");
 
             if (x.Length != 16)
-                throw new ArgumentOutOfRangeHashLibException("");
+                throw new ArgumentException("");
 
             if (rounds % 2 != 0)
-                throw new ArgumentOutOfRangeHashLibException(RoundsMustBeEven);
+                throw new ArgumentException(RoundsMustBeEven);
 
             var x00 = input[0];
             var x01 = input[1];

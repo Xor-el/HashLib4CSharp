@@ -20,7 +20,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestInvalidByteCountThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() => KdfInstance.GetBytes(Zero));
+            Assert.Throws<ArgumentException>(() => KdfInstance.GetBytes(Zero));
 
         [Test]
         public void TestCancellationTokenWorks()
@@ -61,22 +61,22 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestNullHashInstanceThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(NullHashInstance, Password, Salt, Iteration));
 
         [Test]
         public void TestNullPasswordThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashInstance, NullBytes, Salt, Iteration));
 
         [Test]
         public void TestNullSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashInstance, Password, NullBytes, Iteration));
 
         [Test]
         public void TestInvalidIterationThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.KDF.PBKDF2HMAC.CreatePBKDF2HMAC(HashInstance, Password, Salt, (uint) Zero));
 
         [Test]
@@ -109,7 +109,7 @@ namespace HashLib4CSharp.Tests
 
         protected static void DoCheckIllegal(string msg, byte[] password, byte[] salt, int cost,
             int blockSize, int parallelism, int outputSize) =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() => HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(
+            Assert.Throws<ArgumentException>(() => HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(
                 password,
                 salt, cost, blockSize, parallelism).GetBytes(outputSize), msg);
 

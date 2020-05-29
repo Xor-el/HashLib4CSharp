@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using HashLib4CSharp.Utils;
 
@@ -71,7 +72,7 @@ namespace HashLib4CSharp.Base
 
         internal unsafe bool Feed(void* data, int dataLength, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(length >= 0);
             Debug.Assert(length <= dataLength);
             Debug.Assert(!IsFull);
@@ -95,7 +96,7 @@ namespace HashLib4CSharp.Base
         internal unsafe bool Feed(void* data, int dataLength,
             ref int startIndex, ref int length, ref ulong processedBytesCount)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(startIndex >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(startIndex + length <= dataLength);

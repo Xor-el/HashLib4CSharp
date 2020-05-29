@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Enum;
 using HashLib4CSharp.Interfaces;
@@ -703,7 +704,7 @@ namespace HashLib4CSharp.Crypto
         internal Snefru(int securityLevel, HashSize hashSize)
             : base((int) hashSize, 64 - (int) hashSize)
         {
-            if (securityLevel < 1) throw new ArgumentOutOfRangeHashLibException(InvalidSnefruLevel);
+            if (securityLevel < 1) throw new ArgumentException(InvalidSnefruLevel);
             switch (hashSize)
             {
                 case Enum.HashSize.HashSize128:
@@ -712,7 +713,7 @@ namespace HashLib4CSharp.Crypto
                     State = new uint[(int) hashSize >> 2];
                     break;
                 default:
-                    throw new ArgumentOutOfRangeHashLibException(InvalidSnefruHashSize);
+                    throw new ArgumentException(InvalidSnefruHashSize);
             }
         }
 
@@ -852,7 +853,7 @@ namespace HashLib4CSharp.Crypto
                     return Enum.HashSize.HashSize256;
 
                 default:
-                    throw new ArgumentOutOfRangeHashLibException(InvalidSnefruHashSize);
+                    throw new ArgumentException(InvalidSnefruHashSize);
             }
         }
     }

@@ -70,40 +70,31 @@ namespace HashLib4CSharp.Base
 
         internal HashResult(byte[] hash)
         {
-            if (hash == null) throw new ArgumentNullHashLibException(nameof(hash));
+            if (hash == null) throw new ArgumentNullException(nameof(hash));
             _hash = hash.Length != 0 ? ArrayUtils.Clone(hash) : new byte[0];
         }
 
 
-        public byte[] GetBytes()
-        {
-            return ArrayUtils.Clone(_hash);
-        }
+        public byte[] GetBytes() => ArrayUtils.Clone(_hash);
 
-        public int GetInt32()
-        {
-            return _hash.Length != 4
-                ? throw new InvalidOperationHashLibException(ImpossibleRepresentationInt32)
+        public int GetInt32() =>
+            _hash.Length != 4
+                ? throw new InvalidOperationException(ImpossibleRepresentationInt32)
                 : (_hash[0] << 24) | (_hash[1] << 16) | (_hash[2] << 8) | _hash[3];
-        }
 
-        public byte GetUInt8()
-        {
-            return _hash.Length != 1
-                ? throw new InvalidOperationHashLibException(ImpossibleRepresentationUInt8)
+        public byte GetUInt8() =>
+            _hash.Length != 1
+                ? throw new InvalidOperationException(ImpossibleRepresentationUInt8)
                 : _hash[0];
-        }
 
-        public ushort GetUInt16()
-        {
-            return _hash.Length != 2
-                ? throw new InvalidOperationHashLibException(ImpossibleRepresentationUInt16)
+        public ushort GetUInt16() =>
+            _hash.Length != 2
+                ? throw new InvalidOperationException(ImpossibleRepresentationUInt16)
                 : (ushort) ((_hash[0] << 8) | _hash[1]);
-        }
 
         public unsafe uint GetUInt32()
         {
-            if (_hash.Length != 4) throw new InvalidOperationHashLibException(ImpossibleRepresentationUInt32);
+            if (_hash.Length != 4) throw new InvalidOperationException(ImpossibleRepresentationUInt32);
             fixed (byte* src = _hash)
             {
                 return Converters.ReadBytesAsUInt32BE(src, 0);
@@ -112,39 +103,26 @@ namespace HashLib4CSharp.Base
 
         public unsafe ulong GetUInt64()
         {
-            if (_hash.Length != 8) throw new InvalidOperationHashLibException(ImpossibleRepresentationUInt64);
+            if (_hash.Length != 8) throw new InvalidOperationException(ImpossibleRepresentationUInt64);
             fixed (byte* src = _hash)
             {
                 return Converters.ReadBytesAsUInt64BE(src, 0);
             }
         }
 
-        public string ToString(bool group)
-        {
-            return Converters.ConvertBytesToHexString(_hash, group);
-        }
+        public string ToString(bool group) => Converters.ConvertBytesToHexString(_hash, @group);
 
-        public override string ToString()
-        {
-            return ToString(false);
-        }
+        public override string ToString() => ToString(false);
 
-        public string ToBase64String(Base64FormattingOptions options = Base64FormattingOptions.None)
-        {
-            return Convert.ToBase64String(_hash, options);
-        }
+        public string ToBase64String(Base64FormattingOptions options = Base64FormattingOptions.None) =>
+            Convert.ToBase64String(_hash, options);
 
-        public bool Equals(IHashResult hashResult)
-        {
-            return ArrayUtils.ConstantTimeAreEqual(hashResult.GetBytes(), _hash);
-        }
+        public bool Equals(IHashResult hashResult) => ArrayUtils.ConstantTimeAreEqual(hashResult.GetBytes(), _hash);
 
-        public override bool Equals(object obj)
-        {
-            return obj == null
-                ? throw new ArgumentNullHashLibException(nameof(obj))
+        public override bool Equals(object obj) =>
+            obj == null
+                ? throw new ArgumentNullException(nameof(obj))
                 : obj is HashResult hashResult && hashResult.Equals(this);
-        }
 
         public override int GetHashCode()
         {

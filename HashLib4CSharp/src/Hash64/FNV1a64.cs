@@ -15,9 +15,9 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using HashLib4CSharp.Interfaces;
-using HashLib4CSharp.Utils;
 
 namespace HashLib4CSharp.Hash64
 {
@@ -29,7 +29,7 @@ namespace HashLib4CSharp.Hash64
 
         public override void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);

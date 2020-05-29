@@ -51,9 +51,9 @@ namespace HashLib4CSharp.KDF
         public Argon2Parameters(Argon2Type type, byte[] salt, byte[] secret, byte[] additional,
             int iterations, int memory, int lanes, Argon2Version version)
         {
-            if (salt == null) throw new ArgumentNullHashLibException(nameof(salt));
-            if (secret == null) throw new ArgumentNullHashLibException(nameof(secret));
-            if (additional == null) throw new ArgumentNullHashLibException(nameof(additional));
+            if (salt == null) throw new ArgumentNullException(nameof(salt));
+            if (secret == null) throw new ArgumentNullException(nameof(secret));
+            if (additional == null) throw new ArgumentNullException(nameof(additional));
 
             _salt = ArrayUtils.Clone(salt);
             _secret = ArrayUtils.Clone(secret);
@@ -133,7 +133,7 @@ namespace HashLib4CSharp.KDF
         {
             _salt = salt != null
                 ? ArrayUtils.Clone(salt)
-                : throw new ArgumentNullHashLibException(nameof(salt));
+                : throw new ArgumentNullException(nameof(salt));
             return this;
         }
 
@@ -142,7 +142,7 @@ namespace HashLib4CSharp.KDF
         {
             _additional = additional != null
                 ? ArrayUtils.Clone(additional)
-                : throw new ArgumentNullHashLibException(nameof(additional));
+                : throw new ArgumentNullException(nameof(additional));
             return this;
         }
 
@@ -151,7 +151,7 @@ namespace HashLib4CSharp.KDF
         {
             _secret = secret != null
                 ? ArrayUtils.Clone(secret)
-                : throw new ArgumentNullHashLibException(nameof(secret));
+                : throw new ArgumentNullException(nameof(secret));
             return this;
         }
 
@@ -255,24 +255,24 @@ namespace HashLib4CSharp.KDF
         /// </param>
         internal PBKDFArgon2NotBuiltIn(byte[] password, Argon2Parameters parameters)
         {
-            if (password == null) throw new ArgumentNullHashLibException(nameof(password));
-            if (parameters == null) throw new ArgumentNullHashLibException(nameof(parameters));
+            if (password == null) throw new ArgumentNullException(nameof(password));
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
             _password = ArrayUtils.Clone(password);
             _parameters = parameters.Clone();
 
             if (_parameters.Lanes < MIN_PARALLELISM)
-                throw new ArgumentOutOfRangeHashLibException(string.Format(LanesTooSmall, MIN_PARALLELISM));
+                throw new ArgumentException(string.Format(LanesTooSmall, MIN_PARALLELISM));
 
             if (_parameters.Lanes > MAX_PARALLELISM)
-                throw new ArgumentOutOfRangeHashLibException(string.Format(LanesTooBig, MAX_PARALLELISM));
+                throw new ArgumentException(string.Format(LanesTooBig, MAX_PARALLELISM));
 
             if (_parameters.Memory < 8 * _parameters.Lanes)
-                throw new ArgumentOutOfRangeHashLibException(string.Format(MemoryTooSmall, _parameters.Memory,
+                throw new ArgumentException(string.Format(MemoryTooSmall, _parameters.Memory,
                     8 * _parameters.Lanes));
 
             if (_parameters.Iterations < MIN_ITERATIONS)
-                throw new ArgumentOutOfRangeHashLibException(string.Format(IterationsTooSmall, MIN_ITERATIONS));
+                throw new ArgumentException(string.Format(IterationsTooSmall, MIN_ITERATIONS));
 
             DoInit(parameters);
         }
@@ -282,7 +282,7 @@ namespace HashLib4CSharp.KDF
         public override unsafe byte[] GetBytes(int byteCount)
         {
             if (byteCount <= MIN_OUTLEN)
-                throw new ArgumentOutOfRangeHashLibException(
+                throw new ArgumentException(
                     string.Format(InvalidOutputByteCount, MIN_OUTLEN));
 
             Initialize(_password, byteCount);
@@ -323,7 +323,7 @@ namespace HashLib4CSharp.KDF
 
         private static Block[] DeepCopyBlockArray(Block[] blocks)
         {
-            if (blocks == null) throw new ArgumentNullHashLibException(nameof(blocks));
+            if (blocks == null) throw new ArgumentNullException(nameof(blocks));
             var result = new Block[blocks.Length];
 
             for (var idx = 0; idx < result.Length; idx++)
@@ -948,7 +948,7 @@ namespace HashLib4CSharp.KDF
             public unsafe void FromBytes(byte[] input)
             {
                 if (input.Length != ARGON2_BLOCK_SIZE)
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         string.Format(InvalidInputLength, input.Length, ARGON2_BLOCK_SIZE));
 
                 fixed (byte* ptrInput = input)

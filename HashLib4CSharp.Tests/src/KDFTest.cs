@@ -53,13 +53,13 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestNullPasswordThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(NullBytes,
                     EmptyBytes, 16, 1, 1));
 
         [Test]
         public void TestNullSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(
                     EmptyBytes, NullBytes, 16, 1, 1));
 
@@ -152,12 +152,12 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(NullBytes, ctx));
 
         [Test]
         public void TestNullContextThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(EmptyBytes, NullBytes));
 
         [Test]
@@ -228,12 +228,12 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestNullPasswordThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFArgon2.CreatePBKDFArgon2(NullBytes, Builder.Build()));
 
         [Test]
         public void TestNullParameterInstanceThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFArgon2.CreatePBKDFArgon2(EmptyBytes, null));
 
         [Test]

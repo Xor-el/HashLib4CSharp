@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -47,7 +48,7 @@ namespace HashLib4CSharp.Hash64
 
         protected override IHashResult ComputeAggregatedBytes(byte[] data)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             return new HashResult(InternalComputeBytes(data));
         }
 
@@ -185,13 +186,13 @@ namespace HashLib4CSharp.Hash64
 
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 if (value.Length == 0)
                     _key = CKey;
                 else
                 {
                     if (value.Length != KeyLength)
-                        throw new ArgumentOutOfRangeHashLibException(string.Format(InvalidKeyLength, KeyLength));
+                        throw new ArgumentException(string.Format(InvalidKeyLength, KeyLength));
 
                     fixed (byte* valuePtr = value)
                     {

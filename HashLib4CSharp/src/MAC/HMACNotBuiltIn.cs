@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -49,7 +50,7 @@ namespace HashLib4CSharp.MAC
             get => ArrayUtils.Clone(_key);
             set
             {
-                if (value == null) throw new ArgumentNullHashLibException(nameof(value));
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 _key = ArrayUtils.Clone(value);
                 TransformKey();
             }
@@ -60,7 +61,7 @@ namespace HashLib4CSharp.MAC
             get => ArrayUtils.Clone(_workingKey);
             private set => _workingKey = value != null
                 ? ArrayUtils.Clone(value)
-                : throw new ArgumentNullHashLibException(nameof(value));
+                : throw new ArgumentNullException(nameof(value));
         }
 
         public void Clear()
@@ -98,7 +99,7 @@ namespace HashLib4CSharp.MAC
 
         public override void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);
@@ -114,8 +115,8 @@ namespace HashLib4CSharp.MAC
 
         public static IHMACNotBuiltIn CreateHMAC(IHash hash, byte[] hmacKey)
         {
-            return hmacKey == null ? throw new ArgumentNullHashLibException(nameof(hmacKey)) :
-                hash == null ? throw new ArgumentNullHashLibException(nameof(hash)) :
+            return hmacKey == null ? throw new ArgumentNullException(nameof(hmacKey)) :
+                hash == null ? throw new ArgumentNullException(nameof(hash)) :
                 hash is IHMACNotBuiltIn hmacNotBuiltIn ? (IHMACNotBuiltIn) hmacNotBuiltIn.Clone() :
                 new HMACNotBuiltIn(hash, hmacKey);
         }

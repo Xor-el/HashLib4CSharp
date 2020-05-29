@@ -428,7 +428,7 @@ namespace HashLib4CSharp.Crypto
                 var words = new uint[16];
 
                 if (Offset == MaxDigestLengthInBytes)
-                    throw new ArgumentOutOfRangeHashLibException(MaximumOutputLengthExceeded);
+                    throw new ArgumentException(MaximumOutputLengthExceeded);
                 var remainder = MaxDigestLengthInBytes - Offset;
                 outputLength = Math.Min(outputLength, remainder);
 
@@ -577,7 +577,7 @@ namespace HashLib4CSharp.Crypto
             var keyLength = key.Length;
             var result = new uint[8];
             if (keyLength != KeyLengthInBytes)
-                throw new ArgumentOutOfRangeHashLibException(
+                throw new ArgumentException(
                     string.Format(InvalidKeyLength, KeyLengthInBytes, keyLength));
 
             fixed (byte* keyPtr = key)
@@ -603,13 +603,13 @@ namespace HashLib4CSharp.Crypto
         }
 
         protected Blake3(int hashSize, byte[] key) : this(hashSize,
-            key != null ? InternalSetup(key) : throw new ArgumentNullHashLibException(nameof(key)),
+            key != null ? InternalSetup(key) : throw new ArgumentNullException(nameof(key)),
             key.Length == 0 ? 0 : flagKeyedHash)
         {
         }
 
         internal Blake3(HashSize hashSize, byte[] key) : this((int) hashSize,
-            key ?? throw new ArgumentNullHashLibException(nameof(key)))
+            key ?? throw new ArgumentNullException(nameof(key)))
         {
         }
 
@@ -623,7 +623,7 @@ namespace HashLib4CSharp.Crypto
 
         public override unsafe void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);
@@ -739,7 +739,7 @@ namespace HashLib4CSharp.Crypto
         public override void TransformBytes(byte[] data, int index, int length)
         {
             if (_finalized)
-                throw new InvalidOperationHashLibException(
+                throw new InvalidOperationException(
                     string.Format(WriteToXofAfterReadError, Name));
 
             base.TransformBytes(data, index, length);
@@ -758,13 +758,13 @@ namespace HashLib4CSharp.Crypto
 
         public void DoOutput(byte[] dest, ulong destOffset, ulong outputLength)
         {
-            if (dest == null) throw new ArgumentNullHashLibException(nameof(dest));
+            if (dest == null) throw new ArgumentNullException(nameof(dest));
 
             if ((ulong) dest.Length - destOffset < outputLength)
-                throw new ArgumentOutOfRangeHashLibException(OutputBufferTooShort);
+                throw new ArgumentException(OutputBufferTooShort);
 
             if (OutputReader.Offset + outputLength > XofSizeInBits >> 3)
-                throw new ArgumentOutOfRangeHashLibException(InvalidOutputLength);
+                throw new ArgumentException(InvalidOutputLength);
 
             if (!_finalized)
             {
@@ -779,7 +779,7 @@ namespace HashLib4CSharp.Crypto
         {
             var xofSizeInBytes = xofSizeInBits >> 3;
             if ((xofSizeInBits & 0x7) != 0 || xofSizeInBytes < 1)
-                throw new ArgumentOutOfRangeHashLibException(InvalidXofSize);
+                throw new ArgumentException(InvalidXofSize);
 
             _xofSizeInBits = xofSizeInBits;
         }

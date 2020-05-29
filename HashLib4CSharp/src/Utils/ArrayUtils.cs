@@ -27,16 +27,16 @@ namespace HashLib4CSharp.Utils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool AreEqual(byte[] left, byte[] right)
         {
-            if (left == null) throw new ArgumentNullHashLibException(nameof(left));
-            if (right == null) throw new ArgumentNullHashLibException(nameof(right));
+            if (left == null) throw new ArgumentNullException(nameof(left));
+            if (right == null) throw new ArgumentNullException(nameof(right));
             return left.SequenceEqual(right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool ConstantTimeAreEqual(byte[] left, byte[] right)
         {
-            if (left == null) throw new ArgumentNullHashLibException(nameof(left));
-            if (right == null) throw new ArgumentNullHashLibException(nameof(right));
+            if (left == null) throw new ArgumentNullException(nameof(left));
+            if (right == null) throw new ArgumentNullException(nameof(right));
             return CryptographicOperations.FixedTimeEquals(left, right);
         }
 

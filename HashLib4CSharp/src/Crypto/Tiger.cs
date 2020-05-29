@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Enum;
 using HashLib4CSharp.Interfaces;
@@ -578,7 +579,7 @@ namespace HashLib4CSharp.Crypto
                 case 24:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeHashLibException(InvalidTigerHashSize);
+                    throw new ArgumentException(InvalidTigerHashSize);
             }
 
             switch (rounds)
@@ -590,7 +591,7 @@ namespace HashLib4CSharp.Crypto
                     State = new ulong[3];
                     break;
                 default:
-                    throw new ArgumentOutOfRangeHashLibException(InvalidTigerHashRound);
+                    throw new ArgumentException(InvalidTigerHashRound);
             }
         }
 
@@ -619,7 +620,7 @@ namespace HashLib4CSharp.Crypto
                     return HashRounds.Rounds5;
 
                 default:
-                    throw new ArgumentOutOfRangeHashLibException(
+                    throw new ArgumentException(
                         InvalidTigerHashRound);
             }
         }

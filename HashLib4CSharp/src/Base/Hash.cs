@@ -56,14 +56,14 @@ namespace HashLib4CSharp.Base
             get => _bufferSize;
             set
             {
-                if (value <= 0) throw new ArgumentOutOfRangeHashLibException(InvalidBufferSize);
+                if (value <= 0) throw new ArgumentException(InvalidBufferSize);
                 _bufferSize = value;
             }
         }
 
         public void TransformBytes(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             var size = data.Length - index;
             Debug.Assert(size >= 0);
@@ -87,7 +87,7 @@ namespace HashLib4CSharp.Base
 
         public unsafe void TransformUntyped(void* data, long length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             var dataPtrStart = (byte*) data;
             var bufferSize = BufferSize > length ? InternalBufferSize : BufferSize; // Sanity Check
             var buffer = new byte[bufferSize];
@@ -115,7 +115,7 @@ namespace HashLib4CSharp.Base
 
         public void TransformStream(Stream stream, long length = -1)
         {
-            if (stream == null) throw new ArgumentNullHashLibException(nameof(stream));
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             Debug.Assert(length == -1 || length > 0);
 
             var bufferSize = BufferSize;
@@ -123,7 +123,7 @@ namespace HashLib4CSharp.Base
             {
                 if (length > -1)
                     if (stream.Position + length > stream.Length)
-                        throw new IndexOutOfRangeHashLibException(IndexOutOfRange);
+                        throw new IndexOutOfRangeException(IndexOutOfRange);
 
                 if (stream.Position >= stream.Length)
                     return;
@@ -159,7 +159,7 @@ namespace HashLib4CSharp.Base
         public async Task TransformStreamAsync(Stream stream, long length = -1,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (stream == null) throw new ArgumentNullHashLibException(nameof(stream));
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             Debug.Assert(length == -1 || length > 0);
 
             var bufferSize = BufferSize;
@@ -167,7 +167,7 @@ namespace HashLib4CSharp.Base
             {
                 if (length > -1)
                     if (stream.Position + length > stream.Length)
-                        throw new IndexOutOfRangeHashLibException(IndexOutOfRange);
+                        throw new IndexOutOfRangeException(IndexOutOfRange);
 
                 if (stream.Position >= stream.Length)
                     return;
@@ -204,7 +204,7 @@ namespace HashLib4CSharp.Base
 
         public void TransformFile(string fileName, long from = 0, long length = -1)
         {
-            if (fileName == null) throw new ArgumentNullHashLibException(nameof(fileName));
+            if (fileName == null) throw new ArgumentNullException(nameof(fileName));
             Debug.Assert(from >= 0);
             Debug.Assert(length == -1 || length > 0);
 
@@ -219,23 +219,19 @@ namespace HashLib4CSharp.Base
                     source.Seek(from, SeekOrigin.Begin);
                     TransformStream(source, length);
                 }
-                catch (IOException ioException)
-                {
-                    throw new IOHashLibException(ioException.Message);
-                }
                 finally
                 {
                     source?.Flush();
                     source?.Dispose();
                 }
             else
-                throw new FileNotFoundHashLibException(FileNotExist);
+                throw new FileNotFoundException(FileNotExist);
         }
 
         public async Task TransformFileAsync(string fileName, long from = 0, long length = -1,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (fileName == null) throw new ArgumentNullHashLibException(nameof(fileName));
+            if (fileName == null) throw new ArgumentNullException(nameof(fileName));
             Debug.Assert(from >= 0);
             Debug.Assert(length == -1 || length > 0);
 
@@ -249,10 +245,6 @@ namespace HashLib4CSharp.Base
 
                     source.Seek(from, SeekOrigin.Begin);
                     await TransformStreamAsync(source, length, cancellationToken);
-                }
-                catch (IOException ioException)
-                {
-                    throw new IOHashLibException(ioException.Message);
                 }
                 catch (OperationCanceledException canceledException)
                 {
@@ -268,7 +260,7 @@ namespace HashLib4CSharp.Base
                     }
                 }
             else
-                throw new FileNotFoundHashLibException(FileNotExist);
+                throw new FileNotFoundException(FileNotExist);
         }
 
         public abstract IHashResult TransformFinal();
@@ -330,7 +322,7 @@ namespace HashLib4CSharp.Base
         }
 
         public virtual IHash Clone() =>
-            throw new NotImplementedHashLibException(string.Format(CloneNotYetImplemented, Name));
+            throw new NotImplementedException(string.Format(CloneNotYetImplemented, Name));
 
         public override string ToString() => Name;
 

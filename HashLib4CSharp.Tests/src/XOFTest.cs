@@ -43,7 +43,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateShake_128(0));
     }
 
@@ -81,7 +81,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateShake_256(0));
     }
 
@@ -119,17 +119,17 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullNThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateCShake_128(NullBytes, EmptyBytes, 128));
 
         [Test]
         public void TestSettingNullSThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateCShake_128(EmptyBytes, NullBytes, 128));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateCShake_128(EmptyBytes, EmptyBytes, 0));
     }
 
@@ -169,17 +169,17 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullNThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateCShake_256(NullBytes, EmptyBytes, 256));
 
         [Test]
         public void TestSettingNullSThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateCShake_256(EmptyBytes, NullBytes, 256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateCShake_256(EmptyBytes, EmptyBytes, 0));
     }
 
@@ -216,17 +216,17 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateKMAC128XOF(NullBytes, EmptyBytes, 128));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, NullBytes, 128));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, EmptyBytes, 0));
 
         [Test]
@@ -291,17 +291,17 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateKMAC256XOF(NullBytes, EmptyBytes, 256));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateKMAC256XOF(EmptyBytes, NullBytes, 256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, EmptyBytes, 0));
 
         [Test]
@@ -373,12 +373,12 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.XOF.CreateBlake2XB(NullBytes, 512));
 
         [Test]
         public void TestSettingOutOfRangeKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.XOF.CreateBlake2XB(new byte[HashSize + 1], 512));
 
         [Test]
@@ -388,13 +388,13 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingOutOfRangeSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
                     Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = new byte[17]}, null), 512));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
                     Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = NullBytes}, null), 512));
 
@@ -406,7 +406,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
                     Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = NullBytes},
                         null),
@@ -414,7 +414,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingOutOfRangePersonalizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
                     Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = new byte[17]},
                         null),
@@ -430,7 +430,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.XOF.CreateBlake2XB(EmptyBytes, 0));
 
         [Test]
@@ -488,12 +488,12 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.XOF.CreateBlake2XS(NullBytes, 256));
 
         [Test]
         public void TestSettingOutOfRangeKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.XOF.CreateBlake2XS(new byte[HashSize + 1], 256));
 
         [Test]
@@ -503,13 +503,13 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingOutOfRangeSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
                     Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = new byte[9]}, null), 256));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
                     Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = NullBytes}, null), 256));
 
@@ -521,7 +521,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
                     Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = NullBytes},
                         null),
@@ -529,7 +529,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingOutOfRangePersonalizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
                     Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = new byte[9]},
                         null),
@@ -545,7 +545,7 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.XOF.CreateBlake2XS(EmptyBytes, 0));
 
         [Test]
@@ -602,12 +602,12 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake3XOF(EmptyBytes, 0));
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake3XOF(NullBytes, 512));
 
         [Test]

@@ -24,12 +24,12 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullHashInstanceThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.HMAC.CreateHMAC(null, EmptyBytes));
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateMD5(), NullBytes));
     }
 
@@ -53,17 +53,17 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.KMAC.CreateKMAC128(NullBytes, EmptyBytes, 128));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.KMAC.CreateKMAC128(EmptyBytes, NullBytes, 128));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.KMAC.CreateKMAC128(EmptyBytes, EmptyBytes, 0));
 
         [Test]
@@ -114,17 +114,17 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.KMAC.CreateKMAC256(NullBytes, EmptyBytes, 256));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.KMAC.CreateKMAC256(EmptyBytes, NullBytes, 256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.KMAC.CreateKMAC256(EmptyBytes, EmptyBytes, 0));
 
         [Test]
@@ -186,22 +186,22 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.Blake2BMAC.CreateBlake2BMAC(NullBytes, EmptyBytes, EmptyBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, NullBytes, EmptyBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, EmptyBytes, NullBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, EmptyBytes, EmptyBytes, 0));
 
         [Test]
@@ -267,22 +267,22 @@ namespace HashLib4CSharp.Tests
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.Blake2SMAC.CreateBlake2SMAC(NullBytes, EmptyBytes, EmptyBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, NullBytes, EmptyBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
-            Assert.Throws<ArgumentNullHashLibException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, EmptyBytes, NullBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
-            Assert.Throws<ArgumentOutOfRangeHashLibException>(() =>
+            Assert.Throws<ArgumentException>(() =>
                 HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, EmptyBytes, EmptyBytes, 0));
 
         [Test]

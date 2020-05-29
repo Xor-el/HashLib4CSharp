@@ -54,7 +54,7 @@ namespace HashLib4CSharp.Crypto
 
         internal Blake2B(Blake2BConfig config, Blake2BTreeConfig treeConfig = null,
             bool doTransformKeyBlock = true)
-            : base(config?.HashSize ?? throw new ArgumentNullHashLibException(nameof(config)), BlockSizeInBytes)
+            : base(config?.HashSize ?? throw new ArgumentNullException(nameof(config)), BlockSizeInBytes)
         {
             Config = config.Clone();
             TreeConfig = treeConfig?.Clone();
@@ -102,7 +102,7 @@ namespace HashLib4CSharp.Crypto
             }
 
             if (rawConfig.Length != 8)
-                throw new ArgumentOutOfRangeHashLibException(InvalidConfigLength);
+                throw new ArgumentException(InvalidConfigLength);
 
             State[0] = IV0;
             State[1] = IV1;
@@ -134,7 +134,7 @@ namespace HashLib4CSharp.Crypto
 
         public override unsafe void TransformBytes(byte[] data, int index, int length)
         {
-            if (data == null) throw new ArgumentNullHashLibException(nameof(data));
+            if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
             Debug.Assert(length >= 0);
             Debug.Assert(index + length <= data.Length);
@@ -1686,18 +1686,18 @@ namespace HashLib4CSharp.Crypto
 
         public unsafe void DoOutput(byte[] dest, ulong destOffset, ulong outputLength)
         {
-            if (dest == null) throw new ArgumentNullHashLibException(nameof(dest));
+            if (dest == null) throw new ArgumentNullException(nameof(dest));
 
             if ((ulong) dest.Length - destOffset < outputLength)
-                throw new ArgumentOutOfRangeHashLibException(OutputBufferTooShort);
+                throw new ArgumentException(OutputBufferTooShort);
 
             if (XofSizeInBits >> 3 != UnknownDigestLengthInBytes)
             {
                 if (_digestPosition + outputLength > XofSizeInBits >> 3)
-                    throw new ArgumentOutOfRangeHashLibException(InvalidOutputLength);
+                    throw new ArgumentException(InvalidOutputLength);
             }
             else if (_digestPosition == UnknownMaxDigestLengthInBytes)
-                throw new ArgumentOutOfRangeHashLibException(MaximumOutputLengthExceeded);
+                throw new ArgumentException(MaximumOutputLengthExceeded);
 
             if (!_finalized)
             {
@@ -1815,7 +1815,7 @@ namespace HashLib4CSharp.Crypto
         public override void TransformBytes(byte[] data, int index, int length)
         {
             if (_finalized)
-                throw new InvalidOperationHashLibException(string.Format(WriteToXofAfterReadError, Name));
+                throw new InvalidOperationException(string.Format(WriteToXofAfterReadError, Name));
 
             base.TransformBytes(data, index, length);
         }
@@ -1834,7 +1834,7 @@ namespace HashLib4CSharp.Crypto
             var xofSizeInBytes = xofSizeInBits >> 3;
             if ((xofSizeInBits & 0x7) != 0 || xofSizeInBytes < 1 ||
                 xofSizeInBytes > UnknownDigestLengthInBytes)
-                throw new ArgumentOutOfRangeHashLibException(
+                throw new ArgumentException(
                     string.Format(InvalidXofSize, 1, (ulong) UnknownDigestLengthInBytes));
 
             _xofSizeInBits = xofSizeInBits;

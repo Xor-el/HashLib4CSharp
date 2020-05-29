@@ -15,6 +15,7 @@
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 */
 
+using System;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using HashLib4CSharp.Interfaces;
@@ -30,7 +31,7 @@ namespace HashLib4CSharp.Adapter
         {
             _hmacNotBuiltIn = hmacNotBuiltIn != null
                 ? (IHMACNotBuiltIn) hmacNotBuiltIn.Clone()
-                : throw new ArgumentNullHashLibException(nameof(hmacNotBuiltIn));
+                : throw new ArgumentNullException(nameof(hmacNotBuiltIn));
             BlockSizeValue = hmacNotBuiltIn.BlockSize;
             HashSizeValue = hmacNotBuiltIn.HashSize * 8;
             Initialize();
@@ -38,7 +39,7 @@ namespace HashLib4CSharp.Adapter
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
-            if (array == null) throw new ArgumentNullHashLibException(nameof(array));
+            if (array == null) throw new ArgumentNullException(nameof(array));
             Debug.Assert(cbSize >= 0);
             Debug.Assert(ibStart >= 0);
             Debug.Assert(ibStart + cbSize <= array.Length);

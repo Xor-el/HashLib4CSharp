@@ -286,7 +286,7 @@ namespace HashLib4CSharp.Utils
 
         public static byte[] ConvertHexStringToBytes(string input)
         {
-            if (input == null) throw new ArgumentNullHashLibException(nameof(input));
+            if (input == null) throw new ArgumentNullException(nameof(input));
             input = input.Replace("-", string.Empty);
             var inputLength = input.Length;
             if (inputLength == 0) return new byte[0];
@@ -303,7 +303,7 @@ namespace HashLib4CSharp.Utils
 
         public static string ConvertBytesToHexString(byte[] input, bool group = false)
         {
-            if (input == null) throw new ArgumentNullHashLibException(nameof(input));
+            if (input == null) throw new ArgumentNullException(nameof(input));
             if (input.Length == 0) return "";
             var result = BitConverter.ToString(input);
             return group ? result : result.Replace("-", string.Empty);
@@ -311,8 +311,8 @@ namespace HashLib4CSharp.Utils
 
         public static byte[] ConvertStringToBytes(string input, Encoding encoding)
         {
-            if (input == null) throw new ArgumentNullHashLibException(nameof(input));
-            if (encoding == null) throw new ArgumentNullHashLibException(nameof(encoding));
+            if (input == null) throw new ArgumentNullException(nameof(input));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
             return input.Length == 0 ? new byte[0] : encoding.GetBytes(input);
         }
     }
