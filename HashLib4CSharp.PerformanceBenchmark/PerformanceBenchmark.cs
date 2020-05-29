@@ -71,11 +71,8 @@ namespace HashLib4CSharp.PerformanceBenchmark
         }
 
 
-        public static void DoBenchmark(ref List<string> logger)
+        public static IEnumerable<string> DoBenchmark()
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-
             var hashInstances = new List<IHash>();
 
             foreach (var type in typeof(HashFactory).GetNestedTypes(BindingFlags.Public))
@@ -94,7 +91,9 @@ namespace HashLib4CSharp.PerformanceBenchmark
 
             hashInstances.Add(HashFactory.Crypto.CreateBlake2BP(64, new byte[0]));
             hashInstances.Add(HashFactory.Crypto.CreateBlake2SP(32, new byte[0]));
-            logger.AddRange(hashInstances.Select(hash => Calculate(hash)));
+
+            foreach (var hash in hashInstances)
+                yield return Calculate(hash);
         }
     }
 }
