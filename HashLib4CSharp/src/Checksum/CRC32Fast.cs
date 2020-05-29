@@ -52,67 +52,106 @@ namespace HashLib4CSharp.Checksum
             const int bytesAtOnce = 16 * unroll;
             var crc = ~CurrentCRC;
 
-            fixed (byte* dataPtr = data)
+            if (BitConverter.IsLittleEndian)
+                ComputeLittleEndianBlocks();
+            else
+                ComputeBigEndianBlocks();
+
+            CurrentCRC = ~crc;
+
+            void ComputeLittleEndianBlocks()
             {
-                var srcPtr = (uint*) (dataPtr + index);
-                while (length >= bytesAtOnce)
+                fixed (byte* dataPtr = data)
                 {
-                    var unrolling = 0;
-                    while (unrolling < unroll)
+                    var srcPtr = (uint*)(dataPtr + index);
+                    while (length >= bytesAtOnce)
                     {
-                        var one = Converters.ReadPCardinalAsUInt32(srcPtr)
-                                  ^ Converters.le2me_32(crc);
-                        srcPtr++;
-                        var two = Converters.ReadPCardinalAsUInt32(srcPtr);
-                        srcPtr++;
-                        var three = Converters.ReadPCardinalAsUInt32(srcPtr);
-                        srcPtr++;
-                        var four = Converters.ReadPCardinalAsUInt32(srcPtr);
-                        srcPtr++;
-
-                        if (BitConverter.IsLittleEndian)
+                        var unrolling = 0;
+                        while (unrolling < unroll)
                         {
+                            var one = Converters.ReadPCardinalAsUInt32(srcPtr) ^ crc;
+                            srcPtr++;
+                            var two = Converters.ReadPCardinalAsUInt32(srcPtr);
+                            srcPtr++;
+                            var three = Converters.ReadPCardinalAsUInt32(srcPtr);
+                            srcPtr++;
+                            var four = Converters.ReadPCardinalAsUInt32(srcPtr);
+                            srcPtr++;
+
                             crc = crcTable[0][(four >> 24) & 0xFF] ^ crcTable[1]
-                                      [(four >> 16) & 0xFF] ^ crcTable[2][(four >> 8) & 0xFF]
-                                  ^ crcTable[3][four & 0xFF] ^ crcTable[4]
-                                      [(three >> 24) & 0xFF] ^ crcTable[5][(three >> 16) & 0xFF]
-                                  ^ crcTable[6][(three >> 8) & 0xFF] ^ crcTable[7]
-                                      [three & 0xFF] ^ crcTable[8][(two >> 24) & 0xFF] ^ crcTable
-                                      [9][(two >> 16) & 0xFF] ^ crcTable[10][(two >> 8) & 0xFF]
-                                  ^ crcTable[11][two & 0xFF] ^ crcTable[12][(one >> 24) & 0xFF]
-                                  ^ crcTable[13][(one >> 16) & 0xFF] ^ crcTable[14]
-                                      [(one >> 8) & 0xFF] ^ crcTable[15][one & 0xFF];
-                        }
-                        else
-                        {
-                            crc = crcTable[0][four & 0xFF] ^ crcTable[1]
-                                      [(four >> 8) & 0xFF] ^ crcTable[2][(four >> 16) & 0xFF]
-                                  ^ crcTable[3][(four >> 24) & 0xFF] ^ crcTable[4]
-                                      [three & 0xFF] ^ crcTable[5][(three >> 8) & 0xFF] ^ crcTable
-                                      [6][(three >> 16) & 0xFF] ^ crcTable[7][(three >> 24) & 0xFF]
-                                  ^ crcTable[8][two & 0xFF] ^ crcTable[9][(two >> 8) & 0xFF]
-                                  ^ crcTable[10][(two >> 16) & 0xFF] ^ crcTable[11]
-                                      [(two >> 24) & 0xFF] ^ crcTable[12][one & 0xFF] ^ crcTable
-                                      [13][(one >> 8) & 0xFF] ^ crcTable[14][(one >> 16) & 0xFF]
-                                  ^ crcTable[15][(one >> 24) & 0xFF];
+                                        [(four >> 16) & 0xFF] ^ crcTable[2][(four >> 8) & 0xFF]
+                                    ^ crcTable[3][four & 0xFF] ^ crcTable[4]
+                                        [(three >> 24) & 0xFF] ^ crcTable[5][(three >> 16) & 0xFF]
+                                    ^ crcTable[6][(three >> 8) & 0xFF] ^ crcTable[7]
+                                        [three & 0xFF] ^ crcTable[8][(two >> 24) & 0xFF] ^ crcTable
+                                        [9][(two >> 16) & 0xFF] ^ crcTable[10][(two >> 8) & 0xFF]
+                                    ^ crcTable[11][two & 0xFF] ^ crcTable[12][(one >> 24) & 0xFF]
+                                    ^ crcTable[13][(one >> 16) & 0xFF] ^ crcTable[14]
+                                        [(one >> 8) & 0xFF] ^ crcTable[15][one & 0xFF];
+
+                            unrolling++;
                         }
 
-                        unrolling++;
+                        length -= bytesAtOnce;
                     }
 
-                    length -= bytesAtOnce;
+                    var srcPtr2 = (byte*)srcPtr;
+                    // remaining 1 to 63 bytes (standard algorithm)
+                    while (length != 0)
+                    {
+                        crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ *srcPtr2];
+                        srcPtr2++;
+                        length--;
+                    }
                 }
+            }
 
-                var srcPtr2 = (byte*) srcPtr;
-                // remaining 1 to 63 bytes (standard algorithm)
-                while (length != 0)
+
+            void ComputeBigEndianBlocks()
+            {
+                fixed (byte* dataPtr = data)
                 {
-                    crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ *srcPtr2];
-                    srcPtr2++;
-                    length--;
-                }
+                    var srcPtr = (uint*)(dataPtr + index);
+                    while (length >= bytesAtOnce)
+                    {
+                        var unrolling = 0;
+                        while (unrolling < unroll)
+                        {
+                            var one = Converters.ReadPCardinalAsUInt32(srcPtr) ^ Bits.ReverseBytesUInt32(crc);
+                            srcPtr++;
+                            var two = Converters.ReadPCardinalAsUInt32(srcPtr);
+                            srcPtr++;
+                            var three = Converters.ReadPCardinalAsUInt32(srcPtr);
+                            srcPtr++;
+                            var four = Converters.ReadPCardinalAsUInt32(srcPtr);
+                            srcPtr++;
 
-                CurrentCRC = ~crc;
+                            crc = crcTable[0][four & 0xFF] ^ crcTable[1]
+                                        [(four >> 8) & 0xFF] ^ crcTable[2][(four >> 16) & 0xFF]
+                                    ^ crcTable[3][(four >> 24) & 0xFF] ^ crcTable[4]
+                                        [three & 0xFF] ^ crcTable[5][(three >> 8) & 0xFF] ^ crcTable
+                                        [6][(three >> 16) & 0xFF] ^ crcTable[7][(three >> 24) & 0xFF]
+                                    ^ crcTable[8][two & 0xFF] ^ crcTable[9][(two >> 8) & 0xFF]
+                                    ^ crcTable[10][(two >> 16) & 0xFF] ^ crcTable[11]
+                                        [(two >> 24) & 0xFF] ^ crcTable[12][one & 0xFF] ^ crcTable
+                                        [13][(one >> 8) & 0xFF] ^ crcTable[14][(one >> 16) & 0xFF]
+                                    ^ crcTable[15][(one >> 24) & 0xFF];
+
+                            unrolling++;
+                        }
+
+                        length -= bytesAtOnce;
+                    }
+
+                    var srcPtr2 = (byte*)srcPtr;
+                    // remaining 1 to 63 bytes (standard algorithm)
+                    while (length != 0)
+                    {
+                        crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ *srcPtr2];
+                        srcPtr2++;
+                        length--;
+                    }
+                }
             }
         }
 
