@@ -12,7 +12,9 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -40,8 +42,7 @@ namespace HashLib4CSharp.Checksum
             return result;
         }
 
-        protected unsafe void LocalCrcCompute(uint[][] crcTable, byte[] data, int index,
-            int length)
+        protected void LocalCrcCompute(uint[][] crcTable, byte[] data, int index, int length)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(index >= 0);
@@ -50,108 +51,87 @@ namespace HashLib4CSharp.Checksum
 
             const int unroll = 4;
             const int bytesAtOnce = 16 * unroll;
-            var crc = ~CurrentCRC;
 
-            if (BitConverter.IsLittleEndian)
-                ComputeLittleEndianBlocks();
-            else
-                ComputeBigEndianBlocks();
+            var crc = ~CurrentCRC;
+            var leftovers = BitConverter.IsLittleEndian ? ComputeLittleEndianBlocks()
+                                                        : ComputeBigEndianBlocks();
+
+            // remaining 1 to 63 bytes (standard algorithm)
+            foreach (var b in leftovers)
+                crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ b];
 
             CurrentCRC = ~crc;
 
-            void ComputeLittleEndianBlocks()
+            ReadOnlySpan<byte> ComputeLittleEndianBlocks()
             {
-                fixed (byte* dataPtr = data)
+                var dataSpan = data.AsSpan(index, length);
+                while (dataSpan.Length >= bytesAtOnce)
                 {
-                    var srcPtr = (uint*)(dataPtr + index);
-                    while (length >= bytesAtOnce)
+                    var dataUints = MemoryMarshal.Cast<byte, uint>(dataSpan);
+                    for (int unrolling = 0; unrolling < unroll; unrolling++, dataUints = dataUints.Slice(4))
                     {
-                        var unrolling = 0;
-                        while (unrolling < unroll)
-                        {
-                            var one = Converters.ReadPCardinalAsUInt32(srcPtr) ^ crc;
-                            srcPtr++;
-                            var two = Converters.ReadPCardinalAsUInt32(srcPtr);
-                            srcPtr++;
-                            var three = Converters.ReadPCardinalAsUInt32(srcPtr);
-                            srcPtr++;
-                            var four = Converters.ReadPCardinalAsUInt32(srcPtr);
-                            srcPtr++;
+                        var one = dataUints[0] ^ crc;
+                        var two = dataUints[1];
+                        var three = dataUints[2];
+                        var four = dataUints[3];
 
-                            crc = crcTable[0][(four >> 24) & 0xFF] ^ crcTable[1]
-                                        [(four >> 16) & 0xFF] ^ crcTable[2][(four >> 8) & 0xFF]
-                                    ^ crcTable[3][four & 0xFF] ^ crcTable[4]
-                                        [(three >> 24) & 0xFF] ^ crcTable[5][(three >> 16) & 0xFF]
-                                    ^ crcTable[6][(three >> 8) & 0xFF] ^ crcTable[7]
-                                        [three & 0xFF] ^ crcTable[8][(two >> 24) & 0xFF] ^ crcTable
-                                        [9][(two >> 16) & 0xFF] ^ crcTable[10][(two >> 8) & 0xFF]
-                                    ^ crcTable[11][two & 0xFF] ^ crcTable[12][(one >> 24) & 0xFF]
-                                    ^ crcTable[13][(one >> 16) & 0xFF] ^ crcTable[14]
-                                        [(one >> 8) & 0xFF] ^ crcTable[15][one & 0xFF];
-
-                            unrolling++;
-                        }
-
-                        length -= bytesAtOnce;
+                        crc = crcTable[0][(four >> 24) & 0xFF] ^
+                                crcTable[1][(four >> 16) & 0xFF] ^
+                                crcTable[2][(four >> 8) & 0xFF] ^
+                                crcTable[3][four & 0xFF] ^
+                                crcTable[4][(three >> 24) & 0xFF] ^
+                                crcTable[5][(three >> 16) & 0xFF] ^
+                                crcTable[6][(three >> 8) & 0xFF] ^
+                                crcTable[7][three & 0xFF] ^
+                                crcTable[8][(two >> 24) & 0xFF] ^
+                                crcTable[9][(two >> 16) & 0xFF] ^
+                                crcTable[10][(two >> 8) & 0xFF] ^
+                                crcTable[11][two & 0xFF] ^
+                                crcTable[12][(one >> 24) & 0xFF] ^
+                                crcTable[13][(one >> 16) & 0xFF] ^
+                                crcTable[14][(one >> 8) & 0xFF] ^
+                                crcTable[15][one & 0xFF];
                     }
 
-                    var srcPtr2 = (byte*)srcPtr;
-                    // remaining 1 to 63 bytes (standard algorithm)
-                    while (length != 0)
-                    {
-                        crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ *srcPtr2];
-                        srcPtr2++;
-                        length--;
-                    }
+                    dataSpan = dataSpan.Slice(bytesAtOnce);
                 }
+                return dataSpan;
             }
 
-
-            void ComputeBigEndianBlocks()
+            ReadOnlySpan<byte> ComputeBigEndianBlocks()
             {
-                fixed (byte* dataPtr = data)
+                var dataSpan = data.AsSpan(index, length);
+                while (dataSpan.Length >= bytesAtOnce)
                 {
-                    var srcPtr = (uint*)(dataPtr + index);
-                    while (length >= bytesAtOnce)
+                    var dataUints = MemoryMarshal.Cast<byte, uint>(dataSpan);
+                    for (int unrolling = 0; unrolling < unroll; unrolling++, dataUints = dataUints.Slice(4))
                     {
-                        var unrolling = 0;
-                        while (unrolling < unroll)
-                        {
-                            var one = Converters.ReadPCardinalAsUInt32(srcPtr) ^ Bits.ReverseBytesUInt32(crc);
-                            srcPtr++;
-                            var two = Converters.ReadPCardinalAsUInt32(srcPtr);
-                            srcPtr++;
-                            var three = Converters.ReadPCardinalAsUInt32(srcPtr);
-                            srcPtr++;
-                            var four = Converters.ReadPCardinalAsUInt32(srcPtr);
-                            srcPtr++;
+                        var one = dataUints[0] ^ Bits.ReverseBytesUInt32(crc);
+                        var two = dataUints[1];
+                        var three = dataUints[2];
+                        var four = dataUints[3];
 
-                            crc = crcTable[0][four & 0xFF] ^ crcTable[1]
-                                        [(four >> 8) & 0xFF] ^ crcTable[2][(four >> 16) & 0xFF]
-                                    ^ crcTable[3][(four >> 24) & 0xFF] ^ crcTable[4]
-                                        [three & 0xFF] ^ crcTable[5][(three >> 8) & 0xFF] ^ crcTable
-                                        [6][(three >> 16) & 0xFF] ^ crcTable[7][(three >> 24) & 0xFF]
-                                    ^ crcTable[8][two & 0xFF] ^ crcTable[9][(two >> 8) & 0xFF]
-                                    ^ crcTable[10][(two >> 16) & 0xFF] ^ crcTable[11]
-                                        [(two >> 24) & 0xFF] ^ crcTable[12][one & 0xFF] ^ crcTable
-                                        [13][(one >> 8) & 0xFF] ^ crcTable[14][(one >> 16) & 0xFF]
-                                    ^ crcTable[15][(one >> 24) & 0xFF];
-
-                            unrolling++;
-                        }
-
-                        length -= bytesAtOnce;
+                        crc = crcTable[0][four & 0xFF] ^
+                                crcTable[1][(four >> 8) & 0xFF] ^
+                                crcTable[2][(four >> 16) & 0xFF] ^
+                                crcTable[3][(four >> 24) & 0xFF] ^
+                                crcTable[4][three & 0xFF] ^
+                                crcTable[5][(three >> 8) & 0xFF] ^
+                                crcTable[6][(three >> 16) & 0xFF] ^
+                                crcTable[7][(three >> 24) & 0xFF] ^
+                                crcTable[8][two & 0xFF] ^
+                                crcTable[9][(two >> 8) & 0xFF] ^
+                                crcTable[10][(two >> 16) & 0xFF] ^
+                                crcTable[11][(two >> 24) & 0xFF] ^
+                                crcTable[12][one & 0xFF] ^
+                                crcTable[13][(one >> 8) & 0xFF] ^
+                                crcTable[14][(one >> 16) & 0xFF] ^
+                                crcTable[15][(one >> 24) & 0xFF];
                     }
 
-                    var srcPtr2 = (byte*)srcPtr;
-                    // remaining 1 to 63 bytes (standard algorithm)
-                    while (length != 0)
-                    {
-                        crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ *srcPtr2];
-                        srcPtr2++;
-                        length--;
-                    }
+                    dataSpan = dataSpan.Slice(bytesAtOnce);
                 }
+                return dataSpan;
             }
         }
 
