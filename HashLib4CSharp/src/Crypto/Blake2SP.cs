@@ -184,7 +184,6 @@ namespace HashLib4CSharp.Crypto
 
         private Blake2S Blake2SPCreateLeaf(ulong offset)
         {
-            // var config = new Blake2SConfig(HashSize) {Key = _key};
             var config = new Blake2SConfig(OutSizeInBytes) {Key = _key};
 
             var treeConfig = new Blake2STreeConfig
