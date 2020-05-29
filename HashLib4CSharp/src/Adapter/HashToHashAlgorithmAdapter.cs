@@ -52,10 +52,7 @@ namespace HashLib4CSharp.Adapter
             return hashValue;
         }
 
-        public override void Initialize()
-        {
-            _hash.Initialize();
-        }
+        public override void Initialize() => _hash.Initialize();
 
         public override string ToString() => $"{GetType().Name}({_hash.Name})";
     }

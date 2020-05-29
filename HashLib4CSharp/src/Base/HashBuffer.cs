@@ -46,10 +46,7 @@ namespace HashLib4CSharp.Base
             ArrayUtils.ZeroFill(_data);
         }
 
-        public override string ToString()
-        {
-            return string.Format(HashBufferMessage, Length, Position, IsEmpty, IsFull);
-        }
+        public override string ToString() => string.Format(HashBufferMessage, Length, Position, IsEmpty, IsFull);
 
         internal HashBuffer Clone()
         {

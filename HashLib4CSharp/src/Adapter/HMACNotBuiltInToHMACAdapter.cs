@@ -59,10 +59,7 @@ namespace HashLib4CSharp.Adapter
             set => _hmacNotBuiltIn.Key = value;
         }
 
-        public override void Initialize()
-        {
-            _hmacNotBuiltIn.Initialize();
-        }
+        public override void Initialize() => _hmacNotBuiltIn.Initialize();
 
         public override string ToString() => $"{GetType().Name}({_hmacNotBuiltIn.Name})";
     }

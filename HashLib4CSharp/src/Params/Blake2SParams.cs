@@ -114,16 +114,14 @@ namespace HashLib4CSharp.Params
             ArrayUtils.ZeroFill(_personalization);
         }
 
-        public Blake2SConfig Clone()
-        {
-            return new Blake2SConfig
+        public Blake2SConfig Clone() =>
+            new Blake2SConfig
             {
                 _hashSize = _hashSize,
                 _key = ArrayUtils.Clone(_key),
                 _salt = ArrayUtils.Clone(_salt),
                 _personalization = ArrayUtils.Clone(_personalization)
             };
-        }
 
         public static Blake2SConfig DefaultConfig => new Blake2SConfig();
 
@@ -208,9 +206,8 @@ namespace HashLib4CSharp.Params
             _isLastNode = false;
         }
 
-        public Blake2STreeConfig Clone()
-        {
-            return new Blake2STreeConfig
+        public Blake2STreeConfig Clone() =>
+            new Blake2STreeConfig
             {
                 _fanOut = _fanOut,
                 _innerHashSize = _innerHashSize,
@@ -220,7 +217,6 @@ namespace HashLib4CSharp.Params
                 _nodeOffset = _nodeOffset,
                 _isLastNode = _isLastNode
             };
-        }
 
         internal static Blake2STreeConfig SequentialTreeConfig => new Blake2STreeConfig
         {
