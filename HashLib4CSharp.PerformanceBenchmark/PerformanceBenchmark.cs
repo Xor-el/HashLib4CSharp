@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 
@@ -63,8 +62,8 @@ namespace HashLib4CSharp.PerformanceBenchmark
                 methodInfo.GetParameters().Length == 0 ||
                 methodInfo.GetParameters().All(parameterInfo => parameterInfo.IsOptional));
 
-            return infos.Select(info => new { info, parameterInfos = info.GetParameters() })
-                .Select(t => ((IHash)t.info.Invoke(null,
+            return infos.Select(info => new {info, parameterInfos = info.GetParameters()})
+                .Select(t => ((IHash) t.info.Invoke(null,
                     t.parameterInfos.Length == 0
                         ? null
                         : Enumerable.Repeat(Type.Missing, t.parameterInfos.Length).ToArray()))?.Clone());
@@ -73,13 +72,13 @@ namespace HashLib4CSharp.PerformanceBenchmark
         private static IEnumerable<IHash> GetAllHashInstances()
         {
             return GetNestedTypesRecursively(typeof(HashFactory))
-                    .Where(t => t.IsClass && t.IsAbstract && t.IsSealed)
-                    .SelectMany(InstantiateHashes)
-                    .Concat(GetBlakeHashes());
+                .Where(t => t.IsClass && t.IsAbstract && t.IsSealed)
+                .SelectMany(InstantiateHashes)
+                .Concat(GetBlakeHashes());
 
             IEnumerable<Type> GetNestedTypesRecursively(Type root)
             {
-                foreach(var type in root.GetNestedTypes(BindingFlags.Public))
+                foreach (var type in root.GetNestedTypes(BindingFlags.Public))
                 {
                     yield return type;
                     foreach (var child in GetNestedTypesRecursively(type))
@@ -95,6 +94,6 @@ namespace HashLib4CSharp.PerformanceBenchmark
         }
 
         public static IEnumerable<string> DoBenchmark()
-            => GetAllHashInstances().Select(h => Calculate(h));
+            => GetAllHashInstances().Select(hash => Calculate(hash));
     }
 }
