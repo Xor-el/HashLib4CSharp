@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using HashLib4CSharp.Base;
@@ -23,19 +22,19 @@ namespace HashLib4CSharp.Checksum
 {
     internal abstract class CRC32Fast : Hash, IChecksum, IHash32, ITransformBlock
     {
-        protected uint CurrentCRC;
+        protected uint CurrentCrc;
 
         protected CRC32Fast()
             : base(4, 1)
         {
         }
 
-        public override void Initialize() => CurrentCRC = 0;
+        public override void Initialize() => CurrentCrc = 0;
 
         public override IHashResult TransformFinal()
         {
             var buffer = new byte[HashSize];
-            Converters.ReadUInt32AsBytesBE(CurrentCRC, buffer, 0);
+            Converters.ReadUInt32AsBytesBE(CurrentCrc, buffer, 0);
             var result = new HashResult(buffer);
             Initialize();
 
@@ -43,12 +42,12 @@ namespace HashLib4CSharp.Checksum
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        struct Block
+        private struct Block
         {
-            public uint one;
-            public uint two;
-            public uint three;
-            public uint four;
+            public readonly uint one;
+            public readonly uint two;
+            public readonly uint three;
+            public readonly uint four;
         }
 
         protected void LocalCrcCompute(uint[][] crcTable, byte[] data, int index, int length)
@@ -61,7 +60,7 @@ namespace HashLib4CSharp.Checksum
             const int unroll = 4;
             const int bytesAtOnce = 16 * unroll;
 
-            var crc = ~CurrentCRC;
+            var crc = ~CurrentCrc;
             var leftovers = BitConverter.IsLittleEndian ? ComputeLittleEndianBlocks()
                                                         : ComputeBigEndianBlocks();
 
@@ -69,13 +68,13 @@ namespace HashLib4CSharp.Checksum
             foreach (var b in leftovers)
                 crc = (crc >> 8) ^ crcTable[0][(crc & 0xFF) ^ b];
 
-            CurrentCRC = ~crc;
+            CurrentCrc = ~crc;
 
             ReadOnlySpan<byte> ComputeLittleEndianBlocks()
             {
                 var dataSpan = data.AsSpan(index, length);
-                int blockCount = length / bytesAtOnce;
-                int bytesScanned = blockCount * bytesAtOnce;
+                var blockCount = length / bytesAtOnce;
+                var bytesScanned = blockCount * bytesAtOnce;
                 var blocks = MemoryMarshal.Cast<byte, Block>(dataSpan.Slice(0, bytesScanned));
                 foreach(var block in blocks)
                 {
@@ -104,8 +103,8 @@ namespace HashLib4CSharp.Checksum
             ReadOnlySpan<byte> ComputeBigEndianBlocks()
             {
                 var dataSpan = data.AsSpan(index, length);
-                int blockCount = length / bytesAtOnce;
-                int bytesScanned = blockCount * bytesAtOnce;
+                var blockCount = length / bytesAtOnce;
+                var bytesScanned = blockCount * bytesAtOnce;
                 var blocks = MemoryMarshal.Cast<byte, Block>(dataSpan.Slice(0, bytesScanned));
                 foreach (var block in blocks)
                 {
@@ -169,7 +168,7 @@ namespace HashLib4CSharp.Checksum
 
         static Crc32PKZip() => Crc32PKZipTable = Init_CRC_Table(Crc32PKZipPolynomial);
 
-        public override IHash Clone() => new Crc32PKZip {CurrentCRC = CurrentCRC, BufferSize = BufferSize};
+        public override IHash Clone() => new Crc32PKZip {CurrentCrc = CurrentCrc, BufferSize = BufferSize};
 
         public override void TransformBytes(byte[] data, int index, int length) =>
             LocalCrcCompute(Crc32PKZipTable, data, index, length);
@@ -184,7 +183,7 @@ namespace HashLib4CSharp.Checksum
 
         static Crc32Castagnoli() => Crc32CastagnoliTable = Init_CRC_Table(Crc32CastagnoliPolynomial);
 
-        public override IHash Clone() => new Crc32Castagnoli {CurrentCRC = CurrentCRC, BufferSize = BufferSize};
+        public override IHash Clone() => new Crc32Castagnoli {CurrentCrc = CurrentCrc, BufferSize = BufferSize};
 
         public override void TransformBytes(byte[] data, int index, int length) =>
             LocalCrcCompute(Crc32CastagnoliTable, data, index, length);
