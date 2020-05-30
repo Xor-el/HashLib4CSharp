@@ -42,6 +42,15 @@ namespace HashLib4CSharp.Checksum
             return result;
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        struct Block
+        {
+            public uint one;
+            public uint two;
+            public uint three;
+            public uint four;
+        }
+
         protected void LocalCrcCompute(uint[][] crcTable, byte[] data, int index, int length)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
@@ -65,73 +74,61 @@ namespace HashLib4CSharp.Checksum
             ReadOnlySpan<byte> ComputeLittleEndianBlocks()
             {
                 var dataSpan = data.AsSpan(index, length);
-                while (dataSpan.Length >= bytesAtOnce)
+                int blockCount = length / bytesAtOnce;
+                int bytesScanned = blockCount * bytesAtOnce;
+                var blocks = MemoryMarshal.Cast<byte, Block>(dataSpan.Slice(0, bytesScanned));
+                foreach(var block in blocks)
                 {
-                    var dataUints = MemoryMarshal.Cast<byte, uint>(dataSpan);
-                    for (int unrolling = 0; unrolling < unroll; unrolling++, dataUints = dataUints.Slice(4))
-                    {
-                        var one = dataUints[0] ^ crc;
-                        var two = dataUints[1];
-                        var three = dataUints[2];
-                        var four = dataUints[3];
+                    var one = block.one ^ crc;
 
-                        crc = crcTable[0][(four >> 24) & 0xFF] ^
-                                crcTable[1][(four >> 16) & 0xFF] ^
-                                crcTable[2][(four >> 8) & 0xFF] ^
-                                crcTable[3][four & 0xFF] ^
-                                crcTable[4][(three >> 24) & 0xFF] ^
-                                crcTable[5][(three >> 16) & 0xFF] ^
-                                crcTable[6][(three >> 8) & 0xFF] ^
-                                crcTable[7][three & 0xFF] ^
-                                crcTable[8][(two >> 24) & 0xFF] ^
-                                crcTable[9][(two >> 16) & 0xFF] ^
-                                crcTable[10][(two >> 8) & 0xFF] ^
-                                crcTable[11][two & 0xFF] ^
-                                crcTable[12][(one >> 24) & 0xFF] ^
-                                crcTable[13][(one >> 16) & 0xFF] ^
-                                crcTable[14][(one >> 8) & 0xFF] ^
-                                crcTable[15][one & 0xFF];
-                    }
-
-                    dataSpan = dataSpan.Slice(bytesAtOnce);
+                    crc = crcTable[ 0][(block.four  >> 24) & 0xFF] ^
+                          crcTable[ 1][(block.four  >> 16) & 0xFF] ^
+                          crcTable[ 2][(block.four  >>  8) & 0xFF] ^
+                          crcTable[ 3][ block.four         & 0xFF] ^
+                          crcTable[ 4][(block.three >> 24) & 0xFF] ^
+                          crcTable[ 5][(block.three >> 16) & 0xFF] ^
+                          crcTable[ 6][(block.three >>  8) & 0xFF] ^
+                          crcTable[ 7][ block.three        & 0xFF] ^
+                          crcTable[ 8][(block.two   >> 24) & 0xFF] ^
+                          crcTable[ 9][(block.two   >> 16) & 0xFF] ^
+                          crcTable[10][(block.two   >>  8) & 0xFF] ^
+                          crcTable[11][ block.two          & 0xFF] ^
+                          crcTable[12][(      one   >> 24) & 0xFF] ^
+                          crcTable[13][(      one   >> 16) & 0xFF] ^
+                          crcTable[14][(      one   >> 8)  & 0xFF] ^
+                          crcTable[15][       one          & 0xFF];
                 }
-                return dataSpan;
+                return dataSpan.Slice(bytesScanned);
             }
 
             ReadOnlySpan<byte> ComputeBigEndianBlocks()
             {
                 var dataSpan = data.AsSpan(index, length);
-                while (dataSpan.Length >= bytesAtOnce)
+                int blockCount = length / bytesAtOnce;
+                int bytesScanned = blockCount * bytesAtOnce;
+                var blocks = MemoryMarshal.Cast<byte, Block>(dataSpan.Slice(0, bytesScanned));
+                foreach (var block in blocks)
                 {
-                    var dataUints = MemoryMarshal.Cast<byte, uint>(dataSpan);
-                    for (int unrolling = 0; unrolling < unroll; unrolling++, dataUints = dataUints.Slice(4))
-                    {
-                        var one = dataUints[0] ^ Bits.ReverseBytesUInt32(crc);
-                        var two = dataUints[1];
-                        var three = dataUints[2];
-                        var four = dataUints[3];
+                    var one = block.one ^ Bits.ReverseBytesUInt32(crc);
 
-                        crc = crcTable[0][four & 0xFF] ^
-                                crcTable[1][(four >> 8) & 0xFF] ^
-                                crcTable[2][(four >> 16) & 0xFF] ^
-                                crcTable[3][(four >> 24) & 0xFF] ^
-                                crcTable[4][three & 0xFF] ^
-                                crcTable[5][(three >> 8) & 0xFF] ^
-                                crcTable[6][(three >> 16) & 0xFF] ^
-                                crcTable[7][(three >> 24) & 0xFF] ^
-                                crcTable[8][two & 0xFF] ^
-                                crcTable[9][(two >> 8) & 0xFF] ^
-                                crcTable[10][(two >> 16) & 0xFF] ^
-                                crcTable[11][(two >> 24) & 0xFF] ^
-                                crcTable[12][one & 0xFF] ^
-                                crcTable[13][(one >> 8) & 0xFF] ^
-                                crcTable[14][(one >> 16) & 0xFF] ^
-                                crcTable[15][(one >> 24) & 0xFF];
-                    }
-
-                    dataSpan = dataSpan.Slice(bytesAtOnce);
+                    crc = crcTable[ 0][ block.four         & 0xFF] ^
+                          crcTable[ 1][(block.four  >>  8) & 0xFF] ^
+                          crcTable[ 2][(block.four  >> 16) & 0xFF] ^
+                          crcTable[ 3][(block.four  >> 24) & 0xFF] ^
+                          crcTable[ 4][ block.three        & 0xFF] ^
+                          crcTable[ 5][(block.three >>  8) & 0xFF] ^
+                          crcTable[ 6][(block.three >> 16) & 0xFF] ^
+                          crcTable[ 7][(block.three >> 24) & 0xFF] ^
+                          crcTable[ 8][block.two           & 0xFF] ^
+                          crcTable[ 9][(block.two   >>  8) & 0xFF] ^
+                          crcTable[10][(block.two   >> 16) & 0xFF] ^
+                          crcTable[11][(block.two   >> 24) & 0xFF] ^
+                          crcTable[12][       one          & 0xFF] ^
+                          crcTable[13][(      one   >> 8)  & 0xFF] ^
+                          crcTable[14][(      one   >> 16) & 0xFF] ^
+                          crcTable[15][(      one   >> 24) & 0xFF];
                 }
-                return dataSpan;
+                return dataSpan.Slice(bytesScanned);
             }
         }
 
