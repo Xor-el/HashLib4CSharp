@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 
@@ -96,9 +97,24 @@ namespace HashLib4CSharp.PerformanceBenchmark
 
         public static IEnumerable<string> DoBenchmark(IEnumerable<string> patterns)
         {
-            return GetAllHashInstances()
-                    .Where(h => patterns.Any(p => Regex.IsMatch(h.Name, p)))
-                    .Select(hash => Calculate(hash));
+            var tasks = new List<Task<string>>();
+            foreach(var hash in GetAllHashInstances().Where(h => patterns.Any(p => Regex.IsMatch(h.Name, p))))
+                tasks.Add(Task.Run(() => Calculate(hash)));
+
+            while (tasks.Count > 0)
+            {
+                var taskArray = tasks.ToArray();
+                int finished = Task.WaitAny(taskArray);
+
+                tasks.Clear();
+                foreach(var task in taskArray)
+                {
+                    if (task.IsCompleted)
+                        yield return task.Result;
+                    else
+                        tasks.Add(task);
+                }
+            }
         }
     }
 }
