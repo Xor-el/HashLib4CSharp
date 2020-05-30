@@ -60,17 +60,17 @@ namespace HashLib4CSharp.Checksum
             // We can defer the modulo operation:
             // a maximally grows from 65521 to 65521 + 255 * 3800
             // b maximally grows by 3800 * median(a) = 2090079800 < 2^31
-            const int BigBlockSize = 3800;
+            const int bigBlockSize = 3800;
 
             var buffer = new ReadOnlySpan<byte>(data, index, length);
-            int bigBlockCount = buffer.Length / BigBlockSize;
+            var bigBlockCount = buffer.Length / bigBlockSize;
             if (Environment.Is64BitProcess)
             {
                 while (bigBlockCount-- > 0)
                 {
-                    foreach (var word in MemoryMarshal.Cast<byte, UInt64>(buffer.Slice(0, BigBlockSize)))
+                    foreach (var word in MemoryMarshal.Cast<byte, ulong>(buffer.Slice(0, bigBlockSize)))
                     {
-                        var lo = (uint)word;
+                        var lo = (uint) word;
                         a += lo & 0xFF;
                         b += a;
 
@@ -83,7 +83,7 @@ namespace HashLib4CSharp.Checksum
                         a += (lo >> 24) & 0xFF;
                         b += a;
 
-                        var hi = (uint)(word >> 32);
+                        var hi = (uint) (word >> 32);
                         a += hi & 0xFF;
                         b += a;
 
@@ -100,14 +100,14 @@ namespace HashLib4CSharp.Checksum
                     a %= ModAdler;
                     b %= ModAdler;
 
-                    buffer = buffer.Slice(BigBlockSize);
+                    buffer = buffer.Slice(bigBlockSize);
                 }
             }
             else
             {
                 while (bigBlockCount-- > 0)
                 {
-                    foreach (var value in buffer.Slice(0, BigBlockSize))
+                    foreach (var value in buffer.Slice(0, bigBlockSize))
                     {
                         a += value;
                         b += a;
@@ -116,7 +116,7 @@ namespace HashLib4CSharp.Checksum
                     a %= ModAdler;
                     b %= ModAdler;
 
-                    buffer = buffer.Slice(BigBlockSize);
+                    buffer = buffer.Slice(bigBlockSize);
                 }
             }
 
