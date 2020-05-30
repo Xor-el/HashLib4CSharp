@@ -10,7 +10,10 @@ Acknowledgements:
 This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
+<<<<<<< HEAD
 
+=======
+>>>>>>> 26569c7... Improve Adler32 performance
 using System;
 using System.Diagnostics;
 using HashLib4CSharp.Base;
@@ -55,28 +58,78 @@ namespace HashLib4CSharp.Checksum
 
             var a = _a;
             var b = _b;
-            while (length > 0)
+
+            // We can defer the modulo operation:
+            // a maximally grows from 65521 to 65521 + 255 * 3800
+            // b maximally grows by 3800 * median(a) = 2090079800 < 2^31
+            const int BigBlockSize = 3800;
+
+            var buffer = new ReadOnlySpan<byte>(data, index, length);
+            int bigBlockCount = buffer.Length / BigBlockSize;
+            if (Environment.Is64BitProcess)
             {
-                // We can defer the modulo operation:
-                // a maximally grows from 65521 to 65521 + 255 * 3800
-                // b maximally grows by 3800 * median(a) = 2090079800 < 2^31
-                var n = 3800;
-                if (n > length)
-                    n = length;
-
-                length -= n;
-
-                while (n - 1 >= 0)
+                while (bigBlockCount-- > 0)
                 {
-                    a += data[index];
-                    b += a;
-                    index++;
-                    n--;
-                }
+                    foreach (var word in MemoryMarshal.Cast<byte, UInt64>(buffer.Slice(0, BigBlockSize)))
+                    {
+                        var lo = (uint)word;
+                        a += lo & 0xFF;
+                        b += a;
 
-                a %= ModAdler;
-                b %= ModAdler;
+                        a += (lo >> 8) & 0xFF;
+                        b += a;
+
+                        a += (lo >> 16) & 0xFF;
+                        b += a;
+
+                        a += (lo >> 24) & 0xFF;
+                        b += a;
+
+                        var hi = (uint)(word >> 32);
+                        a += hi & 0xFF;
+                        b += a;
+
+                        a += (hi >> 8) & 0xFF;
+                        b += a;
+
+                        a += (hi >> 16) & 0xFF;
+                        b += a;
+
+                        a += (hi >> 24) & 0xFF;
+                        b += a;
+                    }
+
+                    a %= ModAdler;
+                    b %= ModAdler;
+
+                    buffer = buffer.Slice(BigBlockSize);
+                }
             }
+            else
+            {
+                while (bigBlockCount-- > 0)
+                {
+                    foreach (var value in buffer.Slice(0, BigBlockSize))
+                    {
+                        a += value;
+                        b += a;
+                    }
+
+                    a %= ModAdler;
+                    b %= ModAdler;
+
+                    buffer = buffer.Slice(BigBlockSize);
+                }
+            }
+
+            foreach (var value in buffer)
+            {
+                a += value;
+                b += a;
+            }
+
+            a %= ModAdler;
+            b %= ModAdler;
 
             _a = a;
             _b = b;
