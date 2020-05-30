@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 
@@ -93,7 +94,11 @@ namespace HashLib4CSharp.PerformanceBenchmark
             }
         }
 
-        public static IEnumerable<string> DoBenchmark()
-            => GetAllHashInstances().Select(hash => Calculate(hash));
+        public static IEnumerable<string> DoBenchmark(IEnumerable<string> patterns)
+        {
+            return GetAllHashInstances()
+                    .Where(h => patterns.Any(p => Regex.IsMatch(h.Name, p)))
+                    .Select(hash => Calculate(hash));
+        }
     }
 }
