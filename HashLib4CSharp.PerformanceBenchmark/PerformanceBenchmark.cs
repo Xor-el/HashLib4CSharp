@@ -97,17 +97,16 @@ namespace HashLib4CSharp.PerformanceBenchmark
 
         public static IEnumerable<string> DoBenchmark(IEnumerable<string> patterns)
         {
-            var tasks = new List<Task<string>>();
-            foreach(var hash in GetAllHashInstances().Where(h => patterns.Any(p => Regex.IsMatch(h.Name, p))))
-                tasks.Add(Task.Run(() => Calculate(hash)));
+            var tasks = GetAllHashInstances().Where(h => patterns.Any(p => Regex.IsMatch(h.Name, p)))
+                .Select(hash => Task.Run(() => Calculate(hash))).ToList();
 
             while (tasks.Count > 0)
             {
                 var taskArray = tasks.ToArray();
-                int finished = Task.WaitAny(taskArray);
+                _ = Task.WaitAny(taskArray);
 
                 tasks.Clear();
-                foreach(var task in taskArray)
+                foreach (var task in taskArray)
                 {
                     if (task.IsCompleted)
                         yield return task.Result;
