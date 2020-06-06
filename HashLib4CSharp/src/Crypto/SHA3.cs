@@ -525,7 +525,7 @@ namespace HashLib4CSharp.Crypto
         private const string InvalidXofSize = "XofSizeInBits must be multiples of 8 & be greater than 0";
         private const string OutputLengthOverflow = "Output length is above the digest length";
         private const string OutputBufferTooShort = "Output buffer too short";
-        private const string WriteToXofAfterRead = @"{0} Write to Xof after read not allowed";
+        private const string WriteToXofAfterRead = "'{0}' Write to Xof after read not allowed";
 
         private ulong _xofSizeInBits;
 

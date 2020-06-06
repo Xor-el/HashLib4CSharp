@@ -49,6 +49,6 @@ namespace HashLib4CSharp.Enum
         /// <summary>
         /// Use a hybrid of data-dependent and data-independent addressing.
         /// </summary>
-        HybridAddressing = 2,
+        HybridAddressing = 2
     }
 }

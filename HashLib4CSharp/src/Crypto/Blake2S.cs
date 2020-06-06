@@ -1435,7 +1435,7 @@ namespace HashLib4CSharp.Crypto
         private const string InvalidOutputLength = "Output length is above the digest length";
         private const string OutputBufferTooShort = "Output buffer too short";
         private const string MaximumOutputLengthExceeded = "Maximum length is 2^32 blocks of 32 bytes";
-        private const string WriteToXofAfterReadError = "\"{0}\" write to Xof after read not allowed";
+        private const string WriteToXofAfterReadError = "'{0}' write to Xof after read not allowed";
 
         private const int Blake2SHashSize = 32;
 

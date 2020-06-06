@@ -28,6 +28,6 @@ namespace HashLib4CSharp.Enum
         /// <summary>
         /// For Argon2 version 1.3.
         /// </summary>
-        Nineteen = 0x13,
+        Nineteen = 0x13
     }
 }
