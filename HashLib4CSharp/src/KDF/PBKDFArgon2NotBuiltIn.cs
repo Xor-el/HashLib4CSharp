@@ -206,7 +206,7 @@ namespace HashLib4CSharp.KDF
         private const string LanesTooBig = "Lanes must be less than '{0}'";
         private const string MemoryTooSmall = "Memory is too small: '{0}', expected at least '{1}'";
         private const string IterationsTooSmall = "Iterations is less than: '{0}'";
-        private const string InvalidOutputByteCount = "byteCount less than '{0}'";
+        private const string InvalidOutputByteCount = "{0} less than '{1}'";
 
         private const int ARGON2_BLOCK_SIZE = 1024;
         private const int ARGON2_QWORDS_IN_BLOCK = ARGON2_BLOCK_SIZE / 8;
@@ -279,7 +279,7 @@ namespace HashLib4CSharp.KDF
         {
             if (byteCount <= MIN_OUTLEN)
                 throw new ArgumentException(
-                    string.Format(InvalidOutputByteCount, MIN_OUTLEN));
+                    string.Format(InvalidOutputByteCount, nameof(byteCount), MIN_OUTLEN));
 
             Initialize(_password, byteCount);
             DoFillMemoryBlocks();
