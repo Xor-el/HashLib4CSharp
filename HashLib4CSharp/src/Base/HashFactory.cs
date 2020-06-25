@@ -42,6 +42,8 @@ namespace HashLib4CSharp.Base
                 public static IHash CreateCrc32Castagnoli() => new Crc32Castagnoli();
 
                 public static IHash CreateCrc32PKZip() => new Crc32PKZip();
+
+                public static IHash CreateCRC(CRCModel crcModel) => new CRCFactory(crcModel);
             }
         }
 

@@ -1,9 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using HashLib4CSharp.Base;
+using HashLib4CSharp.Checksum;
 using HashLib4CSharp.Interfaces;
 using NUnit.Framework;
 
@@ -143,16 +145,8 @@ namespace HashLib4CSharp.Tests
         }
     }
 
-    internal abstract class AlgorithmTestBase : CloneTestBase
+    internal abstract class CommonTestBase : CloneTestBase
     {
-        private static void HashComputation(ref byte[] result, IHash hash, int iterations)
-        {
-            for (var i = 0; i < iterations; i++)
-            {
-                result = hash.ComputeBytes(result).GetBytes();
-            }
-        }
-
         [Test]
         public void TestHashingNullDataThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() => HashInstance.ComputeBytes(NullBytes));
@@ -176,96 +170,12 @@ namespace HashLib4CSharp.Tests
             AssertAreEqual(HashInstance.ComputeByteSpan(new ReadOnlySpan<byte>(DefaultDataBytes)).ToString(),
                 HashInstance.ComputeBytes(DefaultDataBytes).ToString());
 
-        [Test]
-        public void TestHashOfEmptyData()
+        private static void Computation(ref byte[] result, IHash hash, int iterations)
         {
-            ExpectedString = HashOfEmptyData;
-            ActualString = HashInstance.ComputeBytes(EmptyBytes).ToString();
-            AssertAreEqual(ExpectedString, ActualString);
-        }
-
-        [Test]
-        public void TestHashOfDefaultData()
-        {
-            ExpectedString = HashOfDefaultData;
-            ActualString = HashInstance.ComputeBytes(DefaultDataBytes).ToString();
-            AssertAreEqual(ExpectedString, ActualString);
-        }
-
-        [Test]
-        public void TestHashOfSmallLettersAToE()
-        {
-            ExpectedString = HashOfSmallLettersAToE;
-            ActualString = HashInstance.ComputeBytes(SmallLettersAToEBytes).ToString();
-            AssertAreEqual(ExpectedString, ActualString);
-        }
-
-        [Test]
-        public void TestHashOfOneToNine()
-        {
-            ExpectedString = HashOfOneToNine;
-            ActualString = HashInstance.ComputeBytes(OneToNineBytes).ToString();
-            AssertAreEqual(ExpectedString, ActualString);
-        }
-
-        [Test]
-        public void TestHashOfEmptyStream()
-        {
-            using (var stream = new MemoryStream(EmptyBytes))
+            for (var i = 0; i < iterations; i++)
             {
-                ExpectedString = HashOfEmptyData;
-                ActualString = HashInstance.ComputeStream(stream).ToString();
-                AssertAreEqual(ExpectedString, ActualString);
+                result = hash.ComputeBytes(result).GetBytes();
             }
-        }
-
-        [Test]
-        public void TestHashOfDefaultDataStream()
-        {
-            using (var stream = new MemoryStream(DefaultDataBytes))
-            {
-                ExpectedString = HashOfDefaultData;
-                ActualString = HashInstance.ComputeStream(stream).ToString();
-                AssertAreEqual(ExpectedString, ActualString);
-            }
-        }
-
-        [Test]
-        public async Task TestHashOfEmptyStreamAsync()
-        {
-            using (var stream = new MemoryStream(EmptyBytes))
-            {
-                ExpectedString = HashOfEmptyData;
-                var hashResult = await HashInstance.ComputeStreamAsync(stream);
-                ActualString = hashResult.ToString();
-                AssertAreEqual(ExpectedString, ActualString);
-            }
-        }
-
-        [Test]
-        public async Task TestHashOfDefaultDataStreamAsync()
-        {
-            using (var stream = new MemoryStream(DefaultDataBytes))
-            {
-                ExpectedString = HashOfDefaultData;
-                var hashResult = await HashInstance.ComputeStreamAsync(stream);
-                ActualString = hashResult.ToString();
-                AssertAreEqual(ExpectedString, ActualString);
-            }
-        }
-
-        [Test]
-        public void TestIncrementalHash()
-        {
-            ExpectedString = HashOfDefaultData;
-            HashInstance.Initialize();
-            foreach (var b in DefaultDataBytes)
-            {
-                HashInstance.TransformBytes(new[] {b});
-            }
-
-            ActualString = HashInstance.TransformFinal().ToString();
-            AssertAreEqual(ExpectedString, ActualString);
         }
 
         [Test]
@@ -360,10 +270,10 @@ namespace HashLib4CSharp.Tests
             var c = Clone(DefaultDataBytes);
             var d = Clone(DefaultDataBytes);
 
-            var t1 = Task.Factory.StartNew(() => HashComputation(ref a, h1, iterations));
-            var t2 = Task.Factory.StartNew(() => HashComputation(ref b, h2, iterations));
-            var t3 = Task.Factory.StartNew(() => HashComputation(ref c, h3, iterations));
-            var t4 = Task.Factory.StartNew(() => HashComputation(ref d, h4, iterations));
+            var t1 = Task.Factory.StartNew(() => Computation(ref a, h1, iterations));
+            var t2 = Task.Factory.StartNew(() => Computation(ref b, h2, iterations));
+            var t3 = Task.Factory.StartNew(() => Computation(ref c, h3, iterations));
+            var t4 = Task.Factory.StartNew(() => Computation(ref d, h4, iterations));
 
             Task.WaitAll(t1, t2, t3, t4);
 
@@ -401,6 +311,118 @@ namespace HashLib4CSharp.Tests
             cancellationTokenSource.Cancel();
             Assert.CatchAsync<OperationCanceledException>(() =>
                 HashInstance.ComputeStreamAsync(LargeMemoryStream, -1, cancellationTokenSource.Token));
+        }
+    }
+
+    internal abstract class CRCFactoryTestBase : CommonTestBase
+    {
+        [Test]
+        public void TestCheckValue()
+        {
+            foreach (var propertyInfo in typeof(CRCModel).GetProperties(BindingFlags.Public | BindingFlags.Static))
+            {
+                var crcModel = (CRCModel) propertyInfo.GetValue(null);
+                var crcInstance = HashFactory.Checksum.CRC.CreateCRC(crcModel);
+                ExpectedString = $"{((ICRCFactory) crcInstance).CheckValue:X16}";
+                ActualString = crcInstance.ComputeBytes(OneToNineBytes).ToString().PadLeft(16, '0');
+                Assert.AreEqual(ExpectedString, ActualString,
+                    $"{crcInstance.Name}: expected {ExpectedString} but got {ActualString}");
+            }
+        }
+    }
+
+    internal abstract class AlgorithmTestBase : CommonTestBase
+    {
+        [Test]
+        public void TestHashOfEmptyData()
+        {
+            ExpectedString = HashOfEmptyData;
+            ActualString = HashInstance.ComputeBytes(EmptyBytes).ToString();
+            AssertAreEqual(ExpectedString, ActualString);
+        }
+
+        [Test]
+        public void TestHashOfDefaultData()
+        {
+            ExpectedString = HashOfDefaultData;
+            ActualString = HashInstance.ComputeBytes(DefaultDataBytes).ToString();
+            AssertAreEqual(ExpectedString, ActualString);
+        }
+
+        [Test]
+        public void TestHashOfSmallLettersAToE()
+        {
+            ExpectedString = HashOfSmallLettersAToE;
+            ActualString = HashInstance.ComputeBytes(SmallLettersAToEBytes).ToString();
+            AssertAreEqual(ExpectedString, ActualString);
+        }
+
+        [Test]
+        public void TestHashOfOneToNine()
+        {
+            ExpectedString = HashOfOneToNine;
+            ActualString = HashInstance.ComputeBytes(OneToNineBytes).ToString();
+            AssertAreEqual(ExpectedString, ActualString);
+        }
+
+        [Test]
+        public void TestHashOfEmptyStream()
+        {
+            using (var stream = new MemoryStream(EmptyBytes))
+            {
+                ExpectedString = HashOfEmptyData;
+                ActualString = HashInstance.ComputeStream(stream).ToString();
+                AssertAreEqual(ExpectedString, ActualString);
+            }
+        }
+
+        [Test]
+        public void TestHashOfDefaultDataStream()
+        {
+            using (var stream = new MemoryStream(DefaultDataBytes))
+            {
+                ExpectedString = HashOfDefaultData;
+                ActualString = HashInstance.ComputeStream(stream).ToString();
+                AssertAreEqual(ExpectedString, ActualString);
+            }
+        }
+
+        [Test]
+        public async Task TestHashOfEmptyStreamAsync()
+        {
+            using (var stream = new MemoryStream(EmptyBytes))
+            {
+                ExpectedString = HashOfEmptyData;
+                var hashResult = await HashInstance.ComputeStreamAsync(stream);
+                ActualString = hashResult.ToString();
+                AssertAreEqual(ExpectedString, ActualString);
+            }
+        }
+
+        [Test]
+        public async Task TestHashOfDefaultDataStreamAsync()
+        {
+            using (var stream = new MemoryStream(DefaultDataBytes))
+            {
+                ExpectedString = HashOfDefaultData;
+                var hashResult = await HashInstance.ComputeStreamAsync(stream);
+                ActualString = hashResult.ToString();
+                AssertAreEqual(ExpectedString, ActualString);
+            }
+        }
+
+        [Test]
+        public void TestIncrementalHash()
+        {
+            ExpectedString = HashOfDefaultData;
+            HashInstance.Initialize();
+            foreach (var b in DefaultDataBytes)
+            {
+                HashInstance.TransformBytes(new[] {b});
+            }
+
+            ActualString = HashInstance.TransformFinal().ToString();
+            AssertAreEqual(ExpectedString, ActualString);
         }
     }
 

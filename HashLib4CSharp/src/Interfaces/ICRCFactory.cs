@@ -11,17 +11,14 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using HashLib4CSharp.Checksum;
+
 namespace HashLib4CSharp.Interfaces
 {
-    public interface ICRC : IChecksum
+    public interface ICRCFactory : IChecksum
     {
-        string[] Names { get; }
-        int Width { get; }
-        ulong Polynomial { get; }
-        ulong InitialValue { get; }
-        bool IsInputReflected { get; }
-        bool IsOutputReflected { get; }
-        ulong OutputXor { get; }
+        CRCModel Model { get; }
         ulong CheckValue { get; }
+        string[] Names { get; }
     }
 }

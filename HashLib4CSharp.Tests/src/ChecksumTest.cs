@@ -1,4 +1,5 @@
 using HashLib4CSharp.Base;
+using HashLib4CSharp.Checksum;
 using NUnit.Framework;
 
 namespace HashLib4CSharp.Tests
@@ -42,6 +43,16 @@ namespace HashLib4CSharp.Tests
             HashOfDefaultData = "22B17746";
             HashOfOneToNine = "E3069283";
             HashOfSmallLettersAToE = "C450D697";
+        }
+    }
+
+    [TestFixture]
+    internal class CRCFactoryTest : CRCFactoryTestBase
+    {
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            HashInstance = HashFactory.Checksum.CRC.CreateCRC(CRCModel.CRC32);
         }
     }
 }
