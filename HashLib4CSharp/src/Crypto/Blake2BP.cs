@@ -12,8 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -48,7 +46,7 @@ namespace HashLib4CSharp.Crypto
             _buffer = new byte[ParallelismDegree * BlockSizeInBytes];
             _rootHash = Blake2BPCreateRoot();
             for (var i = 0; i < ParallelismDegree; i++)
-                _leafHashes[i] = Blake2BPCreateLeaf((ulong) i);
+                _leafHashes[i] = Blake2BPCreateLeaf((ulong)i);
         }
 
         ~Blake2BP()
@@ -91,25 +89,22 @@ namespace HashLib4CSharp.Crypto
             _bufferLength = 0;
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
-            var dataLength = (ulong) length;
+            var dataLength = (ulong)data.Length;
 
             fixed (byte* dataPtr = data, bufferPtr = _buffer)
             {
-                var dataPtr2 = dataPtr + index;
+                var dataPtr2 = dataPtr;
 
                 var left = _bufferLength;
-                var fill = (ulong) _buffer.Length - left;
+                var fill = (ulong)_buffer.Length - left;
 
                 if (left > 0 && dataLength >= fill)
                 {
-                    PointerUtils.MemMove(dataPtr2, bufferPtr + left, (int) fill);
+                    PointerUtils.MemMove(dataPtr2, bufferPtr + left, (int)fill);
 
                     for (var idx = 0; idx < ParallelismDegree; idx++)
                     {
@@ -127,7 +122,7 @@ namespace HashLib4CSharp.Crypto
                 dataLength %= ParallelismDegree * BlockSizeInBytes;
 
                 if (dataLength > 0)
-                    PointerUtils.MemMove(bufferPtr + left, dataPtr2, (int) dataLength);
+                    PointerUtils.MemMove(bufferPtr + left, dataPtr2, (int)dataLength);
 
                 _bufferLength = left + dataLength;
             }
@@ -146,11 +141,11 @@ namespace HashLib4CSharp.Crypto
 
             for (idx = 0; idx < ParallelismDegree; idx++)
             {
-                if (_bufferLength > (ulong) (idx * BlockSizeInBytes))
+                if (_bufferLength > (ulong)(idx * BlockSizeInBytes))
                 {
-                    var left = _bufferLength - (ulong) (idx * BlockSizeInBytes);
+                    var left = _bufferLength - (ulong)(idx * BlockSizeInBytes);
                     left = Math.Min(left, BlockSizeInBytes);
-                    _leafHashes[idx].TransformBytes(_buffer, idx * BlockSizeInBytes, (int) left);
+                    _leafHashes[idx].TransformBytes(_buffer, idx * BlockSizeInBytes, (int)left);
                 }
 
                 hash[idx] = _leafHashes[idx].TransformFinal().GetBytes();
@@ -180,7 +175,7 @@ namespace HashLib4CSharp.Crypto
 
         private Blake2B Blake2BPCreateLeaf(ulong offset)
         {
-            var config = new Blake2BConfig(OutSizeInBytes) {Key = _key};
+            var config = new Blake2BConfig(OutSizeInBytes) { Key = _key };
 
             var treeConfig = new Blake2BTreeConfig
             {
@@ -200,7 +195,7 @@ namespace HashLib4CSharp.Crypto
 
         private Blake2B Blake2BPCreateRoot()
         {
-            var config = new Blake2BConfig(HashSize) {Key = _key};
+            var config = new Blake2BConfig(HashSize) { Key = _key };
 
             var treeConfig = new Blake2BTreeConfig
             {
@@ -218,8 +213,8 @@ namespace HashLib4CSharp.Crypto
 
         private unsafe void Blake2BParallel(int idx, void* dataPtr, ulong counter)
         {
-            var buffer = new byte[BlockSizeInBytes];
-            var dataPtr2 = (byte*) dataPtr;
+            Span<byte> buffer = stackalloc byte[BlockSizeInBytes];
+            var dataPtr2 = (byte*)dataPtr;
             dataPtr2 += idx * BlockSizeInBytes;
 
             fixed (byte* bufferPtr = buffer)
@@ -227,16 +222,12 @@ namespace HashLib4CSharp.Crypto
                 while (counter >= ParallelismDegree * BlockSizeInBytes)
                 {
                     PointerUtils.MemMove(bufferPtr, dataPtr2, BlockSizeInBytes);
-                    _leafHashes[idx].TransformBytes(buffer, 0, BlockSizeInBytes);
-                    dataPtr2 += (ulong) (ParallelismDegree * BlockSizeInBytes);
+                    _leafHashes[idx].TransformByteSpan(buffer.Slice(0, BlockSizeInBytes));
+                    dataPtr2 += (ulong)(ParallelismDegree * BlockSizeInBytes);
                     counter -= ParallelismDegree * BlockSizeInBytes;
                 }
             }
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe Task CreateBlake2BParallelTask(int idx, void* dataPtr, ulong counter) =>
-            new Task(() => Blake2BParallel(idx, dataPtr, counter));
 
         private unsafe void DoBlake2BParallel(void* dataPtr, ulong counter)
         {
@@ -245,14 +236,7 @@ namespace HashLib4CSharp.Crypto
             //       Blake2BParallel(idx, dataPtr, counter);
 
             // multi threaded version
-            var tasks = new Task[ParallelismDegree];
-            for (var idx = 0; idx < ParallelismDegree; idx++)
-            {
-                tasks[idx] = CreateBlake2BParallelTask(idx, dataPtr, counter);
-                tasks[idx].Start();
-            }
-
-            Task.WaitAll(tasks);
+            Parallel.For(0, ParallelismDegree, idx => Blake2BParallel(idx, dataPtr, counter));
         }
 
         private void Clear()

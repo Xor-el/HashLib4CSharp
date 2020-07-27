@@ -48,59 +48,59 @@ namespace HashLib4CSharp.Tests
         {
             ByteCount = 32;
             KdfInstance =
-                HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(EmptyBytes, EmptyBytes, 16, 1, 1);
+                HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(ZeroByteArray, ZeroByteArray, 16, 1, 1);
         }
 
         [Test]
         public void TestNullPasswordThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(NullBytes,
-                    EmptyBytes, 16, 1, 1));
+                    ZeroByteArray, 16, 1, 1));
 
         [Test]
         public void TestNullSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.KDF.PBKDFScrypt.CreatePBKDFScrypt(
-                    EmptyBytes, NullBytes, 16, 1, 1));
+                    ZeroByteArray, NullBytes, 16, 1, 1));
 
         [Test]
-        public void TestOkParameters1() => DoCheckOk("Minimal values", EmptyBytes, EmptyBytes, 2, 1, 1, 1);
+        public void TestOkParameters1() => DoCheckOk("Minimal values", ZeroByteArray, ZeroByteArray, 2, 1, 1, 1);
 
         [Test]
         public void TestOkParameters2() =>
-            DoCheckOk("Cost parameter 32768 OK for r = 1", EmptyBytes, EmptyBytes, 32768, 1, 1, 1);
+            DoCheckOk("Cost parameter 32768 OK for r = 1", ZeroByteArray, ZeroByteArray, 32768, 1, 1, 1);
 
         [Test, Ignore("This test takes a very long time")]
         public void TestOkParameters3() =>
-            DoCheckOk("Parallelisation parameter 65535 OK for r = 4", EmptyBytes, EmptyBytes, 2, 32,
+            DoCheckOk("Parallelisation parameter 65535 OK for r = 4", ZeroByteArray, ZeroByteArray, 2, 32,
                 65535, 1);
 
         [Test]
         public void TestIllegalParameters1() =>
-            DoCheckIllegal("Cost parameter must be > 1", EmptyBytes, EmptyBytes, 1, 1, 1, 1);
+            DoCheckIllegal("Cost parameter must be > 1", ZeroByteArray, ZeroByteArray, 1, 1, 1, 1);
 
         [Test]
         public void TestIllegalParameters2() =>
-            DoCheckIllegal("Cost parameter must < 65536 for r = 1", EmptyBytes, EmptyBytes,
+            DoCheckIllegal("Cost parameter must < 65536 for r = 1", ZeroByteArray, ZeroByteArray,
                 65536, 1, 1, 1);
 
         [Test]
         public void TestIllegalParameters3() =>
-            DoCheckIllegal("Block size must be >= 1", EmptyBytes, EmptyBytes, 2, 0, 2, 1);
+            DoCheckIllegal("Block size must be >= 1", ZeroByteArray, ZeroByteArray, 2, 0, 2, 1);
 
         [Test]
         public void TestIllegalParameters4() =>
-            DoCheckIllegal("Parallelisation parameter must be >= 1", EmptyBytes, EmptyBytes, 2,
+            DoCheckIllegal("Parallelisation parameter must be >= 1", ZeroByteArray, ZeroByteArray, 2,
                 1, 0, 1);
 
         [Test]
         public void TestIllegalParameters5() =>
-            DoCheckIllegal("Parallelisation parameter must be < 65535 for r = 4", EmptyBytes,
-                EmptyBytes, 2, 32, 65536, 1);
+            DoCheckIllegal("Parallelisation parameter must be < 65535 for r = 4", ZeroByteArray,
+                ZeroByteArray, 2, 32, 65536, 1);
 
         [Test]
         public void TestIllegalParameters6() =>
-            DoCheckIllegal("outputSize parameter must be > 1", EmptyBytes, EmptyBytes, 2, 1, 1, 0);
+            DoCheckIllegal("outputSize parameter must be > 1", ZeroByteArray, ZeroByteArray, 2, 1, 1, 0);
 
         [Test]
         public void TestVector1()
@@ -147,7 +147,7 @@ namespace HashLib4CSharp.Tests
             fullInput = Enumerable.Range(0, 1 << 15).Select(i => (byte) (i % 251)).ToArray();
             ByteCount = 32;
             KdfInstance =
-                HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(EmptyBytes, EmptyBytes);
+                HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(ZeroByteArray, ZeroByteArray);
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestNullContextThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(EmptyBytes, NullBytes));
+                _ = HashFactory.KDF.PBKDFBlake3.CreatePBKDFBlake3(ZeroByteArray, NullBytes));
 
         [Test]
         public void TestCheckTestVectors()
@@ -234,7 +234,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestNullParameterInstanceThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.KDF.PBKDFArgon2.CreatePBKDFArgon2(EmptyBytes, null));
+                _ = HashFactory.KDF.PBKDFArgon2.CreatePBKDFArgon2(ZeroByteArray, null));
 
         [Test]
         public void TestVectorsFromInternetDraftOne()
@@ -293,8 +293,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -309,8 +309,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(20)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -325,8 +325,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(18)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -341,8 +341,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(8)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -357,8 +357,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(8)
                 .WithParallelism(2)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -373,8 +373,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -389,8 +389,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -405,8 +405,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(differentpassword);
@@ -421,8 +421,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(diffsalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -441,8 +441,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(diffsalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Sixteen);
             DoTestVector(password);
@@ -458,8 +458,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -474,8 +474,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(20)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -490,8 +490,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(18)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -506,8 +506,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(8)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -522,8 +522,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(8)
                 .WithParallelism(2)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -538,8 +538,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -554,8 +554,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);
@@ -570,8 +570,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(somesalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(differentpassword);
@@ -586,8 +586,8 @@ namespace HashLib4CSharp.Tests
                 .WithMemoryPowOfTwo(16)
                 .WithParallelism(1)
                 .WithSalt(diffsalt)
-                .WithAdditional(EmptyBytes)
-                .WithSecret(EmptyBytes)
+                .WithAdditional(ZeroByteArray)
+                .WithSecret(ZeroByteArray)
                 .WithType(Argon2Type.DataIndependentAddressing)
                 .WithVersion(Argon2Version.Nineteen);
             DoTestVector(password);

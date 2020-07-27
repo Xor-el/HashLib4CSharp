@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -229,15 +230,15 @@ namespace HashLib4CSharp.Crypto
             var paddingSize = 16 - (int) (ProcessedBytesCount & 7);
             var msgLength = (ProcessedBytesCount >> 3) + 1;
 
-            var pad = new byte[paddingSize];
+            Span<byte> pad = stackalloc byte[paddingSize];
 
             pad[0] = 0x80;
 
             msgLength = Converters.be2me_64(msgLength);
 
-            Converters.ReadUInt64AsBytesLE(msgLength, pad, paddingSize - 8);
+            Converters.ReadUInt64AsBytesLE(msgLength, pad.Slice( paddingSize - 8));
 
-            TransformBytes(pad, 0, paddingSize - 8);
+            TransformByteSpan(pad.Slice( 0, paddingSize - 8));
 
             fixed (byte* ptrPad = pad)
             {

@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -80,24 +79,22 @@ namespace HashLib4CSharp.Hash128
             return result;
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
+            var length = data.Length;
+            var index = 0;
             var len = length;
             var i = index;
             var idx = 0;
-            _totalLength += (ulong) len;
+            _totalLength += (ulong)len;
 
             fixed (byte* dataPtr = data)
             {
                 //consume last pending bytes
                 if (_idx != 0 && length != 0)
                 {
-                    Debug.Assert(index == 0); // nothing would work anyways if index != 0
                     while (_idx < 16 && len != 0)
                     {
                         _buffer[_idx++] = *(dataPtr + index);
@@ -116,7 +113,7 @@ namespace HashLib4CSharp.Hash128
                 // body
                 var h1 = _h1;
                 var h2 = _h2;
-                var dataPtr2 = (ulong*) (dataPtr + index);
+                var dataPtr2 = (ulong*)(dataPtr + index);
                 while (i < nBlocks)
                 {
                     var block1 = Converters.ReadPUInt64AsUInt64LE(dataPtr2 + idx);
@@ -230,13 +227,13 @@ namespace HashLib4CSharp.Hash128
                 switch (length)
                 {
                     case 15:
-                        k2 ^= (ulong) _buffer[14] << 48;
-                        k2 ^= (ulong) _buffer[13] << 40;
-                        k2 ^= (ulong) _buffer[12] << 32;
-                        k2 ^= (ulong) _buffer[11] << 24;
-                        k2 ^= (ulong) _buffer[10] << 16;
-                        k2 ^= (ulong) _buffer[9] << 8;
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[14] << 48;
+                        k2 ^= (ulong)_buffer[13] << 40;
+                        k2 ^= (ulong)_buffer[12] << 32;
+                        k2 ^= (ulong)_buffer[11] << 24;
+                        k2 ^= (ulong)_buffer[10] << 16;
+                        k2 ^= (ulong)_buffer[9] << 8;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -244,12 +241,12 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 14:
-                        k2 ^= (ulong) _buffer[13] << 40;
-                        k2 ^= (ulong) _buffer[12] << 32;
-                        k2 ^= (ulong) _buffer[11] << 24;
-                        k2 ^= (ulong) _buffer[10] << 16;
-                        k2 ^= (ulong) _buffer[9] << 8;
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[13] << 40;
+                        k2 ^= (ulong)_buffer[12] << 32;
+                        k2 ^= (ulong)_buffer[11] << 24;
+                        k2 ^= (ulong)_buffer[10] << 16;
+                        k2 ^= (ulong)_buffer[9] << 8;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -257,11 +254,11 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 13:
-                        k2 ^= (ulong) _buffer[12] << 32;
-                        k2 ^= (ulong) _buffer[11] << 24;
-                        k2 ^= (ulong) _buffer[10] << 16;
-                        k2 ^= (ulong) _buffer[9] << 8;
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[12] << 32;
+                        k2 ^= (ulong)_buffer[11] << 24;
+                        k2 ^= (ulong)_buffer[10] << 16;
+                        k2 ^= (ulong)_buffer[9] << 8;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -269,10 +266,10 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 12:
-                        k2 ^= (ulong) _buffer[11] << 24;
-                        k2 ^= (ulong) _buffer[10] << 16;
-                        k2 ^= (ulong) _buffer[9] << 8;
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[11] << 24;
+                        k2 ^= (ulong)_buffer[10] << 16;
+                        k2 ^= (ulong)_buffer[9] << 8;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -280,9 +277,9 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 11:
-                        k2 ^= (ulong) _buffer[10] << 16;
-                        k2 ^= (ulong) _buffer[9] << 8;
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[10] << 16;
+                        k2 ^= (ulong)_buffer[9] << 8;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -290,8 +287,8 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 10:
-                        k2 ^= (ulong) _buffer[9] << 8;
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[9] << 8;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -299,7 +296,7 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 9:
-                        k2 ^= (ulong) _buffer[8] << 0;
+                        k2 ^= (ulong)_buffer[8] << 0;
                         k2 *= C2;
                         k2 = Bits.RotateLeft64(k2, 33);
                         k2 *= C1;
@@ -313,14 +310,14 @@ namespace HashLib4CSharp.Hash128
                 switch (length)
                 {
                     case 8:
-                        k1 ^= (ulong) _buffer[7] << 56;
-                        k1 ^= (ulong) _buffer[6] << 48;
-                        k1 ^= (ulong) _buffer[5] << 40;
-                        k1 ^= (ulong) _buffer[4] << 32;
-                        k1 ^= (ulong) _buffer[3] << 24;
-                        k1 ^= (ulong) _buffer[2] << 16;
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[7] << 56;
+                        k1 ^= (ulong)_buffer[6] << 48;
+                        k1 ^= (ulong)_buffer[5] << 40;
+                        k1 ^= (ulong)_buffer[4] << 32;
+                        k1 ^= (ulong)_buffer[3] << 24;
+                        k1 ^= (ulong)_buffer[2] << 16;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -328,13 +325,13 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 7:
-                        k1 ^= (ulong) _buffer[6] << 48;
-                        k1 ^= (ulong) _buffer[5] << 40;
-                        k1 ^= (ulong) _buffer[4] << 32;
-                        k1 ^= (ulong) _buffer[3] << 24;
-                        k1 ^= (ulong) _buffer[2] << 16;
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[6] << 48;
+                        k1 ^= (ulong)_buffer[5] << 40;
+                        k1 ^= (ulong)_buffer[4] << 32;
+                        k1 ^= (ulong)_buffer[3] << 24;
+                        k1 ^= (ulong)_buffer[2] << 16;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -342,12 +339,12 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 6:
-                        k1 ^= (ulong) _buffer[5] << 40;
-                        k1 ^= (ulong) _buffer[4] << 32;
-                        k1 ^= (ulong) _buffer[3] << 24;
-                        k1 ^= (ulong) _buffer[2] << 16;
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[5] << 40;
+                        k1 ^= (ulong)_buffer[4] << 32;
+                        k1 ^= (ulong)_buffer[3] << 24;
+                        k1 ^= (ulong)_buffer[2] << 16;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -355,11 +352,11 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 5:
-                        k1 ^= (ulong) _buffer[4] << 32;
-                        k1 ^= (ulong) _buffer[3] << 24;
-                        k1 ^= (ulong) _buffer[2] << 16;
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[4] << 32;
+                        k1 ^= (ulong)_buffer[3] << 24;
+                        k1 ^= (ulong)_buffer[2] << 16;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -367,10 +364,10 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 4:
-                        k1 ^= (ulong) _buffer[3] << 24;
-                        k1 ^= (ulong) _buffer[2] << 16;
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[3] << 24;
+                        k1 ^= (ulong)_buffer[2] << 16;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -378,9 +375,9 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 3:
-                        k1 ^= (ulong) _buffer[2] << 16;
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[2] << 16;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -388,8 +385,8 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 2:
-                        k1 ^= (ulong) _buffer[1] << 8;
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[1] << 8;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;
@@ -397,7 +394,7 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 1:
-                        k1 ^= (ulong) _buffer[0] << 0;
+                        k1 ^= (ulong)_buffer[0] << 0;
                         k1 *= C1;
                         k1 = Bits.RotateLeft64(k1, 31);
                         k1 *= C2;

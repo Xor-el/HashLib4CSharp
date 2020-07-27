@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -80,62 +81,59 @@ namespace HashLib4CSharp.Crypto
 
         protected override unsafe void Finish()
         {
-            var paddingSize = 32 - (int) (ProcessedBytesCount & 31);
+            var paddingSize = 32 - (int)(ProcessedBytesCount & 31);
 
-            var pad = new byte[paddingSize];
+            Span<byte> pad = stackalloc byte[paddingSize];
 
             pad[0] = 0x01;
-            TransformBytes(pad, 0, paddingSize);
+            TransformByteSpan(pad.Slice(0, paddingSize));
 
-            var theta = new uint[17];
+            var theta = stackalloc uint[17];
 
-            fixed (uint* ptrTheta = theta)
+            for (var i = 0; i < 32; i++)
             {
-                for (var i = 0; i < 32; i++)
-                {
-                    var tap4 = (_tap + 4) & 0x1F;
-                    var tap16 = (_tap + 16) & 0x1F;
+                var tap4 = (_tap + 4) & 0x1F;
+                var tap16 = (_tap + 16) & 0x1F;
 
-                    _tap = (_tap - 1) & 0x1F;
-                    var tap25 = (_tap + 25) & 0x1F;
+                _tap = (_tap - 1) & 0x1F;
+                var tap25 = (_tap + 25) & 0x1F;
 
-                    Gpt(ptrTheta);
+                Gpt(theta);
 
-                    _stages[tap25][0] = _stages[tap25][0] ^ _stages[_tap][2];
-                    _stages[tap25][1] = _stages[tap25][1] ^ _stages[_tap][3];
-                    _stages[tap25][2] = _stages[tap25][2] ^ _stages[_tap][4];
-                    _stages[tap25][3] = _stages[tap25][3] ^ _stages[_tap][5];
-                    _stages[tap25][4] = _stages[tap25][4] ^ _stages[_tap][6];
-                    _stages[tap25][5] = _stages[tap25][5] ^ _stages[_tap][7];
-                    _stages[tap25][6] = _stages[tap25][6] ^ _stages[_tap][0];
-                    _stages[tap25][7] = _stages[tap25][7] ^ _stages[_tap][1];
-                    _stages[_tap][0] = _stages[_tap][0] ^ _state[1];
-                    _stages[_tap][1] = _stages[_tap][1] ^ _state[2];
-                    _stages[_tap][2] = _stages[_tap][2] ^ _state[3];
-                    _stages[_tap][3] = _stages[_tap][3] ^ _state[4];
-                    _stages[_tap][4] = _stages[_tap][4] ^ _state[5];
-                    _stages[_tap][5] = _stages[_tap][5] ^ _state[6];
-                    _stages[_tap][6] = _stages[_tap][6] ^ _state[7];
-                    _stages[_tap][7] = _stages[_tap][7] ^ _state[8];
+                _stages[tap25][0] = _stages[tap25][0] ^ _stages[_tap][2];
+                _stages[tap25][1] = _stages[tap25][1] ^ _stages[_tap][3];
+                _stages[tap25][2] = _stages[tap25][2] ^ _stages[_tap][4];
+                _stages[tap25][3] = _stages[tap25][3] ^ _stages[_tap][5];
+                _stages[tap25][4] = _stages[tap25][4] ^ _stages[_tap][6];
+                _stages[tap25][5] = _stages[tap25][5] ^ _stages[_tap][7];
+                _stages[tap25][6] = _stages[tap25][6] ^ _stages[_tap][0];
+                _stages[tap25][7] = _stages[tap25][7] ^ _stages[_tap][1];
+                _stages[_tap][0] = _stages[_tap][0] ^ _state[1];
+                _stages[_tap][1] = _stages[_tap][1] ^ _state[2];
+                _stages[_tap][2] = _stages[_tap][2] ^ _state[3];
+                _stages[_tap][3] = _stages[_tap][3] ^ _state[4];
+                _stages[_tap][4] = _stages[_tap][4] ^ _state[5];
+                _stages[_tap][5] = _stages[_tap][5] ^ _state[6];
+                _stages[_tap][6] = _stages[_tap][6] ^ _state[7];
+                _stages[_tap][7] = _stages[_tap][7] ^ _state[8];
 
-                    _state[0] = theta[0] ^ 0x01;
-                    _state[1] = theta[1] ^ _stages[tap4][0];
-                    _state[2] = theta[2] ^ _stages[tap4][1];
-                    _state[3] = theta[3] ^ _stages[tap4][2];
-                    _state[4] = theta[4] ^ _stages[tap4][3];
-                    _state[5] = theta[5] ^ _stages[tap4][4];
-                    _state[6] = theta[6] ^ _stages[tap4][5];
-                    _state[7] = theta[7] ^ _stages[tap4][6];
-                    _state[8] = theta[8] ^ _stages[tap4][7];
-                    _state[9] = theta[9] ^ _stages[tap16][0];
-                    _state[10] = theta[10] ^ _stages[tap16][1];
-                    _state[11] = theta[11] ^ _stages[tap16][2];
-                    _state[12] = theta[12] ^ _stages[tap16][3];
-                    _state[13] = theta[13] ^ _stages[tap16][4];
-                    _state[14] = theta[14] ^ _stages[tap16][5];
-                    _state[15] = theta[15] ^ _stages[tap16][6];
-                    _state[16] = theta[16] ^ _stages[tap16][7];
-                }
+                _state[0] = theta[0] ^ 0x01;
+                _state[1] = theta[1] ^ _stages[tap4][0];
+                _state[2] = theta[2] ^ _stages[tap4][1];
+                _state[3] = theta[3] ^ _stages[tap4][2];
+                _state[4] = theta[4] ^ _stages[tap4][3];
+                _state[5] = theta[5] ^ _stages[tap4][4];
+                _state[6] = theta[6] ^ _stages[tap4][5];
+                _state[7] = theta[7] ^ _stages[tap4][6];
+                _state[8] = theta[8] ^ _stages[tap4][7];
+                _state[9] = theta[9] ^ _stages[tap16][0];
+                _state[10] = theta[10] ^ _stages[tap16][1];
+                _state[11] = theta[11] ^ _stages[tap16][2];
+                _state[12] = theta[12] ^ _stages[tap16][3];
+                _state[13] = theta[13] ^ _stages[tap16][4];
+                _state[14] = theta[14] ^ _stages[tap16][5];
+                _state[15] = theta[15] ^ _stages[tap16][6];
+                _state[16] = theta[16] ^ _stages[tap16][7];
             }
         }
 
@@ -144,16 +142,16 @@ namespace HashLib4CSharp.Crypto
         {
             uint tap16, tap25;
 
-            var buffer = new uint[17];
+            var buffer = stackalloc uint[17];
 
-            fixed (uint* thetaPtr = _theta, bufferPtr = buffer)
+            fixed (uint* thetaPtr = _theta)
             {
-                Converters.le32_copy(data, index, bufferPtr, 0, dataLength);
+                Converters.le32_copy(data, index, buffer, 0, dataLength);
 
-                tap16 = (uint) ((_tap + 16) & 0x1F);
+                tap16 = (uint)((_tap + 16) & 0x1F);
 
                 _tap = (_tap - 1) & 0x1F;
-                tap25 = (uint) ((_tap + 25) & 0x1F);
+                tap25 = (uint)((_tap + 25) & 0x1F);
 
                 Gpt(thetaPtr);
             }
@@ -192,8 +190,6 @@ namespace HashLib4CSharp.Crypto
             _state[14] = _theta[14] ^ _stages[tap16][5];
             _state[15] = _theta[15] ^ _stages[tap16][6];
             _state[16] = _theta[16] ^ _stages[tap16][7];
-
-            ArrayUtils.ZeroFill(buffer);
         }
 
         private unsafe void Gpt(uint* ptrTheta)

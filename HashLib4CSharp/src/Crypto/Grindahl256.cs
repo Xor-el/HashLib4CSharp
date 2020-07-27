@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -131,18 +132,18 @@ namespace HashLib4CSharp.Crypto
 
         protected override unsafe void Finish()
         {
-            var paddingSize = 12 - (int) (ProcessedBytesCount & 3);
+            var paddingSize = 12 - (int)(ProcessedBytesCount & 3);
             var msgLength = (ProcessedBytesCount >> 2) + 1;
 
-            var pad = new byte[paddingSize];
+            Span<byte> pad = stackalloc byte[paddingSize];
 
             pad[0] = 0x80;
 
             msgLength = Converters.be2me_64(msgLength);
 
-            Converters.ReadUInt64AsBytesLE(msgLength, pad, paddingSize - 8);
+            Converters.ReadUInt64AsBytesLE(msgLength, pad.Slice(paddingSize - 8));
 
-            TransformBytes(pad, 0, paddingSize - 4);
+            TransformByteSpan(pad.Slice(0, paddingSize - 4));
 
             fixed (byte* padPtr = pad)
             {
@@ -158,7 +159,7 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            _state[0] = Converters.ReadBytesAsUInt32LE((byte*) data, index);
+            _state[0] = Converters.ReadBytesAsUInt32LE((byte*)data, index);
 
             _state[0] = Converters.be2me_32(_state[0]);
 
@@ -175,57 +176,57 @@ namespace HashLib4CSharp.Crypto
             _state[12] = _state[12] ^ 0x01;
 
             if (fullProcess)
-                _temp[0] = Table0[(byte) (_state[12] >> 24)] ^ Table1
-                    [(byte) (_state[11] >> 16)] ^ Table2[(byte) (_state[9] >> 8)
-                ] ^ Table3[(byte) _state[3]];
+                _temp[0] = Table0[(byte)(_state[12] >> 24)] ^ Table1
+                    [(byte)(_state[11] >> 16)] ^ Table2[(byte)(_state[9] >> 8)
+                ] ^ Table3[(byte)_state[3]];
 
-            _temp[1] = Table0[(byte) (_state[0] >> 24)] ^ Table1
-                [(byte) (_state[12] >> 16)] ^ Table2[(byte) (_state[10] >> 8)
-            ] ^ Table3[(byte) _state[4]];
+            _temp[1] = Table0[(byte)(_state[0] >> 24)] ^ Table1
+                [(byte)(_state[12] >> 16)] ^ Table2[(byte)(_state[10] >> 8)
+            ] ^ Table3[(byte)_state[4]];
 
-            _temp[2] = Table0[(byte) (_state[1] >> 24)] ^ Table1
-                [(byte) (_state[0] >> 16)] ^ Table2[(byte) (_state[11] >> 8)
-            ] ^ Table3[(byte) _state[5]];
+            _temp[2] = Table0[(byte)(_state[1] >> 24)] ^ Table1
+                [(byte)(_state[0] >> 16)] ^ Table2[(byte)(_state[11] >> 8)
+            ] ^ Table3[(byte)_state[5]];
 
-            _temp[3] = Table0[(byte) (_state[2] >> 24)] ^ Table1
-                [(byte) (_state[1] >> 16)] ^ Table2[(byte) (_state[12] >> 8)
-            ] ^ Table3[(byte) _state[6]];
+            _temp[3] = Table0[(byte)(_state[2] >> 24)] ^ Table1
+                [(byte)(_state[1] >> 16)] ^ Table2[(byte)(_state[12] >> 8)
+            ] ^ Table3[(byte)_state[6]];
 
-            _temp[4] = Table0[(byte) (_state[3] >> 24)] ^ Table1
-                [(byte) (_state[2] >> 16)] ^ Table2[(byte) (_state[0] >> 8)
-            ] ^ Table3[(byte) _state[7]];
+            _temp[4] = Table0[(byte)(_state[3] >> 24)] ^ Table1
+                [(byte)(_state[2] >> 16)] ^ Table2[(byte)(_state[0] >> 8)
+            ] ^ Table3[(byte)_state[7]];
 
-            _temp[5] = Table0[(byte) (_state[4] >> 24)] ^ Table1
-                [(byte) (_state[3] >> 16)] ^ Table2[(byte) (_state[1] >> 8)
-            ] ^ Table3[(byte) _state[8]];
+            _temp[5] = Table0[(byte)(_state[4] >> 24)] ^ Table1
+                [(byte)(_state[3] >> 16)] ^ Table2[(byte)(_state[1] >> 8)
+            ] ^ Table3[(byte)_state[8]];
 
-            _temp[6] = Table0[(byte) (_state[5] >> 24)] ^ Table1
-                [(byte) (_state[4] >> 16)] ^ Table2[(byte) (_state[2] >> 8)
-            ] ^ Table3[(byte) _state[9]];
+            _temp[6] = Table0[(byte)(_state[5] >> 24)] ^ Table1
+                [(byte)(_state[4] >> 16)] ^ Table2[(byte)(_state[2] >> 8)
+            ] ^ Table3[(byte)_state[9]];
 
-            _temp[7] = Table0[(byte) (_state[6] >> 24)] ^ Table1
-                [(byte) (_state[5] >> 16)] ^ Table2[(byte) (_state[3] >> 8)
-            ] ^ Table3[(byte) _state[10]];
+            _temp[7] = Table0[(byte)(_state[6] >> 24)] ^ Table1
+                [(byte)(_state[5] >> 16)] ^ Table2[(byte)(_state[3] >> 8)
+            ] ^ Table3[(byte)_state[10]];
 
-            _temp[8] = Table0[(byte) (_state[7] >> 24)] ^ Table1
-                [(byte) (_state[6] >> 16)] ^ Table2[(byte) (_state[4] >> 8)
-            ] ^ Table3[(byte) _state[11]];
+            _temp[8] = Table0[(byte)(_state[7] >> 24)] ^ Table1
+                [(byte)(_state[6] >> 16)] ^ Table2[(byte)(_state[4] >> 8)
+            ] ^ Table3[(byte)_state[11]];
 
-            _temp[9] = Table0[(byte) (_state[8] >> 24)] ^ Table1
-                [(byte) (_state[7] >> 16)] ^ Table2[(byte) (_state[5] >> 8)
-            ] ^ Table3[(byte) _state[12]];
+            _temp[9] = Table0[(byte)(_state[8] >> 24)] ^ Table1
+                [(byte)(_state[7] >> 16)] ^ Table2[(byte)(_state[5] >> 8)
+            ] ^ Table3[(byte)_state[12]];
 
-            _temp[10] = Table0[(byte) (_state[9] >> 24)] ^ Table1
-                [(byte) (_state[8] >> 16)] ^ Table2[(byte) (_state[6] >> 8)
-            ] ^ Table3[(byte) _state[0]];
+            _temp[10] = Table0[(byte)(_state[9] >> 24)] ^ Table1
+                [(byte)(_state[8] >> 16)] ^ Table2[(byte)(_state[6] >> 8)
+            ] ^ Table3[(byte)_state[0]];
 
-            _temp[11] = Table0[(byte) (_state[10] >> 24)] ^ Table1
-                [(byte) (_state[9] >> 16)] ^ Table2[(byte) (_state[7] >> 8)
-            ] ^ Table3[(byte) _state[1]];
+            _temp[11] = Table0[(byte)(_state[10] >> 24)] ^ Table1
+                [(byte)(_state[9] >> 16)] ^ Table2[(byte)(_state[7] >> 8)
+            ] ^ Table3[(byte)_state[1]];
 
-            _temp[12] = Table0[(byte) (_state[11] >> 24)] ^ Table1
-                [(byte) (_state[10] >> 16)] ^ Table2[(byte) (_state[8] >> 8)
-            ] ^ Table3[(byte) _state[2]];
+            _temp[12] = Table0[(byte)(_state[11] >> 24)] ^ Table1
+                [(byte)(_state[10] >> 16)] ^ Table2[(byte)(_state[8] >> 8)
+            ] ^ Table3[(byte)_state[2]];
 
             // Swap memory pointers
             var t = _temp;

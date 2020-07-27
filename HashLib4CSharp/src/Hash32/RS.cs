@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 
@@ -30,7 +29,7 @@ namespace HashLib4CSharp.Hash32
 
         public override IHash Clone()
         {
-            var hashInstance = new RS {_hash = _hash, _a = _a, BufferSize = BufferSize};
+            var hashInstance = new RS { _hash = _hash, _a = _a, BufferSize = BufferSize };
             return hashInstance;
         }
 
@@ -47,13 +46,12 @@ namespace HashLib4CSharp.Hash32
             return result;
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
-            var i = index;
+
+            var length = data.Length;
+            var i = 0;
             var hash = _hash;
             var a = _a;
             while (length > 0)

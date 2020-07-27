@@ -12,7 +12,7 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -31,26 +31,30 @@ namespace HashLib4CSharp.Hash64
         private const ulong PRIME64_4 = 9650029242287828579;
         private const ulong PRIME64_5 = 2870177450012600261;
 
-        private sealed class XXH_State
+        private unsafe struct XXH_State
         {
             internal ulong TotalLength, V1, V2, V3, V4;
             internal uint MemorySize;
-            internal byte[] Memory;
+            internal fixed byte Memory[32];
 
             internal XXH_State Clone()
             {
-                var result = new XXH_State
+                var result = DefaultXXH_State();
+                result.TotalLength = TotalLength;
+                result.MemorySize = MemorySize;
+                result.V1 = V1;
+                result.V2 = V2;
+                result.V3 = V3;
+                result.V4 = V4;
+                fixed (byte* ptrMemory = Memory)
                 {
-                    TotalLength = TotalLength,
-                    MemorySize = MemorySize,
-                    V1 = V1,
-                    V2 = V2,
-                    V3 = V3,
-                    V4 = V4,
-                    Memory = ArrayUtils.Clone(Memory)
-                };
+                    PointerUtils.MemMove(result.Memory, ptrMemory, 32);
+                }
                 return result;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static XXH_State DefaultXXH_State() => default;
         }
 
         private XXH_State _state;
@@ -61,7 +65,7 @@ namespace HashLib4CSharp.Hash64
             : base(8, 32)
         {
             _key = CKey;
-            _state = new XXH_State {Memory = new byte[32]};
+            _state = XXH_State.DefaultXXH_State();
         }
 
         public override void Initialize()
@@ -78,40 +82,42 @@ namespace HashLib4CSharp.Hash64
         public override IHash Clone() =>
             new XXHash64
             {
-                _key = _key, _hash = _hash, _state = _state.Clone(), BufferSize = BufferSize
+                _key = _key,
+                _hash = _hash,
+                _state = _state.Clone(),
+                BufferSize = BufferSize
             };
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
+
+            var length = data.Length;
 
             fixed (byte* dataPtr = data, memoryPtr = _state.Memory)
             {
-                var dataPtr2 = dataPtr + index;
-                _state.TotalLength += (ulong) length;
+                var dataPtr2 = dataPtr;
+                _state.TotalLength += (ulong)length;
 
                 byte* memoryPtr2;
-                if (_state.MemorySize + (uint) length < 32)
+                if (_state.MemorySize + (uint)length < 32)
                 {
                     memoryPtr2 = memoryPtr + _state.MemorySize;
 
                     PointerUtils.MemMove(memoryPtr2, dataPtr2, length);
 
-                    _state.MemorySize += (uint) length;
+                    _state.MemorySize += (uint)length;
 
                     return;
                 }
 
-                var ptrEnd = dataPtr2 + (uint) length;
+                var ptrEnd = dataPtr2 + (uint)length;
 
                 if (_state.MemorySize > 0)
                 {
                     memoryPtr2 = memoryPtr + _state.MemorySize;
 
-                    PointerUtils.MemMove(memoryPtr2, dataPtr2, (int) (32 - _state.MemorySize));
+                    PointerUtils.MemMove(memoryPtr2, dataPtr2, (int)(32 - _state.MemorySize));
 
                     _state.V1 = PRIME64_1 * Bits.RotateLeft64(
                         _state.V1 + PRIME64_2 * Converters.ReadBytesAsUInt64LE(memoryPtr, 0), 31);
@@ -137,7 +143,7 @@ namespace HashLib4CSharp.Hash64
 
                     do
                     {
-                        var dataPtrStart2 = (ulong*) dataPtr2;
+                        var dataPtrStart2 = (ulong*)dataPtr2;
                         v1 = PRIME64_1 * Bits.RotateLeft64(
                             v1 + PRIME64_2 * Converters.ReadPUInt64AsUInt64LE(dataPtrStart2), 31);
                         v2 = PRIME64_1 * Bits.RotateLeft64(
@@ -156,8 +162,8 @@ namespace HashLib4CSharp.Hash64
                 }
 
                 if (dataPtr2 >= ptrEnd) return;
-                PointerUtils.MemMove(memoryPtr, dataPtr2, (int) (ptrEnd - dataPtr2));
-                _state.MemorySize = (uint) (ptrEnd - dataPtr2);
+                PointerUtils.MemMove(memoryPtr, dataPtr2, (int)(ptrEnd - dataPtr2));
+                _state.MemorySize = (uint)(ptrEnd - dataPtr2);
             }
         }
 

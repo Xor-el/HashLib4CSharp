@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -35,23 +36,24 @@ namespace HashLib4CSharp.Crypto
             var padIndex = Buffer.Position < 112 ? 111 - Buffer.Position : 239 - Buffer.Position;
 
             padIndex++;
-            var pad = new byte[padIndex + 16];
+     
+            Span<byte> pad = stackalloc byte[padIndex + 16];
 
             pad[0] = 0x80;
 
             hiBits = Converters.be2me_64(hiBits);
 
-            Converters.ReadUInt64AsBytesLE(hiBits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(hiBits, pad.Slice(padIndex));
 
             padIndex += 8;
 
             loBits = Converters.be2me_64(loBits);
 
-            Converters.ReadUInt64AsBytesLE(loBits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(loBits, pad.Slice(padIndex));
 
             padIndex += 8;
 
-            TransformBytes(pad, 0, padIndex);
+            TransformByteSpan(pad.Slice(0, padIndex));
         }
 
         protected override unsafe byte[] GetResult()
@@ -72,12 +74,9 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new ulong[80];
+            var buffer = stackalloc ulong[80];
 
-            fixed (ulong* bufferPtr = buffer)
-            {
-                Converters.be64_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.be64_copy(data, index, buffer, 0, dataLength);
 
             // Step 1
 
@@ -1143,8 +1142,6 @@ namespace HashLib4CSharp.Crypto
             State[5] = State[5] + f;
             State[6] = State[6] + g;
             State[7] = State[7] + h;
-
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 }

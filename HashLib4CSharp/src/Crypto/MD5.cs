@@ -22,7 +22,6 @@ namespace HashLib4CSharp.Crypto
             : base(4, 16)
         {
         }
-
         public override IHash Clone() =>
             new MD5
             {
@@ -35,12 +34,9 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new uint[16];
+            var buffer = stackalloc uint[16];
 
-            fixed (uint* bufferPtr = buffer)
-            {
-                Converters.le32_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.le32_copy(data, index, buffer, 0, dataLength);
 
             var a = State[0];
             var b = State[1];
@@ -184,7 +180,6 @@ namespace HashLib4CSharp.Crypto
             State[2] = State[2] + c;
             State[3] = State[3] + d;
 
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 }

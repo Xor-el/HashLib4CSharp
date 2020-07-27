@@ -12,6 +12,7 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -25,13 +26,13 @@ namespace HashLib4CSharp.Utils
             void* dest, int destIndex, int size)
         {
             // if all pointers and size are 32-bits aligned
-            if ((((int) ((byte*) dest - (byte*) 0) | (int) ((byte*) src - (byte*) 0) | srcIndex |
+            if ((((int)((byte*)dest - (byte*)0) | (int)((byte*)src - (byte*)0) | srcIndex |
                   destIndex | size) & 3) == 0)
             {
                 // copy aligned memory block as 32-bit integers
-                var srcStart = (uint*) ((byte*) src + srcIndex);
-                var srcEnd = (uint*) ((byte*) src + srcIndex + size);
-                var destStart = (uint*) ((byte*) dest + destIndex);
+                var srcStart = (uint*)((byte*)src + srcIndex);
+                var srcEnd = (uint*)((byte*)src + srcIndex + size);
+                var destStart = (uint*)((byte*)dest + destIndex);
                 while (srcStart < srcEnd)
                 {
                     *destStart = Bits.ReverseBytesUInt32(*srcStart);
@@ -41,30 +42,29 @@ namespace HashLib4CSharp.Utils
             }
             else
             {
-                var srcStart = (byte*) src + srcIndex;
+                var srcStart = (byte*)src + srcIndex;
 
                 var count = size + destIndex;
                 while (destIndex < count)
                 {
-                    ((byte*) dest)[destIndex ^ 3] = *srcStart;
+                    ((byte*)dest)[destIndex ^ 3] = *srcStart;
                     srcStart++;
                     destIndex++;
                 }
             }
         }
 
-
         private static unsafe void swap_copy_str_to_u64(void* src, int srcIndex,
             void* dest, int destIndex, int size)
         {
             // if all pointers and size are 64-bits aligned
-            if ((((int) ((byte*) dest - (byte*) 0) | (int) ((byte*) src - (byte*) 0) | srcIndex |
+            if ((((int)((byte*)dest - (byte*)0) | (int)((byte*)src - (byte*)0) | srcIndex |
                   destIndex | size) & 7) == 0)
             {
                 // copy aligned memory block as 64-bit integers
-                var srcStart = (ulong*) ((byte*) src + srcIndex);
-                var srcEnd = (ulong*) ((byte*) src + srcIndex + size);
-                var destStart = (ulong*) ((byte*) dest + destIndex);
+                var srcStart = (ulong*)((byte*)src + srcIndex);
+                var srcEnd = (ulong*)((byte*)src + srcIndex + size);
+                var destStart = (ulong*)((byte*)dest + destIndex);
                 while (srcStart < srcEnd)
                 {
                     *destStart = Bits.ReverseBytesUInt64(*srcStart);
@@ -74,12 +74,12 @@ namespace HashLib4CSharp.Utils
             }
             else
             {
-                var srcStart = (byte*) src + srcIndex;
+                var srcStart = (byte*)src + srcIndex;
 
                 var count = size + destIndex;
                 while (destIndex < count)
                 {
-                    ((byte*) dest)[destIndex ^ 7] = *srcStart;
+                    ((byte*)dest)[destIndex ^ 7] = *srcStart;
                     srcStart++;
                     destIndex++;
                 }
@@ -101,7 +101,7 @@ namespace HashLib4CSharp.Utils
             if (BitConverter.IsLittleEndian)
                 swap_copy_str_to_u32(src, srcIndex, dest, destIndex, size);
             else
-                PointerUtils.MemMove((byte*) dest + destIndex, (byte*) src + srcIndex, size);
+                PointerUtils.MemMove((byte*)dest + destIndex, (byte*)src + srcIndex, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -111,7 +111,7 @@ namespace HashLib4CSharp.Utils
             if (BitConverter.IsLittleEndian)
                 swap_copy_str_to_u64(src, srcIndex, dest, destIndex, size);
             else
-                PointerUtils.MemMove((byte*) dest + destIndex, (byte*) src + srcIndex, size);
+                PointerUtils.MemMove((byte*)dest + destIndex, (byte*)src + srcIndex, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -127,7 +127,7 @@ namespace HashLib4CSharp.Utils
             void* dest, int destIndex, int size)
         {
             if (BitConverter.IsLittleEndian)
-                PointerUtils.MemMove((byte*) dest + destIndex, (byte*) src + srcIndex, size);
+                PointerUtils.MemMove((byte*)dest + destIndex, (byte*)src + srcIndex, size);
             else
                 swap_copy_str_to_u32(src, srcIndex, dest, destIndex, size);
         }
@@ -137,98 +137,51 @@ namespace HashLib4CSharp.Utils
             void* dest, int destIndex, int size)
         {
             if (BitConverter.IsLittleEndian)
-                PointerUtils.MemMove((byte*) dest + destIndex, (byte*) src + srcIndex, size);
+                PointerUtils.MemMove((byte*)dest + destIndex, (byte*)src + srcIndex, size);
             else
                 swap_copy_str_to_u64(src, srcIndex, dest, destIndex, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void ReadUInt32AsBytesLE(uint value,
-            byte[] output, int index)
-        {
-            if (BitConverter.IsLittleEndian)
-            {
-                fixed (byte* outputPtr = &output[index])
-                {
-                    Unsafe.WriteUnaligned((uint*) outputPtr, value);
-                }
-            }
-            else
-            {
-                output[index] = (byte) value;
-                output[index + 1] = (byte) (value >> 8);
-                output[index + 2] = (byte) (value >> 16);
-                output[index + 3] = (byte) (value >> 24);
-            }
-        }
+        internal static void ReadUInt32AsBytesLE(uint value,
+            byte[] output, int index) =>
+            ReadUInt32AsBytesLE(value, output.AsSpan().Slice(index));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void ReadUInt32AsBytesBE(uint value,
-            byte[] output, int index)
-        {
-            if (BitConverter.IsLittleEndian)
-            {
-                output[index] = (byte) (value >> 24);
-                output[index + 1] = (byte) (value >> 16);
-                output[index + 2] = (byte) (value >> 8);
-                output[index + 3] = (byte) value;
-            }
-            else
-            {
-                fixed (byte* outputPtr = &output[index])
-                {
-                    Unsafe.WriteUnaligned((uint*) outputPtr, value);
-                }
-            }
-        }
+        internal static void ReadUInt32AsBytesLE(uint value,
+            Span<byte> output) =>
+            BinaryPrimitives.WriteUInt32LittleEndian(output, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void ReadUInt64AsBytesLE(ulong value,
-            byte[] output, int index)
-        {
-            if (BitConverter.IsLittleEndian)
-            {
-                fixed (byte* outputPtr = &output[index])
-                {
-                    Unsafe.WriteUnaligned((ulong*) outputPtr, value);
-                }
-            }
-            else
-            {
-                output[index] = (byte) value;
-                output[index + 1] = (byte) (value >> 8);
-                output[index + 2] = (byte) (value >> 16);
-                output[index + 3] = (byte) (value >> 24);
-                output[index + 4] = (byte) (value >> 32);
-                output[index + 5] = (byte) (value >> 40);
-                output[index + 6] = (byte) (value >> 48);
-                output[index + 7] = (byte) (value >> 56);
-            }
-        }
+        internal static void ReadUInt32AsBytesBE(uint value,
+            byte[] output, int index) =>
+            ReadUInt32AsBytesBE(value, output.AsSpan().Slice(index));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void ReadUInt64AsBytesBE(ulong value,
-            byte[] output, int index)
-        {
-            if (BitConverter.IsLittleEndian)
-            {
-                output[index] = (byte) (value >> 56);
-                output[index + 1] = (byte) (value >> 48);
-                output[index + 2] = (byte) (value >> 40);
-                output[index + 3] = (byte) (value >> 32);
-                output[index + 4] = (byte) (value >> 24);
-                output[index + 5] = (byte) (value >> 16);
-                output[index + 6] = (byte) (value >> 8);
-                output[index + 7] = (byte) value;
-            }
-            else
-            {
-                fixed (byte* outputPtr = &output[index])
-                {
-                    Unsafe.WriteUnaligned((ulong*) outputPtr, value);
-                }
-            }
-        }
+        internal static void ReadUInt32AsBytesBE(uint value,
+            Span<byte> output) =>
+            BinaryPrimitives.WriteUInt32BigEndian(output, value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReadUInt64AsBytesLE(ulong value,
+            byte[] output, int index) =>
+            ReadUInt64AsBytesLE(value, output.AsSpan().Slice(index));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReadUInt64AsBytesLE(ulong value,
+            Span<byte> output) =>
+            BinaryPrimitives.WriteUInt64LittleEndian(output, value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReadUInt64AsBytesBE(ulong value,
+            byte[] output, int index) =>
+            ReadUInt64AsBytesBE(value, output.AsSpan().Slice(index));
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReadUInt64AsBytesBE(ulong value,
+            Span<byte> output) =>
+            BinaryPrimitives.WriteUInt64BigEndian(output, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe uint ReadPCardinalAsUInt32(uint* input) => Unsafe.ReadUnaligned<uint>(input);
@@ -250,19 +203,19 @@ namespace HashLib4CSharp.Utils
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe uint ReadBytesAsUInt32LE(byte* input, int index) =>
-            ReadPCardinalAsUInt32LE((uint*) (input + index));
+            ReadPCardinalAsUInt32LE((uint*)(input + index));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe ulong ReadBytesAsUInt64LE(byte* input, int index) =>
-            ReadPUInt64AsUInt64LE((ulong*) (input + index));
+            ReadPUInt64AsUInt64LE((ulong*)(input + index));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe uint ReadBytesAsUInt32BE(byte* input, int index) =>
-            ReadPCardinalAsUInt32BE((uint*) (input + index));
+            ReadPCardinalAsUInt32BE((uint*)(input + index));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe ulong ReadBytesAsUInt64BE(byte* input, int index) =>
-            ReadPUInt64AsUInt64BE((ulong*) (input + index));
+            ReadPUInt64AsUInt64BE((ulong*)(input + index));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static byte[] ReadUInt32AsBytesLE(uint input)

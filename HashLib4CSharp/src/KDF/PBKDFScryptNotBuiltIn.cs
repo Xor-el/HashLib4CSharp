@@ -106,7 +106,7 @@ namespace HashLib4CSharp.KDF
         }
 
         public override async Task<byte[]> GetBytesAsync(int byteCount,
-            CancellationToken cancellationToken = default(CancellationToken)) =>
+            CancellationToken cancellationToken = default) =>
             await Task.Run(() => GetBytes(byteCount), cancellationToken);
 
         public override string Name => GetType().Name;
@@ -293,11 +293,11 @@ namespace HashLib4CSharp.KDF
                     }
                 }
 
-                var mask = (uint) cost - 1;
+                var mask = (uint)cost - 1;
                 idx = 0;
                 while (idx < cost)
                 {
-                    var jdx = (int) (x[blockCount - 16] & mask);
+                    var jdx = (int)(x[blockCount - 16] & mask);
                     fixed (uint* vPtr = &v[jdx * blockCount], blockYPtr = blockY)
                     {
                         PointerUtils.MemMove(blockYPtr, vPtr, blockCount * sizeof(uint));
@@ -316,7 +316,7 @@ namespace HashLib4CSharp.KDF
             finally
             {
                 ClearArray(v);
-                ClearAllArrays(new[] {x, blockX1, blockX2, blockY});
+                ClearAllArrays(new[] { x, blockX1, blockX2, blockY });
             }
         }
 
@@ -355,11 +355,6 @@ namespace HashLib4CSharp.KDF
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Task CreateSMixTask(int idx, uint[] block, int cost,
-            int blockSize) =>
-            new Task(() => SMix(block, idx * 32 * blockSize, cost, blockSize));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void DoSMix(uint[] block, int parallelism, int cost,
             int blockSize)
         {
@@ -367,15 +362,7 @@ namespace HashLib4CSharp.KDF
             //   for (var idx = 0; idx < parallelism; idx++)
             //      SMix(block, idx * 32 * blockSize, cost, blockSize);
 
-            // multi threaded version
-            var tasks = new Task[parallelism];
-            for (var idx = 0; idx < parallelism; idx++)
-            {
-                tasks[idx] = CreateSMixTask(idx, block, cost, blockSize);
-                tasks[idx].Start();
-            }
-
-            Task.WaitAll(tasks);
+            Parallel.For(0, parallelism, idx => SMix(block, idx * 32 * blockSize, cost, blockSize));
         }
 
         private static unsafe byte[] MfCrypt(byte[] password, byte[] salt, int cost,

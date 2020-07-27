@@ -265,7 +265,7 @@ namespace HashLib4CSharp.Params
                     treeConfig.InnerHashSize));
         }
 
-        internal static unsafe ulong[] ConfigB(Blake2BConfig config, ref Blake2BTreeConfig treeConfig)
+        internal static unsafe Span<ulong> ConfigB(Blake2BConfig config, ref Blake2BTreeConfig treeConfig)
         {
             var isSequential = treeConfig == null;
 
@@ -274,7 +274,7 @@ namespace HashLib4CSharp.Params
 
             VerifyConfigB(config, treeConfig, isSequential);
 
-            var buffer = new byte[64];
+            Span<byte> buffer = stackalloc byte[64];
 
             buffer[0] = (byte) config.HashSize;
             buffer[1] = (byte) config.Key.Length;
@@ -283,8 +283,8 @@ namespace HashLib4CSharp.Params
             {
                 buffer[2] = treeConfig.FanOut;
                 buffer[3] = treeConfig.MaxDepth;
-                Converters.ReadUInt32AsBytesLE(treeConfig.LeafSize, buffer, 4);
-                Converters.ReadUInt64AsBytesLE(treeConfig.NodeOffset, buffer, 8);
+                Converters.ReadUInt32AsBytesLE(treeConfig.LeafSize, buffer.Slice(4));
+                Converters.ReadUInt64AsBytesLE(treeConfig.NodeOffset, buffer.Slice(8));
                 buffer[16] = treeConfig.NodeDepth;
                 buffer[17] = treeConfig.InnerHashSize;
             }
@@ -305,7 +305,7 @@ namespace HashLib4CSharp.Params
                 }
             }
 
-            var result = new ulong[8];
+            Span<ulong> result = new ulong[8];
             fixed (byte* src = buffer)
             {
                 fixed (ulong* dest = result)

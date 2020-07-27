@@ -20,12 +20,13 @@ namespace HashLib4CSharp.Base
     internal sealed class HashBuffer
     {
         private const string HashBufferMessage = "HashBuffer, Length: {0}, Position: {1}, IsEmpty: {2}, IsFull: {3}";
+
         private byte[] _data;
 
         internal HashBuffer(int length)
         {
             Debug.Assert(length > 0);
-            _data = new byte [length];
+            _data = new byte[length];
             Initialize();
         }
 
@@ -47,7 +48,7 @@ namespace HashLib4CSharp.Base
 
         internal HashBuffer Clone()
         {
-            var result = new HashBuffer(Length) {Position = Position, _data = ArrayUtils.Clone(_data)};
+            var result = new HashBuffer(Length) { Position = Position, _data = ArrayUtils.Clone(_data) };
             return result;
         }
 
@@ -66,54 +67,28 @@ namespace HashLib4CSharp.Base
             return ArrayUtils.Clone(_data);
         }
 
-        internal unsafe bool Feed(void* data, int dataLength, int length)
-        {
-            if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(length >= 0);
-            Debug.Assert(length <= dataLength);
-            Debug.Assert(!IsFull);
-
-            if (dataLength == 0) return false;
-            if (length == 0) return false;
-            var size = _data.Length - Position;
-            if (size > length) size = length;
-
-            fixed (byte* dest = &_data[Position])
-            {
-                var src = (byte*) data;
-                PointerUtils.MemMove(dest, src, size * sizeof(byte));
-            }
-
-            Position += size;
-
-            return IsFull;
-        }
-
-        internal unsafe bool Feed(void* data, int dataLength,
+        internal bool Feed(ReadOnlySpan<byte> data,
             ref int startIndex, ref int length, ref ulong processedBytesCount)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             Debug.Assert(startIndex >= 0);
             Debug.Assert(length >= 0);
-            Debug.Assert(startIndex + length <= dataLength);
+            Debug.Assert(startIndex + length <= data.Length);
             Debug.Assert(!IsFull);
 
-            if (dataLength == 0) return false;
+            if (data.Length == 0) return false;
             if (length == 0) return false;
 
             var size = _data.Length - Position;
             if (size > length) size = length;
 
-            fixed (byte* dest = &_data[Position])
-            {
-                var src = (byte*) data + startIndex;
-                PointerUtils.MemMove(dest, src, size * sizeof(byte));
-            }
+            var srcSlice = data.Slice(startIndex, size * sizeof(byte));
+            srcSlice.CopyTo(_data.AsSpan().Slice(Position, srcSlice.Length));
 
             Position += size;
             startIndex += size;
             length -= size;
-            processedBytesCount += (ulong) size;
+            processedBytesCount += (ulong)size;
             return IsFull;
         }
     }

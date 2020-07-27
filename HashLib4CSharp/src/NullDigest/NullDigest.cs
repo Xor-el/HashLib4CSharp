@@ -72,7 +72,7 @@ namespace HashLib4CSharp.NullDigest
                 if (_out.Length > 0)
                 {
                     _out.Position = 0;
-                    var size = (int) _out.Length;
+                    var size = (int)_out.Length;
                     buffer = new byte[size];
                     _out.Read(buffer, 0, size);
                 }
@@ -89,12 +89,12 @@ namespace HashLib4CSharp.NullDigest
             return new HashResult(buffer);
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             if (data.Length > 0)
             {
-                _out.Write(data, index, length);
+                _out.Write(data);
             }
         }
     }

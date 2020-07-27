@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -52,20 +53,20 @@ namespace HashLib4CSharp.Crypto
 
         protected override unsafe byte[] GetResult()
         {
-            var buffer = new ulong[HashSize / sizeof(ulong)];
+            var buffer = stackalloc ulong[HashSize / sizeof(ulong)];
             var result = new byte[HashSize];
 
-            fixed (ulong* bufferPtr = buffer, millPtr = _mill)
+            fixed (ulong* millPtr = _mill)
             {
                 fixed (byte* resultPtr = result)
                 {
                     for (var i = 0; i < 2; i++)
                     {
                         RoundFunction();
-                        PointerUtils.MemMove(bufferPtr + (i * 2), (millPtr + 1), 2 * sizeof(ulong));
+                        PointerUtils.MemMove(buffer + i * 2, (millPtr + 1), 2 * sizeof(ulong));
                     }
 
-                    Converters.le64_copy(bufferPtr, 0, resultPtr, 0,
+                    Converters.le64_copy(buffer, 0, resultPtr, 0,
                         result.Length);
                 }
             }
@@ -73,15 +74,15 @@ namespace HashLib4CSharp.Crypto
             return result;
         }
 
-        protected override void Finish()
+        protected override unsafe void Finish()
         {
-            var paddingSize = 24 - (int) (ProcessedBytesCount % 24);
+            var paddingSize = 24 - (int)(ProcessedBytesCount % 24);
 
-            var pad = new byte[paddingSize];
+            Span<byte> pad = stackalloc byte[paddingSize];
 
             pad[0] = 0x01;
 
-            TransformBytes(pad, 0, paddingSize);
+            TransformByteSpan(pad.Slice(0, paddingSize));
 
             for (var i = 0; i < 16; i++)
                 RoundFunction();
@@ -90,12 +91,9 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new ulong[3];
+            var buffer = stackalloc ulong[3];
 
-            fixed (ulong* bufferPtr = buffer)
-            {
-                Converters.le64_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.le64_copy(data, index, buffer, 0, dataLength);
 
             var i = 0;
             while (i < 3)
@@ -106,13 +104,11 @@ namespace HashLib4CSharp.Crypto
             }
 
             RoundFunction();
-
-            ArrayUtils.ZeroFill(buffer);
         }
 
-        private void RoundFunction()
+        private unsafe void RoundFunction()
         {
-            var a = new ulong[19];
+            var a = stackalloc ulong[19];
             var q = _belt[12];
 
             var i = 12;

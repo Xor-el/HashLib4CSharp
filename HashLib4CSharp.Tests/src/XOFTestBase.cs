@@ -42,7 +42,7 @@ namespace HashLib4CSharp.Tests
         public void TestVeryLongXofOfEmptyData()
         {
             ExpectedString = XofOfEmptyData;
-            ActualString = XofInstance.ComputeBytes(EmptyBytes)
+            ActualString = XofInstance.ComputeBytes(ZeroByteArray)
                 .ToString();
 
             AssertAreEqual(ExpectedString, ActualString);
@@ -60,7 +60,7 @@ namespace HashLib4CSharp.Tests
 
 
             XofInstance.Initialize();
-            XofInstance.TransformBytes(EmptyBytes);
+            XofInstance.TransformBytes(ZeroByteArray);
 
             // 1
             XofInstance.DoOutput(tempResult, 0, xofStreamingChunkSize);
@@ -154,9 +154,9 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestCShakeAndShakeAreSameWhenNAndSAreEmpty()
         {
-            ExpectedString = XofInstanceShake.ComputeBytes(EmptyBytes)
+            ExpectedString = XofInstanceShake.ComputeBytes(ZeroByteArray)
                 .ToString();
-            ActualString = XofInstance.ComputeBytes(EmptyBytes)
+            ActualString = XofInstance.ComputeBytes(ZeroByteArray)
                 .ToString();
 
             AssertAreEqual(ExpectedString, ActualString);

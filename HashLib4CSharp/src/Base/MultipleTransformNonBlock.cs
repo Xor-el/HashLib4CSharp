@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,7 +43,7 @@ namespace HashLib4CSharp.Base
             if (Buffer.Length <= 0) return aggregate;
             Buffer.Position = 0;
             aggregate = new byte[Buffer.Length];
-            Buffer.Read(aggregate, 0, (int) Buffer.Length);
+            Buffer.Read(aggregate, 0, (int)Buffer.Length);
 
             return aggregate;
         }
@@ -82,14 +81,11 @@ namespace HashLib4CSharp.Base
             Buffer.SetLength(0);
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             if (data.Length == 0) return;
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
-            Buffer.Write(data, index, length);
+            Buffer.Write(data);
         }
 
         public override IHashResult TransformFinal()
@@ -98,13 +94,6 @@ namespace HashLib4CSharp.Base
             Initialize();
             return result;
         }
-
-        public override IHashResult ComputeBytes(byte[] data)
-        {
-            Initialize();
-            return ComputeAggregatedBytes(data);
-        }
-
         protected abstract IHashResult ComputeAggregatedBytes(byte[] data);
     }
 }

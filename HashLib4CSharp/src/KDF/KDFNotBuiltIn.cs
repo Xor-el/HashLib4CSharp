@@ -24,7 +24,7 @@ namespace HashLib4CSharp.KDF
         public abstract byte[] GetBytes(int byteCount);
 
         public abstract Task<byte[]> GetBytesAsync(int byteCount,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         public abstract string Name { get; }
 

@@ -26,7 +26,7 @@ namespace HashLib4CSharp.MAC
         protected IHash Hash;
         protected bool Finalized;
 
-        protected static readonly byte[] KmacBytes = {75, 77, 65, 67};
+        protected static readonly byte[] KmacBytes = { 75, 77, 65, 67 };
 
         protected KMACNotBuiltIn(int hashSize)
             : base(hashSize, 200 - hashSize * 2)
@@ -42,12 +42,12 @@ namespace HashLib4CSharp.MAC
         {
             Finalized = false;
             Hash.Initialize();
-            TransformBytes(CShake.BytePad(CShake.EncodeString(_key), BlockSize));
+            TransformByteSpan(CShake.BytePad(CShake.EncodeString(_key), BlockSize));
         }
 
         private byte[] GetResult()
         {
-            var xofSizeInBytes = ((IXOF) Hash).XofSizeInBits >> 3;
+            var xofSizeInBytes = ((IXOF)Hash).XofSizeInBits >> 3;
 
             var result = new byte[xofSizeInBytes];
 
@@ -59,19 +59,16 @@ namespace HashLib4CSharp.MAC
         public override IHashResult TransformFinal()
         {
             var buffer = GetResult();
-            Debug.Assert((ulong) buffer.Length == ((IXOF) Hash).XofSizeInBits >> 3);
+            Debug.Assert((ulong)buffer.Length == ((IXOF)Hash).XofSizeInBits >> 3);
             Initialize();
 
             return new HashResult(buffer);
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
-            Hash.TransformBytes(data, index, length);
+            Hash.TransformByteSpan(data);
         }
 
         public virtual void Clear() => ArrayUtils.ZeroFill(_key);
@@ -92,11 +89,11 @@ namespace HashLib4CSharp.MAC
         {
             if (!Finalized)
             {
-                TransformBytes(this is IXOF ? CShake.RightEncode(0) : CShake.RightEncode(((IXOF) Hash).XofSizeInBits));
+                TransformByteSpan(this is IXOF ? CShake.RightEncode(0) : CShake.RightEncode(((IXOF)Hash).XofSizeInBits));
                 Finalized = true;
             }
 
-            ((IXOF) Hash).DoOutput(dest, destOffset, outputLength);
+            ((IXOF)Hash).DoOutput(dest, destOffset, outputLength);
         }
 
         public static IKMACNotBuiltIn CreateKMAC128(byte[] kmacKey, byte[] customization,
@@ -115,11 +112,11 @@ namespace HashLib4CSharp.MAC
     internal sealed class KMAC128 : KMACNotBuiltIn
     {
         private KMAC128(IHash hash, byte[] kmacKey,
-            ulong outputLengthInBits) : base((int) Enum.HashSize.HashSize128)
+            ulong outputLengthInBits) : base((int)Enum.HashSize.HashSize128)
         {
             Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
-            ((IXOF) Hash).XofSizeInBits = outputLengthInBits;
+            ((IXOF)Hash).XofSizeInBits = outputLengthInBits;
         }
 
         internal KMAC128(byte[] kmacKey, byte[] customization,
@@ -132,17 +129,18 @@ namespace HashLib4CSharp.MAC
 
         public override IHash Clone() =>
             new KMAC128(Hash.Clone(), Key,
-                ((IXOF) Hash).XofSizeInBits) {BufferSize = BufferSize, Finalized = Finalized};
+                ((IXOF)Hash).XofSizeInBits)
+            { BufferSize = BufferSize, Finalized = Finalized };
     }
 
     internal sealed class KMAC256 : KMACNotBuiltIn
     {
         private KMAC256(IHash hash, byte[] kmacKey,
-            ulong outputLengthInBits) : base((int) Enum.HashSize.HashSize256)
+            ulong outputLengthInBits) : base((int)Enum.HashSize.HashSize256)
         {
             Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
-            ((IXOF) Hash).XofSizeInBits = outputLengthInBits;
+            ((IXOF)Hash).XofSizeInBits = outputLengthInBits;
         }
 
         internal KMAC256(byte[] kmacKey, byte[] customization,
@@ -155,7 +153,8 @@ namespace HashLib4CSharp.MAC
 
         public override IHash Clone() =>
             new KMAC256(Hash.Clone(), Key,
-                ((IXOF) Hash).XofSizeInBits) {BufferSize = BufferSize, Finalized = Finalized};
+                ((IXOF)Hash).XofSizeInBits)
+            { BufferSize = BufferSize, Finalized = Finalized };
     }
 
     internal abstract class KMACXOF : KMACNotBuiltIn, IXOF
@@ -169,7 +168,7 @@ namespace HashLib4CSharp.MAC
             if ((xofSizeInBytes & 0x07) != 0 || xofSizeInBytes < 1)
                 throw new ArgumentException(InvalidXofSize);
 
-            ((IXOF) Hash).XofSizeInBits = xofSizeInBits;
+            ((IXOF)Hash).XofSizeInBits = xofSizeInBits;
         }
 
         protected KMACXOF(int hashSize) : base(hashSize)
@@ -178,14 +177,14 @@ namespace HashLib4CSharp.MAC
 
         public ulong XofSizeInBits
         {
-            get => ((IXOF) Hash).XofSizeInBits;
+            get => ((IXOF)Hash).XofSizeInBits;
             set => SetXofSizeInBitsInternal(value);
         }
     }
 
     internal sealed class KMAC128XOF : KMACXOF
     {
-        private KMAC128XOF(IHash hash, byte[] kmacKey) : base((int) Enum.HashSize.HashSize128)
+        private KMAC128XOF(IHash hash, byte[] kmacKey) : base((int)Enum.HashSize.HashSize128)
         {
             Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;
@@ -208,7 +207,7 @@ namespace HashLib4CSharp.MAC
 
     internal sealed class KMAC256XOF : KMACXOF
     {
-        private KMAC256XOF(IHash hash, byte[] kmacKey) : base((int) Enum.HashSize.HashSize256)
+        private KMAC256XOF(IHash hash, byte[] kmacKey) : base((int)Enum.HashSize.HashSize256)
         {
             Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Key = kmacKey;

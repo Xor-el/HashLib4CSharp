@@ -30,7 +30,7 @@ namespace HashLib4CSharp.Interfaces
         /// <returns>A byte array filled with pseudo-random key bytes.</returns>
         byte[] GetBytes(int byteCount);
 
-        Task<byte[]> GetBytesAsync(int byteCount, CancellationToken cancellationToken = default(CancellationToken));
+        Task<byte[]> GetBytesAsync(int byteCount, CancellationToken cancellationToken = default);
         string Name { get; }
         string ToString();
     }

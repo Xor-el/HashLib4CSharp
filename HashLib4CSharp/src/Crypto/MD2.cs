@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -68,56 +69,56 @@ namespace HashLib4CSharp.Crypto
 
         protected override void Finish()
         {
-            var padLength = 16 - (uint) Buffer.Position;
-            var pad = new byte[padLength];
+            var padLength = 16 - (uint)Buffer.Position;
 
-            uint idx = 0;
+            Span<byte> pad = stackalloc byte[(int)padLength];
+
+            var idx = 0;
             while (idx < padLength)
             {
-                pad[idx] = (byte) padLength;
+                pad[idx] = (byte)padLength;
                 idx++;
             }
 
-            TransformBytes(pad, 0, (int) padLength);
-            TransformBytes(_checksum, 0, 16);
+            TransformByteSpan(pad.Slice(0, (int)padLength));
+            TransformByteSpan(_checksum.AsSpan().Slice(0, 16));
         }
 
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
             uint t = 0;
-            var temp = new byte[48];
+            var temp = stackalloc byte[48];
 
-            fixed (byte* tempPtr = temp, statePtr = _state)
+            fixed (byte* statePtr = _state)
             {
-                PointerUtils.MemMove(tempPtr, statePtr, dataLength);
-                PointerUtils.MemMove(tempPtr + dataLength, (byte*) data + index,
+                PointerUtils.MemMove(temp, statePtr, dataLength);
+                PointerUtils.MemMove(temp + dataLength, (byte*)data + index,
                     dataLength);
 
-                for (var i = 0; i < 16; i++) temp[i + 32] = (byte) (_state[i] ^ ((byte*) data)[i + index]);
+                for (var i = 0; i < 16; i++) temp[i + 32] = (byte)(_state[i] ^ ((byte*)data)[i + index]);
 
                 for (var i = 0; i < 18; i++)
                 {
                     for (var j = 0; j < 48; j++)
                     {
-                        temp[j] = (byte) (temp[j] ^ Pi[t]);
+                        temp[j] = (byte)(temp[j] ^ Pi[t]);
                         t = temp[j];
                     }
 
-                    t = (byte) (t + i);
+                    t = (byte)(t + i);
                 }
 
-                PointerUtils.MemMove(statePtr, tempPtr, 16);
+                PointerUtils.MemMove(statePtr, temp, 16);
 
                 t = _checksum[15];
 
                 for (var i = 0; i < 16; i++)
                 {
-                    _checksum[i] = (byte) (_checksum[i] ^ Pi[((byte*) data)[i + index] ^ t]);
+                    _checksum[i] = (byte)(_checksum[i] ^ Pi[((byte*)data)[i + index] ^ t]);
                     t = _checksum[i];
                 }
 
-                ArrayUtils.ZeroFill(temp);
             }
         }
     }

@@ -47,13 +47,13 @@ namespace HashLib4CSharp.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void ZeroFill<T>(T[] buffer) => Fill(buffer, 0, buffer?.Length ?? 0, default(T));
+        internal static void ZeroFill<T>(T[] buffer) => Fill(buffer, 0, buffer?.Length ?? 0, default);
 
         internal static void ZeroFill<T>(T[][] matrixBuffer)
         {
             if (matrixBuffer == null) return;
             foreach (var buffer in matrixBuffer)
-                Fill(buffer, 0, buffer.Length, default(T));
+                Fill(buffer, 0, buffer.Length, default);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

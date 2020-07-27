@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Crypto;
 using HashLib4CSharp.Interfaces;
@@ -45,25 +44,22 @@ namespace HashLib4CSharp.MAC
                 : throw new ArgumentNullException(nameof(value));
         }
 
-        public override IHash Clone() => new Blake2SMACNotBuiltIn(_hash.Clone(), Key) {BufferSize = BufferSize};
+        public override IHash Clone() => new Blake2SMACNotBuiltIn(_hash.Clone(), Key) { BufferSize = BufferSize };
 
         public void Clear() => ArrayUtils.ZeroFill(_key);
 
         public override void Initialize()
         {
-            ((Blake2S) _hash).Config.Key = _key;
+            ((Blake2S)_hash).Config.Key = _key;
             _hash.Initialize();
         }
 
         public override IHashResult TransformFinal() => _hash.TransformFinal();
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
-            _hash.TransformBytes(data, index, length);
+            _hash.TransformByteSpan(data);
         }
 
         public static IBlake2SMACNotBuiltIn CreateBlake2SMAC(byte[] key, byte[] salt, byte[] personalization,

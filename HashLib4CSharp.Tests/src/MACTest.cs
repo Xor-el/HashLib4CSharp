@@ -12,8 +12,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateMD5(), EmptyBytes);
-            MacInstance = HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateMD5(), EmptyBytes);
+            HashInstance = HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateMD5(), ZeroByteArray);
+            MacInstance = HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateMD5(), ZeroByteArray);
             MacInstanceTwo = HashFactory.HMAC.CreateHMAC(HashFactory.Crypto.CreateMD5(), OneToNineBytes);
 
             HashOfEmptyData = "74E6F7298A9C2D168935F58C001BAD88";
@@ -25,7 +25,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullHashInstanceThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.HMAC.CreateHMAC(null, EmptyBytes));
+                HashFactory.HMAC.CreateHMAC(null, ZeroByteArray));
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
@@ -41,9 +41,9 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.KMAC.CreateKMAC128(EmptyBytes, EmptyBytes, 128);
-            MacInstance = HashFactory.KMAC.CreateKMAC128(EmptyBytes, EmptyBytes, 128);
-            MacInstanceTwo = HashFactory.KMAC.CreateKMAC128(OneToNineBytes, EmptyBytes, 128);
+            HashInstance = HashFactory.KMAC.CreateKMAC128(ZeroByteArray, ZeroByteArray, 128);
+            MacInstance = HashFactory.KMAC.CreateKMAC128(ZeroByteArray, ZeroByteArray, 128);
+            MacInstanceTwo = HashFactory.KMAC.CreateKMAC128(OneToNineBytes, ZeroByteArray, 128);
 
             HashOfEmptyData = "E6AFF27FEF95903EB939BC3745730D34";
             HashOfDefaultData = "C40AE1DBC4E8411712D445D663E4073A";
@@ -54,23 +54,23 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.KMAC.CreateKMAC128(NullBytes, EmptyBytes, 128));
+                HashFactory.KMAC.CreateKMAC128(NullBytes, ZeroByteArray, 128));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.KMAC.CreateKMAC128(EmptyBytes, NullBytes, 128));
+                HashFactory.KMAC.CreateKMAC128(ZeroByteArray, NullBytes, 128));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                HashFactory.KMAC.CreateKMAC128(EmptyBytes, EmptyBytes, 0));
+                HashFactory.KMAC.CreateKMAC128(ZeroByteArray, ZeroByteArray, 0));
 
         [Test]
         public void TestNISTSample1()
         {
             ExpectedString = "E5780B0D3EA6F7D3A429C5706AA43A00FADBD7D49628839E3187243F456EE14E";
-            var macInstance = HashFactory.KMAC.CreateKMAC128(ASCIICharacterBytes, EmptyBytes,
+            var macInstance = HashFactory.KMAC.CreateKMAC128(ASCIICharacterBytes, ZeroByteArray,
                 OutputSizeInBits);
             DoComputeKMAC(macInstance, ZeroToThreeBytes);
         }
@@ -102,9 +102,9 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.KMAC.CreateKMAC256(EmptyBytes, EmptyBytes, 256);
-            MacInstance = HashFactory.KMAC.CreateKMAC256(EmptyBytes, EmptyBytes, 256);
-            MacInstanceTwo = HashFactory.KMAC.CreateKMAC256(OneToNineBytes, EmptyBytes, 256);
+            HashInstance = HashFactory.KMAC.CreateKMAC256(ZeroByteArray, ZeroByteArray, 256);
+            MacInstance = HashFactory.KMAC.CreateKMAC256(ZeroByteArray, ZeroByteArray, 256);
+            MacInstanceTwo = HashFactory.KMAC.CreateKMAC256(OneToNineBytes, ZeroByteArray, 256);
 
             HashOfEmptyData = "0B002C51EC240A9AE0E9399CECB6A6A136452522342F7E6C17C62B8CD51F583B";
             HashOfDefaultData = "3669C34F6FC9F4EC516BE3B5ECF8CEC8F10C6AC58A327E43EA0C8F0C3B2BA324";
@@ -115,17 +115,17 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.KMAC.CreateKMAC256(NullBytes, EmptyBytes, 256));
+                HashFactory.KMAC.CreateKMAC256(NullBytes, ZeroByteArray, 256));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.KMAC.CreateKMAC256(EmptyBytes, NullBytes, 256));
+                HashFactory.KMAC.CreateKMAC256(ZeroByteArray, NullBytes, 256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                HashFactory.KMAC.CreateKMAC256(EmptyBytes, EmptyBytes, 0));
+                HashFactory.KMAC.CreateKMAC256(ZeroByteArray, ZeroByteArray, 0));
 
         [Test]
         public void TestNISTSample1()
@@ -142,7 +142,7 @@ namespace HashLib4CSharp.Tests
         {
             ExpectedString =
                 "75358CF39E41494E949707927CEE0AF20A3FF553904C86B08F21CC414BCFD691589D27CF5E15369CBBFF8B9A4C2EB17800855D0235FF635DA82533EC6B759B69";
-            var macInstance = HashFactory.KMAC.CreateKMAC256(ASCIICharacterBytes, EmptyBytes,
+            var macInstance = HashFactory.KMAC.CreateKMAC256(ASCIICharacterBytes, ZeroByteArray,
                 OutputSizeInBits);
             DoComputeKMAC(macInstance, ZeroToOneHundredAndNinetyNineBytes);
         }
@@ -172,11 +172,11 @@ namespace HashLib4CSharp.Tests
             Array.Resize(ref PersonalizationBytes, 16);
 
             HashInstance =
-                HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, EmptyBytes, EmptyBytes, OutputSizeInBits);
+                HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroByteArray, ZeroByteArray, ZeroByteArray, OutputSizeInBits);
 
-            MacInstance = HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, EmptyBytes, EmptyBytes, OutputSizeInBits);
+            MacInstance = HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroByteArray, ZeroByteArray, ZeroByteArray, OutputSizeInBits);
             MacInstanceTwo =
-                HashFactory.Blake2BMAC.CreateBlake2BMAC(OneToNineBytes, EmptyBytes, EmptyBytes, OutputSizeInBits);
+                HashFactory.Blake2BMAC.CreateBlake2BMAC(OneToNineBytes, ZeroByteArray, ZeroByteArray, OutputSizeInBits);
 
             HashOfEmptyData = "0E5751C026E543B2E8AB2EB06099DAA1D1E5DF47778F7787FAAB45CDF12FE3A8";
             HashOfDefaultData = "DFDBC73BAF47DA4D9F645CC9AFFA76B95D78BF112C4EB3CC5372AD33B3DE004A";
@@ -187,28 +187,28 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.Blake2BMAC.CreateBlake2BMAC(NullBytes, EmptyBytes, EmptyBytes, OutputSizeInBits));
+                HashFactory.Blake2BMAC.CreateBlake2BMAC(NullBytes, ZeroByteArray, ZeroByteArray, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, NullBytes, EmptyBytes, OutputSizeInBits));
+                HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroByteArray, NullBytes, ZeroByteArray, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, EmptyBytes, NullBytes, OutputSizeInBits));
+                HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroByteArray, ZeroByteArray, NullBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                HashFactory.Blake2BMAC.CreateBlake2BMAC(EmptyBytes, EmptyBytes, EmptyBytes, 0));
+                HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroByteArray, ZeroByteArray, ZeroByteArray, 0));
 
         [Test]
         public void TestSample1()
         {
             ExpectedString = "2A";
-            var macInstance = HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroToThirtyOneBytes, EmptyBytes, EmptyBytes,
+            var macInstance = HashFactory.Blake2BMAC.CreateBlake2BMAC(ZeroToThirtyOneBytes, ZeroByteArray, ZeroByteArray,
                 1 * 8);
             DoComputeBlake2(macInstance,
                 Converters.ConvertStringToBytes("Sample input for outlen<digest_length", Encoding.UTF8));
@@ -253,11 +253,11 @@ namespace HashLib4CSharp.Tests
             Array.Resize(ref PersonalizationBytes, 8);
 
             HashInstance =
-                HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, EmptyBytes, EmptyBytes, OutputSizeInBits);
+                HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroByteArray, ZeroByteArray, ZeroByteArray, OutputSizeInBits);
 
-            MacInstance = HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, EmptyBytes, EmptyBytes, OutputSizeInBits);
+            MacInstance = HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroByteArray, ZeroByteArray, ZeroByteArray, OutputSizeInBits);
             MacInstanceTwo =
-                HashFactory.Blake2SMAC.CreateBlake2SMAC(OneToNineBytes, EmptyBytes, EmptyBytes, OutputSizeInBits);
+                HashFactory.Blake2SMAC.CreateBlake2SMAC(OneToNineBytes, ZeroByteArray, ZeroByteArray, OutputSizeInBits);
 
             HashOfEmptyData = "64550D6FFE2C0A01A14ABA1EADE0200C";
             HashOfDefaultData = "90ED1B7647A53ADDFA8C4B969471205D";
@@ -268,28 +268,28 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.Blake2SMAC.CreateBlake2SMAC(NullBytes, EmptyBytes, EmptyBytes, OutputSizeInBits));
+                HashFactory.Blake2SMAC.CreateBlake2SMAC(NullBytes, ZeroByteArray, ZeroByteArray, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, NullBytes, EmptyBytes, OutputSizeInBits));
+                HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroByteArray, NullBytes, ZeroByteArray, OutputSizeInBits));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, EmptyBytes, NullBytes, OutputSizeInBits));
+                HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroByteArray, ZeroByteArray, NullBytes, OutputSizeInBits));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                HashFactory.Blake2SMAC.CreateBlake2SMAC(EmptyBytes, EmptyBytes, EmptyBytes, 0));
+                HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroByteArray, ZeroByteArray, ZeroByteArray, 0));
 
         [Test]
         public void TestSample1()
         {
             ExpectedString = "07";
-            var macInstance = HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroToThirtyOneBytes, EmptyBytes, EmptyBytes,
+            var macInstance = HashFactory.Blake2SMAC.CreateBlake2SMAC(ZeroToThirtyOneBytes, ZeroByteArray, ZeroByteArray,
                 1 * 8);
             DoComputeBlake2(macInstance,
                 Converters.ConvertStringToBytes("Sample input for outlen<digest_length", Encoding.UTF8));

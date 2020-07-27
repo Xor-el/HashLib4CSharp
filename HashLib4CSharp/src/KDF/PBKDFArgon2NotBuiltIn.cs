@@ -299,7 +299,7 @@ namespace HashLib4CSharp.KDF
         }
 
         public override async Task<byte[]> GetBytesAsync(int byteCount,
-            CancellationToken cancellationToken = default(CancellationToken)) =>
+            CancellationToken cancellationToken = default) =>
             await Task.Run(() => GetBytes(byteCount), cancellationToken);
 
         public override string Name => GetType().Name;
@@ -375,8 +375,8 @@ namespace HashLib4CSharp.KDF
             AddIntToLittleEndian(blake2B, outputLength);
             AddIntToLittleEndian(blake2B, parameters.Memory);
             AddIntToLittleEndian(blake2B, parameters.Iterations);
-            AddIntToLittleEndian(blake2B, (int) parameters.Version);
-            AddIntToLittleEndian(blake2B, (int) parameters.Type);
+            AddIntToLittleEndian(blake2B, (int)parameters.Version);
+            AddIntToLittleEndian(blake2B, (int)parameters.Type);
 
             AddByteString(blake2B, password);
             AddByteString(blake2B, parameters.Salt);
@@ -403,7 +403,7 @@ namespace HashLib4CSharp.KDF
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void AddIntToLittleEndian(Blake2B hashInstance, int lanes) =>
-            hashInstance.TransformBytes(Converters.ReadUInt32AsBytesLE((uint) lanes));
+            hashInstance.TransformBytes(Converters.ReadUInt32AsBytesLE((uint)lanes));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Blake2B MakeBlake2BInstanceAndInitialize(int hashSize)
@@ -434,7 +434,7 @@ namespace HashLib4CSharp.KDF
             const int blake2BLength = 64;
 
             var result = new byte[outputLength];
-            var outputLengthBytes = Converters.ReadUInt32AsBytesLE((uint) outputLength);
+            var outputLengthBytes = Converters.ReadUInt32AsBytesLE((uint)outputLength);
 
             if (outputLength <= blake2BLength)
             {
@@ -512,16 +512,16 @@ namespace HashLib4CSharp.KDF
 
         private void FillFirstBlocks(byte[] initialHash)
         {
-            var zeroBytes = new byte[] {0, 0, 0, 0};
-            var oneBytes = new byte[] {1, 0, 0, 0};
+            var zeroBytes = new byte[] { 0, 0, 0, 0 };
+            var oneBytes = new byte[] { 1, 0, 0, 0 };
 
             var initialHashWithZeros = GetInitialHashLong(initialHash, zeroBytes);
             var initialHashWithOnes = GetInitialHashLong(initialHash, oneBytes);
 
             for (var idx = 0; idx < _parameters.Lanes; idx++)
             {
-                Converters.ReadUInt32AsBytesLE((uint) idx, initialHashWithZeros, ARGON2_PREHASH_DIGEST_LENGTH + 4);
-                Converters.ReadUInt32AsBytesLE((uint) idx, initialHashWithOnes, ARGON2_PREHASH_DIGEST_LENGTH + 4);
+                Converters.ReadUInt32AsBytesLE((uint)idx, initialHashWithZeros, ARGON2_PREHASH_DIGEST_LENGTH + 4);
+                Converters.ReadUInt32AsBytesLE((uint)idx, initialHashWithOnes, ARGON2_PREHASH_DIGEST_LENGTH + 4);
 
                 var blockHashBytes = Hash(initialHashWithZeros, ARGON2_BLOCK_SIZE);
                 _memory[idx * _laneLength].FromBytes(blockHashBytes);
@@ -599,10 +599,6 @@ namespace HashLib4CSharp.KDF
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FillMemoryBlocks(BlockFiller blockFiller, Position position) => FillSegment(blockFiller, position);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Task CreateFillMemoryBlocksTask(BlockFiller blockFiller, Position position) =>
-            new Task(() => FillMemoryBlocks(blockFiller, position));
-
         private void DoFillMemoryBlocks()
         {
             /*  // single threaded version
@@ -627,21 +623,17 @@ namespace HashLib4CSharp.KDF
             // multi threaded version
             var iterations = _parameters.Iterations;
             var lanes = _parameters.Lanes;
-            var tasks = new Task[lanes];
 
             for (var idx = 0; idx < iterations; idx++)
             {
                 for (var jdx = 0; jdx < ARGON2_SYNC_POINTS; jdx++)
                 {
-                    for (var kdx = 0; kdx < lanes; kdx++)
+                    Parallel.For(0, lanes, kdx =>
                     {
                         var filler = BlockFiller.DefaultBlockFiller();
                         var position = Position.CreatePosition(idx, kdx, jdx, 0);
-                        tasks[kdx] = CreateFillMemoryBlocksTask(filler, position);
-                        tasks[kdx].Start();
-                    }
-
-                    Task.WaitAll(tasks);
+                        FillMemoryBlocks(filler, position);
+                    });
                 }
             }
         }
@@ -689,16 +681,16 @@ namespace HashLib4CSharp.KDF
 
             var relativePosition = pseudoRandom & 0xFFFFFFFF;
             relativePosition = (relativePosition * relativePosition) >> 32;
-            relativePosition = (ulong) referenceAreaSize - 1 -
-                               (((ulong) referenceAreaSize * relativePosition) >> 32);
+            relativePosition = (ulong)referenceAreaSize - 1 -
+                               (((ulong)referenceAreaSize * relativePosition) >> 32);
 
-            return (int) (((ulong) startPosition + relativePosition) % (ulong) _laneLength);
+            return (int)(((ulong)startPosition + relativePosition) % (ulong)_laneLength);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetRefLane(Position position, ulong pseudoRandom)
         {
-            var refLane = (int) ((pseudoRandom >> 32) % (ulong) _parameters.Lanes);
+            var refLane = (int)((pseudoRandom >> 32) % (ulong)_parameters.Lanes);
 
             if (position.Pass == 0 && position.Slice == 0)
                 // Can not reference other lanes yet
@@ -731,7 +723,7 @@ namespace HashLib4CSharp.KDF
             inputBlock.V[2] = IntToUInt64(position.Slice);
             inputBlock.V[3] = IntToUInt64(_memory.Length);
             inputBlock.V[4] = IntToUInt64(_parameters.Iterations);
-            inputBlock.V[5] = IntToUInt64((int) _parameters.Type);
+            inputBlock.V[5] = IntToUInt64((int)_parameters.Type);
 
             // Don't forget to generate the first block of addresses: */
             if (position.Pass == 0 && position.Slice == 0)
@@ -748,7 +740,7 @@ namespace HashLib4CSharp.KDF
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ulong IntToUInt64(int x) => (ulong) (x & 0xFFFFFFFF);
+        private static ulong IntToUInt64(int x) => (ulong)(x & 0xFFFFFFFF);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetPrevOffset(int currentOffset) =>
@@ -892,7 +884,7 @@ namespace HashLib4CSharp.KDF
             public static Position DefaultPosition() => new Position();
 
             public static Position CreatePosition(int pass, int lane, int slice, int index) => new Position()
-                {Pass = pass, Lane = lane, Slice = slice, Index = index};
+            { Pass = pass, Lane = lane, Slice = slice, Index = index };
         }
 
         private sealed class Block

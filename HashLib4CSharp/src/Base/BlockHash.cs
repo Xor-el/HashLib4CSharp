@@ -43,29 +43,29 @@ namespace HashLib4CSharp.Base
             ProcessedBytesCount = 0;
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
+
+            var index = 0;
+            var length = data.Length;
 
             fixed (byte* src = data)
             {
                 if (!Buffer.IsEmpty)
-                    if (Buffer.Feed(src, data.Length, ref index, ref length, ref _processedBytesCount))
+                    if (Buffer.Feed(data, ref index, ref length, ref _processedBytesCount))
                         TransformBuffer();
 
                 while (length >= Buffer.Length)
                 {
-                    ProcessedBytesCount += (ulong) Buffer.Length;
+                    ProcessedBytesCount += (ulong)Buffer.Length;
                     TransformBlock(src, Buffer.Length, index);
                     index += Buffer.Length;
                     length -= Buffer.Length;
                 }
 
                 if (length > 0)
-                    Buffer.Feed(src, data.Length, ref index, ref length, ref _processedBytesCount);
+                    Buffer.Feed(data, ref index, ref length, ref _processedBytesCount);
             }
         }
 
