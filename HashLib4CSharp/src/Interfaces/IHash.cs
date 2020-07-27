@@ -156,7 +156,6 @@ namespace HashLib4CSharp.Interfaces
                 bufferSize = hasher.BufferSize > stream.Length ? InternalBufferSize : hasher.BufferSize; // Sanity Check
             }
 
-            // Span cannot be used in Async methods in C# 7.3 so we use a byte[]
             var buffer = new byte[bufferSize];
             int read;
             if (length == -1)

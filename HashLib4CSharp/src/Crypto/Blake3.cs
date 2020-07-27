@@ -101,15 +101,11 @@ namespace HashLib4CSharp.Crypto
             public void ChainingValue(uint* result)
             {
                 var full = stackalloc uint[16];
-                Compress(full);
+                CompressWithHalfFinalization(full);
                 PointerUtils.MemMove(&result[0], full, 8 * sizeof(uint));
             }
 
-            // compress is the core hash function, generating 16 pseudorandom words from a
-            // node.
-            // NOTE: we unroll all of the rounds, as well as the permutations that occur
-            // between rounds.
-            public void Compress(uint* state)
+            public void Mixing(uint* state)
             {
                 // initializes state here
                 state[0] = CV[0];
@@ -221,9 +217,16 @@ namespace HashLib4CSharp.Crypto
                 G(state, 1, 6, 11, 12, Block[2], Block[12]);
                 G(state, 2, 7, 8, 13, Block[3], Block[4]);
                 G(state, 3, 4, 9, 14, Block[7], Block[13]);
+            }
 
+            // compress is the core hash function, generating 16 pseudorandom words from a
+            // node.
+            // NOTE: we unroll all of the rounds, as well as the permutations that occur
+            // between rounds.
+            public void CompressWithFullFinalization(uint* state)
+            {
+                Mixing(state);
                 // compression finalization
-
                 state[0] = state[0] ^ state[8];
                 state[1] = state[1] ^ state[9];
                 state[2] = state[2] ^ state[10];
@@ -240,6 +243,20 @@ namespace HashLib4CSharp.Crypto
                 state[13] = state[13] ^ CV[5];
                 state[14] = state[14] ^ CV[6];
                 state[15] = state[15] ^ CV[7];
+            }
+
+            public void CompressWithHalfFinalization(uint* state)
+            {
+                Mixing(state);
+                // compression finalization
+                state[0] = state[0] ^ state[8];
+                state[1] = state[1] ^ state[9];
+                state[2] = state[2] ^ state[10];
+                state[3] = state[3] ^ state[11];
+                state[4] = state[4] ^ state[12];
+                state[5] = state[5] ^ state[13];
+                state[6] = state[6] ^ state[14];
+                state[7] = state[7] ^ state[15];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -440,7 +457,7 @@ namespace HashLib4CSharp.Crypto
                         if ((Offset & (BlockSizeInBytes - 1)) == 0)
                         {
                             N.Counter = Offset / BlockSizeInBytes;
-                            N.Compress(words);
+                            N.CompressWithFullFinalization(words);
                             Converters.le32_copy(words, 0, blockPtr, 0, BlockSizeInBytes);
                         }
 
