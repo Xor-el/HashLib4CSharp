@@ -105,7 +105,7 @@ namespace HashLib4CSharp.Crypto
                 PointerUtils.MemMove(&result[0], full, 8 * sizeof(uint));
             }
 
-            public void Mixing(uint* state)
+            private void Mixing(uint* state)
             {
                 // initializes state here
                 state[0] = CV[0];
