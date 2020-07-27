@@ -12,24 +12,22 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using HashLib4CSharp.Interfaces;
 
 namespace HashLib4CSharp.Hash64
 {
     internal sealed class FNV1a64 : FNV64
     {
-        public override IHash Clone() => new FNV1a64 {Hash = Hash, BufferSize = BufferSize};
+        public override IHash Clone() => new FNV1a64 { Hash = Hash, BufferSize = BufferSize };
 
         public override void Initialize() => Hash = 14695981039346656037;
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
-            var i = index;
+
+            var length = data.Length;
+            var i = 0;
             var hash = Hash;
             while (length > 0)
             {

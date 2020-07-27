@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -19,7 +20,7 @@ namespace HashLib4CSharp.Crypto
 {
     internal sealed class HAS160 : BlockHash, ICryptoNotBuiltIn, ITransformBlock
     {
-        private static readonly int[] Rot = {5, 11, 7, 15, 6, 13, 8, 14, 7, 12, 9, 11, 8, 15, 6, 12, 9, 14, 5, 13};
+        private static readonly int[] Rot = { 5, 11, 7, 15, 6, 13, 8, 14, 7, 12, 9, 11, 8, 15, 6, 12, 9, 14, 5, 13 };
 
         private static readonly int[] Tor =
             {27, 21, 25, 17, 26, 19, 24, 18, 25, 20, 23, 21, 24, 17, 26, 20, 23, 18, 27, 19};
@@ -83,24 +84,24 @@ namespace HashLib4CSharp.Crypto
 
             var padIndex = Buffer.Position < 56 ? 56 - Buffer.Position : 120 - Buffer.Position;
 
-            var pad = new byte[padIndex + 8];
+            Span<byte> pad = stackalloc byte[padIndex + 8];
 
             pad[0] = 0x80;
 
             bits = Converters.le2me_64(bits);
 
-            Converters.ReadUInt64AsBytesLE(bits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(bits, pad.Slice(padIndex));
 
             padIndex += 8;
 
-            TransformBytes(pad, 0, padIndex);
+            TransformByteSpan(pad.Slice(0, padIndex));
         }
 
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
             uint T;
-            var buffer = new uint[20];
+            var buffer = stackalloc uint[20];
 
             var a = _state[0];
             var b = _state[1];
@@ -108,10 +109,7 @@ namespace HashLib4CSharp.Crypto
             var d = _state[3];
             var e = _state[4];
 
-            fixed (uint* bufferPtr = buffer)
-            {
-                Converters.le32_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.le32_copy(data, index, buffer, 0, dataLength);
 
             buffer[16] = buffer[0] ^ buffer[1] ^ buffer[2] ^ buffer[3];
             buffer[17] = buffer[4] ^ buffer[5] ^ buffer[6] ^ buffer[7];
@@ -186,8 +184,6 @@ namespace HashLib4CSharp.Crypto
             _state[2] = _state[2] + c;
             _state[3] = _state[3] + d;
             _state[4] = _state[4] + e;
-
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using HashLib4CSharp.Base;
+using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Params;
 using HashLib4CSharp.Utils;
 using NUnit.Framework;
@@ -91,10 +92,10 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateCShake_128(EmptyBytes, EmptyBytes, 128);
-            XofInstance = HashFactory.XOF.CreateCShake_128(EmptyBytes, EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateCShake_128(ZeroByteArray, ZeroByteArray, 128);
+            XofInstance = HashFactory.XOF.CreateCShake_128(ZeroByteArray, ZeroByteArray, 8000);
             XofInstanceShake = HashFactory.XOF.CreateShake_128(8000);
-            XofInstanceCShakeWithN = HashFactory.XOF.CreateCShake_128(EmptyBytes, EmailSignature, 128);
+            XofInstanceCShakeWithN = HashFactory.XOF.CreateCShake_128(ZeroByteArray, EmailSignature, 128);
 
             HashOfEmptyData = "7F9C2BA4E88F827D616045507605853E";
             HashOfDefaultData = "10F69AD42A1BDE254004CD13B5176D6D";
@@ -120,17 +121,17 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullNThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateCShake_128(NullBytes, EmptyBytes, 128));
+                _ = HashFactory.XOF.CreateCShake_128(NullBytes, ZeroByteArray, 128));
 
         [Test]
         public void TestSettingNullSThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateCShake_128(EmptyBytes, NullBytes, 128));
+                _ = HashFactory.XOF.CreateCShake_128(ZeroByteArray, NullBytes, 128));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                _ = HashFactory.XOF.CreateCShake_128(EmptyBytes, EmptyBytes, 0));
+                _ = HashFactory.XOF.CreateCShake_128(ZeroByteArray, ZeroByteArray, 0));
     }
 
     [TestFixture]
@@ -139,10 +140,10 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateCShake_256(EmptyBytes, EmptyBytes, 256);
-            XofInstance = HashFactory.XOF.CreateCShake_256(EmptyBytes, EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateCShake_256(ZeroByteArray, ZeroByteArray, 256);
+            XofInstance = HashFactory.XOF.CreateCShake_256(ZeroByteArray, ZeroByteArray, 8000);
             XofInstanceShake = HashFactory.XOF.CreateShake_256(8000);
-            XofInstanceCShakeWithN = HashFactory.XOF.CreateCShake_256(EmptyBytes, EmailSignature, 256);
+            XofInstanceCShakeWithN = HashFactory.XOF.CreateCShake_256(ZeroByteArray, EmailSignature, 256);
 
             HashOfEmptyData = "46B9DD2B0BA88D13233B3FEB743EEB243FCD52EA62B81B82B50C27646ED5762F";
             HashOfDefaultData = "922279516284A34F384ADA776D3606FBEC97875E716E6EA0FFCF9372AAB696BE";
@@ -170,17 +171,17 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullNThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateCShake_256(NullBytes, EmptyBytes, 256));
+                _ = HashFactory.XOF.CreateCShake_256(NullBytes, ZeroByteArray, 256));
 
         [Test]
         public void TestSettingNullSThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateCShake_256(EmptyBytes, NullBytes, 256));
+                _ = HashFactory.XOF.CreateCShake_256(ZeroByteArray, NullBytes, 256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                _ = HashFactory.XOF.CreateCShake_256(EmptyBytes, EmptyBytes, 0));
+                _ = HashFactory.XOF.CreateCShake_256(ZeroByteArray, ZeroByteArray, 0));
     }
 
     [TestFixture]
@@ -191,8 +192,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, EmptyBytes, 128);
-            XofInstance = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateKMAC128XOF(ZeroByteArray, ZeroByteArray, 128);
+            XofInstance = HashFactory.XOF.CreateKMAC128XOF(ZeroByteArray, ZeroByteArray, 8000);
 
             HashOfEmptyData = "3F9259E80B35E0719C26025F7E38A4A3";
             HashOfDefaultData = "724E3EEA4AB7C7B493963F4236D7ACAD";
@@ -217,23 +218,23 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateKMAC128XOF(NullBytes, EmptyBytes, 128));
+                _ = HashFactory.XOF.CreateKMAC128XOF(NullBytes, ZeroByteArray, 128));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, NullBytes, 128));
+                _ = HashFactory.XOF.CreateKMAC128XOF(ZeroByteArray, NullBytes, 128));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                _ = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, EmptyBytes, 0));
+                _ = HashFactory.XOF.CreateKMAC128XOF(ZeroByteArray, ZeroByteArray, 0));
 
         [Test]
         public void TestNISTXOFSample1()
         {
             ExpectedString = "CD83740BBD92CCC8CF032B1481A0F4460E7CA9DD12B08A0C4031178BACD6EC35";
-            var xofInstance = HashFactory.XOF.CreateKMAC128XOF(ASCIICharacterBytes, EmptyBytes,
+            var xofInstance = HashFactory.XOF.CreateKMAC128XOF(ASCIICharacterBytes, ZeroByteArray,
                 OutputSizeInBits);
             DoComputeKMACXOF(xofInstance, ZeroToThreeBytes);
         }
@@ -265,8 +266,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateKMAC256XOF(EmptyBytes, EmptyBytes, 256);
-            XofInstance = HashFactory.XOF.CreateKMAC256XOF(EmptyBytes, EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateKMAC256XOF(ZeroByteArray, ZeroByteArray, 256);
+            XofInstance = HashFactory.XOF.CreateKMAC256XOF(ZeroByteArray, ZeroByteArray, 8000);
 
             HashOfEmptyData = "2C9683C318165466C0D3F9467CE77F0CEA513F643AE3BD5B0969165AAFAE3F71";
             HashOfDefaultData = "81EA035780ABD58788089419CC37BDF39204146FA2650FE1C8D1DB0B5F2E690B";
@@ -292,17 +293,17 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateKMAC256XOF(NullBytes, EmptyBytes, 256));
+                _ = HashFactory.XOF.CreateKMAC256XOF(NullBytes, ZeroByteArray, 256));
 
         [Test]
         public void TestSettingNullCustomizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                _ = HashFactory.XOF.CreateKMAC256XOF(EmptyBytes, NullBytes, 256));
+                _ = HashFactory.XOF.CreateKMAC256XOF(ZeroByteArray, NullBytes, 256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                _ = HashFactory.XOF.CreateKMAC128XOF(EmptyBytes, EmptyBytes, 0));
+                _ = HashFactory.XOF.CreateKMAC128XOF(ZeroByteArray, ZeroByteArray, 0));
 
         [Test]
         public void TestNISTXOFSample1()
@@ -319,7 +320,7 @@ namespace HashLib4CSharp.Tests
         {
             ExpectedString =
                 "FF7B171F1E8A2B24683EED37830EE797538BA8DC563F6DA1E667391A75EDC02CA633079F81CE12A25F45615EC89972031D18337331D24CEB8F8CA8E6A19FD98B";
-            var xofInstance = HashFactory.XOF.CreateKMAC256XOF(ASCIICharacterBytes, EmptyBytes,
+            var xofInstance = HashFactory.XOF.CreateKMAC256XOF(ASCIICharacterBytes, ZeroByteArray,
                 OutputSizeInBits);
             DoComputeKMACXOF(xofInstance, ZeroToOneHundredAndNinetyNineBytes);
         }
@@ -343,8 +344,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateBlake2XB(EmptyBytes, 512);
-            XofInstance = HashFactory.XOF.CreateBlake2XB(EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateBlake2XB(ZeroByteArray, 512);
+            XofInstance = HashFactory.XOF.CreateBlake2XB(ZeroByteArray, 8000);
 
             HashOfEmptyData =
                 "C5EF3D8845B9B2BA8EA28E9326C9E46E7A5843AD42BACAF927798BEAF554A43CA0830CCF8BB4A24CE1B1D82BD2DA971AFB2BE73919CC5FFF8E7C6A20F87284FA";
@@ -384,7 +385,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingEmptyKeyDoesNotThrowsException() =>
             Assert.DoesNotThrow(() =>
-                HashFactory.XOF.CreateBlake2XB(EmptyBytes, 512));
+                HashFactory.XOF.CreateBlake2XB(ZeroByteArray, 512));
 
         [Test]
         public void TestSettingOutOfRangeSaltThrowsCorrectException() =>
@@ -402,7 +403,7 @@ namespace HashLib4CSharp.Tests
         public void TestSettingEmptySaltDoesNotThrow() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = EmptyBytes}, null), 512));
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = ZeroByteArray}, null), 512));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
@@ -424,14 +425,14 @@ namespace HashLib4CSharp.Tests
         public void TestSettingEmptyPersonalizationDoesNotThrowsException() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = EmptyBytes},
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = ZeroByteArray},
                         null),
                     512));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                HashFactory.XOF.CreateBlake2XB(EmptyBytes, 0));
+                HashFactory.XOF.CreateBlake2XB(ZeroByteArray, 0));
 
         [Test]
         public void TestCheckTestVectors()
@@ -458,8 +459,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateBlake2XS(EmptyBytes, 256);
-            XofInstance = HashFactory.XOF.CreateBlake2XS(EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateBlake2XS(ZeroByteArray, 256);
+            XofInstance = HashFactory.XOF.CreateBlake2XS(ZeroByteArray, 8000);
 
             HashOfEmptyData =
                 "F4B358457E5563FB54DF3060AEC26EA3AA1C959CF89F55A22538117ECF708BFC";
@@ -499,7 +500,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingEmptyKeyDoesNotThrowsException() =>
             Assert.DoesNotThrow(() =>
-                HashFactory.XOF.CreateBlake2XS(EmptyBytes, 256));
+                HashFactory.XOF.CreateBlake2XS(ZeroByteArray, 256));
 
         [Test]
         public void TestSettingOutOfRangeSaltThrowsCorrectException() =>
@@ -517,7 +518,7 @@ namespace HashLib4CSharp.Tests
         public void TestSettingEmptySaltDoesNotThrow() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = EmptyBytes}, null), 256));
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = ZeroByteArray}, null), 256));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
@@ -539,14 +540,14 @@ namespace HashLib4CSharp.Tests
         public void TestSettingEmptyPersonalizationDoesNotThrowsException() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = EmptyBytes},
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = ZeroByteArray},
                         null),
                     256));
 
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                HashFactory.XOF.CreateBlake2XS(EmptyBytes, 0));
+                HashFactory.XOF.CreateBlake2XS(ZeroByteArray, 0));
 
         [Test]
         public void TestCheckTestVectors()
@@ -571,8 +572,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.XOF.CreateBlake3XOF(EmptyBytes, 512);
-            XofInstance = HashFactory.XOF.CreateBlake3XOF(EmptyBytes, 8000);
+            HashInstance = HashFactory.XOF.CreateBlake3XOF(ZeroByteArray, 512);
+            XofInstance = HashFactory.XOF.CreateBlake3XOF(ZeroByteArray, 8000);
 
             HashOfEmptyData =
                 "AF1349B9F5F9A1A6A0404DEA36DCC9499BCB25C9ADC112B7CC9A93CAE41F3262E00F03E7B69AF26B7FAAF09FCD333050338DDFE085B8CC869CA98B206C08243A";
@@ -603,7 +604,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingInvalidSizeThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
-                _ = HashFactory.XOF.CreateBlake3XOF(EmptyBytes, 0));
+                _ = HashFactory.XOF.CreateBlake3XOF(ZeroByteArray, 0));
 
         [Test]
         public void TestSettingNullKeyThrowsCorrectException() =>
@@ -624,7 +625,7 @@ namespace HashLib4CSharp.Tests
                 var chunkedInput = new byte[Convert.ToInt32(vector[0])];
                 Array.Copy(fullInput, chunkedInput, chunkedInput.Length);
 
-                var xof = HashFactory.XOF.CreateBlake3XOF(EmptyBytes, (ulong) ((vector[1].Length >> 1) * 8));
+                var xof = HashFactory.XOF.CreateBlake3XOF(ZeroByteArray, (ulong) ((vector[1].Length >> 1) * 8));
                 var keyedXof = HashFactory.XOF.CreateBlake3XOF(key, (ulong) ((vector[2].Length >> 1) * 8));
 
                 var output = new byte[xof.XofSizeInBits / 8];

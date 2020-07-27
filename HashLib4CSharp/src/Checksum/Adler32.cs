@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -30,7 +29,7 @@ namespace HashLib4CSharp.Checksum
         {
         }
 
-        public override IHash Clone() => new Adler32 {_a = _a, _b = _b, BufferSize = BufferSize};
+        public override IHash Clone() => new Adler32 { _a = _a, _b = _b, BufferSize = BufferSize };
 
         public override void Initialize()
         {
@@ -47,12 +46,9 @@ namespace HashLib4CSharp.Checksum
             return result;
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
             var a = _a;
             var b = _b;
@@ -62,7 +58,7 @@ namespace HashLib4CSharp.Checksum
             // b maximally grows by 3800 * median(a) = 2090079800 < 2^31
             const int bigBlockSize = 3800;
 
-            var buffer = new ReadOnlySpan<byte>(data, index, length);
+            var buffer = data;
             var bigBlockCount = buffer.Length / bigBlockSize;
             if (Environment.Is64BitProcess)
             {
@@ -70,7 +66,7 @@ namespace HashLib4CSharp.Checksum
                 {
                     foreach (var word in MemoryMarshal.Cast<byte, ulong>(buffer.Slice(0, bigBlockSize)))
                     {
-                        var lo = (uint) word;
+                        var lo = (uint)word;
                         a += lo & 0xFF;
                         b += a;
 
@@ -83,7 +79,7 @@ namespace HashLib4CSharp.Checksum
                         a += (lo >> 24) & 0xFF;
                         b += a;
 
-                        var hi = (uint) (word >> 32);
+                        var hi = (uint)(word >> 32);
                         a += hi & 0xFF;
                         b += a;
 

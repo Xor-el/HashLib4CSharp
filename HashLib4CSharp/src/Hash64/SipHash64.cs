@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -58,13 +57,12 @@ namespace HashLib4CSharp.Hash64
             V00 ^= Key00;
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
+            var length = data.Length;
+            var index = 0;
             var len = length;
             var idx = index;
 
@@ -76,7 +74,6 @@ namespace HashLib4CSharp.Hash64
                 ulong block;
                 if (Idx != 0 && length != 0)
                 {
-                    Debug.Assert(index == 0); // nothing would work anyways if index is !=0
                     while (Idx < 8 && len != 0)
                     {
                         Buffer[Idx] = *(dataPtr + index);

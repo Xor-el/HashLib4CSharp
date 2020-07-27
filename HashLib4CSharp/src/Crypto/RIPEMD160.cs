@@ -42,12 +42,9 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new uint[16];
+            var buffer = stackalloc uint[16];
 
-            fixed (uint* bufferPtr = buffer)
-            {
-                Converters.le32_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.le32_copy(data, index, buffer, 0, dataLength);
 
             var a = State[0];
             var b = State[1];
@@ -556,8 +553,6 @@ namespace HashLib4CSharp.Crypto
             State[3] = State[4] + a + bb;
             State[4] = State[0] + b + cc;
             State[0] = dd;
-
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 }

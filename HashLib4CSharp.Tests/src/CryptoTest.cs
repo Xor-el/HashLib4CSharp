@@ -1,5 +1,6 @@
 using System;
 using HashLib4CSharp.Base;
+using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Params;
 using NUnit.Framework;
 
@@ -17,7 +18,7 @@ namespace HashLib4CSharp.Tests
             HashInstance = HashFactory.Crypto.CreateBlake2B();
             HashInstanceWithKey = HashFactory.Crypto.CreateBlake2B(new Blake2BConfig(64)
                 {Key = ZeroToSixtyThreeBytes});
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "786A02F742015903C6C6FD852552D272912F4740E15847618A86E217F71F5419D25E1031AFEE585313896444934EB04B903A685B1448B755D56F701AFE9BE2CE";
             HashOfDefaultData =
@@ -41,7 +42,7 @@ namespace HashLib4CSharp.Tests
             for (var idx = 1; idx < 64; idx++)
             {
                 var UnKeyedConfig = new Blake2BConfig(idx);
-                var EmptyKeyConfig = new Blake2BConfig(idx) {Key = EmptyBytes};
+                var EmptyKeyConfig = new Blake2BConfig(idx) {Key = ZeroByteArray};
 
                 ExpectedString = HashFactory.Crypto.CreateBlake2B(UnKeyedConfig)
                     .ComputeBytes(DefaultDataBytes).ToString();
@@ -124,9 +125,9 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.Crypto.CreateBlake2BP(64, EmptyBytes);
+            HashInstance = HashFactory.Crypto.CreateBlake2BP(64, ZeroByteArray);
             HashInstanceWithKey = HashFactory.Crypto.CreateBlake2BP(64, ZeroToSixtyThreeBytes);
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "B5EF811A8038F70B628FA8B294DAAE7492B1EBE343A80EAABBF1F6AE664DD67B9D90B0120791EAB81DC96985F28849F6A305186A85501B405114BFA678DF9380";
             HashOfDefaultData =
@@ -157,7 +158,7 @@ namespace HashLib4CSharp.Tests
             HashInstance = HashFactory.Crypto.CreateBlake2S();
             HashInstanceWithKey = HashFactory.Crypto.CreateBlake2S(new Blake2SConfig(32)
                 {Key = ZeroToThirtyOneBytes});
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9";
             HashOfDefaultData =
@@ -181,7 +182,7 @@ namespace HashLib4CSharp.Tests
             for (var idx = 1; idx < 32; idx++)
             {
                 var UnKeyedConfig = new Blake2SConfig(idx);
-                var EmptyKeyConfig = new Blake2SConfig(idx) {Key = EmptyBytes};
+                var EmptyKeyConfig = new Blake2SConfig(idx) {Key = ZeroByteArray};
 
                 ExpectedString = HashFactory.Crypto.CreateBlake2S(UnKeyedConfig)
                     .ComputeBytes(DefaultDataBytes).ToString();
@@ -264,9 +265,9 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.Crypto.CreateBlake2SP(32, EmptyBytes);
+            HashInstance = HashFactory.Crypto.CreateBlake2SP(32, ZeroByteArray);
             HashInstanceWithKey = HashFactory.Crypto.CreateBlake2SP(32, ZeroToThirtyOneBytes);
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "DD0E891776933F43C7D032B08A917E25741F8AA9A12C12E1CAC8801500F2CA4F";
             HashOfDefaultData =
@@ -290,8 +291,8 @@ namespace HashLib4CSharp.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            HashInstance = HashFactory.Crypto.CreateBlake3_256(EmptyBytes);
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HashInstance = HashFactory.Crypto.CreateBlake3_256(ZeroByteArray);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "AF1349B9F5F9A1A6A0404DEA36DCC9499BCB25C9ADC112B7CC9A93CAE41F3262";
             HashOfDefaultData =
@@ -314,7 +315,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateGost();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "CE85B99CC46752FFFEE35CAB9A7B0278ABB4C2D2055CFF685AF4912C49490F8D";
             HashOfDefaultData = "21DCCFBF20D313170333BA15596338FB5964267328EB42CA10E269B7045FF856";
             HashOfOneToNine = "264B4E433DEE474AEC465FA9C725FE963BC4B4ABC4FDAC63B7F73B671663AFC9";
@@ -331,7 +332,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateGOST3411_2012_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "3F539A213E97C802CC229D474C6AA32A825A360B2A933A949FD925208D9CE1BB";
             HashOfDefaultData = "9CAC7A67CC162B3860E289849EF463B0EBA83138E974011CE1640CFE7869960A";
             HashOfOneToNine = "84DA1066A0205E1446EC4A858ED2314B6233E5790BA5999DDE8CD35D5D39F002";
@@ -348,7 +349,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateGOST3411_2012_512();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "8E945DA209AA869F0455928529BCAE4679E9873AB707B55315F56CEB98BEF0A7362F715528356EE83CDA5F2AAC4C6AD2BA3A715C1BCD81CB8E9F90BF4C1C1A8A";
             HashOfDefaultData =
@@ -371,7 +372,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateGrindahl256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "45A7600159AF54AE110FCB6EA0F38AD57875EAC814F74D2CBC247D28C89923E6";
             HashOfDefaultData = "AC72E90B0F3F5864A0AF3C43E2A73E393DEBF22AB81B6786ADE22B4517DAAAB6";
             HashOfOneToNine = "D2460846C5FE9E4750985CC9244D2458BEFD884435121FE56528022A3C7605B7";
@@ -388,7 +389,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateGrindahl512();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "EE0BA85F90B6D232430BA43DD0EDD008462591816962A355602ED214FAAE54A9A4607D6F577CE950421FF58AEA53F51A7A9F5CCA894C3776104D43568FEA1207";
             HashOfDefaultData =
@@ -411,7 +412,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHAS160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "307964EF34151D37C8047ADEC7AB50F4FF89762D";
             HashOfDefaultData = "2773EDAC4501514254D7B1DF091D6B7652250A52";
             HashOfOneToNine = "A0DA48CCD36C9D24AA630D4B3673525E9109A83C";
@@ -428,7 +429,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_3_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "C68F39913F901F3DDF44C707357A7D70";
             HashOfDefaultData = "04AF7562BA75D5767ADE2A71E4BE33DE";
             HashOfOneToNine = "F2F92D4E5CA6B92A5B5FC5AC822C39D2";
@@ -445,7 +446,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_4_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "EE6BBF4D6A46A679B3A856C88538BB98";
             HashOfDefaultData = "C815192C498CF266D0EB32E90D60892E";
             HashOfOneToNine = "52DFE2F3DA02591061B02DBDC1510F1C";
@@ -462,7 +463,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_5_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "184B8482A0C050DCA54B59C7F05BF5DD";
             HashOfDefaultData = "B335D2DC38EFB9D937B803F7581AF88D";
             HashOfOneToNine = "8AA1C1CA3A7E4F983654C4F689DE6F8D";
@@ -479,7 +480,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_3_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "D353C3AE22A25401D257643836D7231A9A95F953";
             HashOfDefaultData = "4A5E28CA30029D2D04287E6C807E74D297A7FC74";
             HashOfOneToNine = "39A83AF3293CDAC04DE1DF3D0BE7A1F9D8AAB923";
@@ -496,7 +497,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_4_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "1D33AAE1BE4146DBAACA0B6E70D7A11F10801525";
             HashOfDefaultData = "9E86A9E2D964CCF9019593C88F40AA5C725E0912";
             HashOfOneToNine = "B03439BE6F2A3EBED93AC86846D029D76F62FD99";
@@ -513,7 +514,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_5_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "255158CFC1EED1A7BE7C55DDD64D9790415B933B";
             HashOfDefaultData = "A9AB9AB152BB4413B717228C3A65E75644542A35";
             HashOfOneToNine = "11F592B3A1A1A9C0F9C638C33B69E442D06C1D99";
@@ -530,7 +531,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_3_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "E9C48D7903EAF2A91C5B350151EFCB175C0FC82DE2289A4E";
             HashOfDefaultData = "4235822851EB1B63D6B1DB56CF18EBD28E0BC2327416D5D1";
             HashOfOneToNine = "6B92F078E73AF2E0F9F049FAA5016D32173A3D62D2F08554";
@@ -547,7 +548,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_4_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4A8372945AFA55C7DEAD800311272523CA19D42EA47B72DA";
             HashOfDefaultData = "54D4FD0DE4228D55F826B627A128A765378B1DC1F8E6CD75";
             HashOfOneToNine = "A5C285EAD0FF2F47C15C27B991C4A3A5007BA57137B18D07";
@@ -564,7 +565,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_5_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4839D0626F95935E17EE2FC4509387BBE2CC46CB382FFE85";
             HashOfDefaultData = "ED197F026B20DB6362CBC62BDD28E0B34F1E287966D84E3B";
             HashOfOneToNine = "EC32312AA79775539675C9BA83D079FFC7EA498FA6173A46";
@@ -581,7 +582,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_3_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "C5AAE9D47BFFCAAF84A8C6E7CCACD60A0DD1932BE7B1A192B9214B6D";
             HashOfDefaultData = "12B7BFA1D36D0163E876A1474EB33CF5BC24C1BBBB181F28ACEE8D36";
             HashOfOneToNine = "28E8CC65356B43ACBED4DD70F11D0827F17C4442D323AAA0A0DE285F";
@@ -598,7 +599,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_4_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "3E56243275B3B81561750550E36FCD676AD2F5DD9E15F2E89E6ED78E";
             HashOfDefaultData = "DA7AB9D08D42C1819C04C7064891DB700DD05C960C3192CB615758B0";
             HashOfOneToNine = "9A08D0CF1D52BB1AC22F6421CFB902E700C4C496B3E990F4606F577D";
@@ -615,7 +616,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_5_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4A0513C032754F5582A758D35917AC9ADF3854219B39E3AC77D1837E";
             HashOfDefaultData = "D5FEA825ED7B8CBF23938425BAFDBEE9AD127A685EFCA4559BD54892";
             HashOfOneToNine = "2EAADFB8007D9A4D8D7F21182C2913D569F801B44D0920D4CE8A01F0";
@@ -632,7 +633,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_3_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4F6938531F0BC8991F62DA7BBD6F7DE3FAD44562B8C6F4EBF146D5B4E46F7C17";
             HashOfDefaultData = "9AA25FF9D7559F108E01014C27EBEEA34E8D82BD1A6105D28A53791B74C4C024";
             HashOfOneToNine = "63E8D0AEEC87738F1E820294CBDF7961CD2246B3620B4BAC81BE0B9827D612C7";
@@ -649,7 +650,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_4_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "C92B2E23091E80E375DADCE26982482D197B1A2521BE82DA819F8CA2C579B99B";
             HashOfDefaultData = "B5E97F406CBD4C36CC549072713E733EE31A5F9F23DD6C5982D3A239A9B38434";
             HashOfOneToNine = "DDC95DF473DD169456484BEB4B04EDCA83A5572D9D7ECCD00092365AE4EF8D79";
@@ -666,7 +667,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateHaval_5_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "BE417BB4DD5CFB76C7126F4F8EEB1553A449039307B1A3CD451DBFDC0FBBE330";
             HashOfDefaultData = "E5061D6F4F8645262C5C923F8E607CD77D69CE772E3DE559132B460309BFB516";
             HashOfOneToNine = "77FD61460DB5F89DEFC9A9296FAB68A1730EA6C9C0037A9793DAC8492C0A953C";
@@ -683,7 +684,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateKeccak_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "F71837502BA8E10837BDD8D365ADB85591895602FC552B48B7390ABD";
             HashOfDefaultData = "1BA678212F840E95F076B4E3E75310D4DA4308E04396E07EF1683ACE";
             HashOfOneToNine = "06471DE6C635A88E7470284B2C2EBF9BD7E5E888CBBD128C21CB8308";
@@ -700,7 +701,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateKeccak_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "C5D2460186F7233C927E7DB2DCC703C0E500B653CA82273B7BFAD8045D85A470";
             HashOfDefaultData = "3FE42FE8CD6DAEF5ED7891846577F56AB35DC806424FC84A494C81E73BB06B5F";
             HashOfOneToNine = "2A359FEEB8E488A1AF2C03B908B3ED7990400555DB73E1421181D97CAC004D48";
@@ -717,7 +718,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateKeccak_288();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "6753E3380C09E385D0339EB6B050A68F66CFD60A73476E6FD6ADEB72F5EDD7C6F04A5D01";
             HashOfDefaultData = "A81F64CA8FAFFA1FC64A8E40E3F6A6FEA3303753B8F7F25E7E6EABA3D99A13F1EDF0F125";
             HashOfOneToNine = "2B87D3D1907AA78236C7037752CA8C456611C24CE8FBAAAC961AABF3137B471C93A8F031";
@@ -736,7 +737,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateKeccak_384();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "2C23146A63A29ACF99E73B88F8C24EAA7DC60AA771780CCC006AFBFA8FE2479B2DD2B21362337441AC12B515911957FF";
             HashOfDefaultData =
@@ -759,7 +760,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateKeccak_512();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "0EAB42DE4C3CEB9235FC91ACFFE746B29C29A8C366B7C60E4E67C466F36A4304C00FA9CAF9D87976BA469BCBE06713B435F091EF2769FB160CDAB33D3670680E";
             HashOfDefaultData =
@@ -782,7 +783,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateMD2();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "8350E5A3E24C153DF2275C9F80692773";
             HashOfDefaultData = "DFBE28FF5A3C23CAA85BE5848F16524E";
             HashOfOneToNine = "12BD4EFDD922B5C8C7B773F26EF4E35F";
@@ -799,7 +800,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateMD4();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "31D6CFE0D16AE931B73C59D7E0C089C0";
             HashOfDefaultData = "A77EAB8C3432FD9DD1B87C3C5C2E9C3C";
             HashOfOneToNine = "2AE523785D0CAF4D2FB557C12016185C";
@@ -816,7 +817,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateMD5();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "D41D8CD98F00B204E9800998ECF8427E";
             HashOfDefaultData = "462EC1E50C8F2D5C387682E98F9BC842";
             HashOfOneToNine = "25F9E794323B453885F5181F1B624D0B";
@@ -833,7 +834,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreatePanama();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "AA0CC954D757D7AC7779CA3342334CA471ABD47D5952AC91ED837ECD5B16922B";
             HashOfDefaultData = "69A05A5A5DDB32F5589257458BBDD059FB30C4486C052D81029DDB2864E90813";
             HashOfOneToNine = "3C83D2C9109DE4D1FA64833683A7C280591A7CFD8516769EA879E56A4AD39B99";
@@ -850,7 +851,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRadioGatun32();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "F30028B54AFAB6B3E55355D277711109A19BEDA7091067E9A492FB5ED9F20117";
             HashOfDefaultData = "17B20CF19B3FC84FD2FFE084F07D4CD4DBBC50E41048D8259EB963B0A7B9C784";
             HashOfOneToNine = "D77629174F56D8451F73CBE80EC7A20EF2DD65C46A1480CD004CBAA96F3FA1FD";
@@ -867,7 +868,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRadioGatun64();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "64A9A7FA139905B57BDAB35D33AA216370D5EAE13E77BFCDD85513408311A584";
             HashOfDefaultData = "43B3208CE2E6B23D985087A84BD583F713A9002280BF2785B1EE569B12C15054";
             HashOfOneToNine = "76A565017A42B258F5C8C9D2D9FD4C7347947A659ED142FF61C1BEA592F103C5";
@@ -884,7 +885,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRIPEMD();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "9F73AA9B372A9DACFB86A6108852E2D9";
             HashOfDefaultData = "B3F629A9786744AA105A2C150869C236";
             HashOfOneToNine = "C905B44C6429AD0A1934550037D4816F";
@@ -901,7 +902,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRIPEMD128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "CDF26213A150DC3ECB610F18F6B38B46";
             HashOfDefaultData = "75891B00B2874EDCAF7002CA98264193";
             HashOfOneToNine = "1886DB8ACDCBFEAB1E7EE3780400536F";
@@ -918,7 +919,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRIPEMD160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "9C1185A5C5E9FC54612808977EE8F548B2258D31";
             HashOfDefaultData = "0B8EAC9A2EA1E267750CE639D83A84B92631462B";
             HashOfOneToNine = "D3D0379126C1E5E0BA70AD6E5E53FF6AEAB9F4FA";
@@ -935,7 +936,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRIPEMD256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "02BA4C4E5F8ECD1877FC52D64D30E37A2D9774FB1E5D026380AE0168E3C5522D";
             HashOfDefaultData = "95EF1FFAB0EF6229F58CAE347426ADE3C412BCEB1057DAED0062BBDEE4BEACC6";
             HashOfOneToNine = "6BE43FF65DD40EA4F2FF4AD58A7C1ACC7C8019137698945B16149EB95DF244B7";
@@ -952,7 +953,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateRIPEMD320();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "22D65D5661536CDC75C1FDF5C6DE7B41B9F27325EBC61E8557177D705A0EC880151C3A32A00899B8";
             HashOfDefaultData = "004A1899CCA02BFD4055129304D55F364E35F033BB74B784AFC93F7268291D8AF84F2C64C5CCACD0";
             HashOfOneToNine = "7E36771775A8D279475D4FD76B0C8E412B6AD085A0002475A148923CCFA5D71492E12FA88EEAF1A9";
@@ -971,7 +972,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA0();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "F96CEA198AD1DD5617AC084A3D92C6107708C0EF";
             HashOfDefaultData = "C9CBBE593DE122CA36B13CC37FE2CA8D5606FEED";
             HashOfOneToNine = "F0360779D2AF6615F306BB534223CF762A92E988";
@@ -988,7 +989,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA1();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "DA39A3EE5E6B4B0D3255BFEF95601890AFD80709";
             HashOfDefaultData = "C8389876E94C043C47BA4BFF3D359884071DC310";
             HashOfOneToNine = "F7C3BC1D808E04732ADF679965CCC34CA7AE3441";
@@ -1005,7 +1006,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA2_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "D14A028C2A3A2BC9476102BB288234C415A2B01F828EA62AC5B3E42F";
             HashOfDefaultData = "DF2B86ED008508F542443C4B1810AA5A0F5658692B808EEB1D0A2F7E";
             HashOfOneToNine = "9B3E61BF29F17C75572FAE2E86E17809A4513D07C8A18152ACF34521";
@@ -1022,7 +1023,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA2_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855";
             HashOfDefaultData = "BCF45544CB98DDAB731927F8760F81821489ED04C0792A4D254134887BEA9E38";
             HashOfOneToNine = "15E2B0D3C33891EBB0F1EF609EC419420C20E320CE94C65FBC8C3312448EB225";
@@ -1039,7 +1040,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA2_384();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "38B060A751AC96384CD9327EB1B1E36A21FDB71114BE07434C0CC7BF63F6E1DA274EDEBFE76F65FBD51AD2F14898B95B";
             HashOfDefaultData =
@@ -1062,7 +1063,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA2_512();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "CF83E1357EEFB8BDF1542850D66D8007D620E4050B5715DC83F4A921D36CE9CE47D0D13C5D85F2B0FF8318D2877EEC2F63B931BD47417A81A538327AF927DA3E";
             HashOfDefaultData =
@@ -1085,7 +1086,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA2_512_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "6ED0DD02806FA89E25DE060C19D3AC86CABB87D6A0DDD05C333B84F4";
             HashOfDefaultData = "7A95749FB7F4489A45275556F5D905D28E1B637DCDD6537336AB6234";
             HashOfOneToNine = "F2A68A474BCBEA375E9FC62EAAB7B81FEFBDA64BB1C72D72E7C27314";
@@ -1102,7 +1103,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA2_512_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "C672B8D1EF56ED28AB87C3622C5114069BDD3AD7B8F9737498D0C01ECEF0967A";
             HashOfDefaultData = "E1792BAAAEBFC58E213D0BA628BF2FF22CBA10526075702F7C1727B76BEB107B";
             HashOfOneToNine = "1877345237853A31AD79E14C1FCB0DDCD3DF9973B61AF7F906E4B4D052CC9416";
@@ -1119,7 +1120,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA3_224();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "6B4E03423667DBB73B6E15454F0EB1ABD4597F9A1B078E3F5B5A6BC7";
             HashOfDefaultData = "1D2BDFB95B0203C2BB7C739D813D69521EC7A3047E3FCA15CD305C95";
             HashOfOneToNine = "5795C3D628FD638C9835A4C79A55809F265068C88729A1A3FCDF8522";
@@ -1136,7 +1137,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA3_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "A7FFC6F8BF1ED76651C14756A061D662F580FF4DE43B49FA82D80A4B80F8434A";
             HashOfDefaultData = "C334674D808EBB8B7C2926F043D1CAE78D168A05B70B9210C9167EA6DC300CE2";
             HashOfOneToNine = "87CD084D190E436F147322B90E7384F6A8E0676C99D21EF519EA718E51D45F9C";
@@ -1153,7 +1154,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA3_384();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "0C63A75B845E4F7D01107D852E4C2485C51A50AAAA94FC61995E71BBEE983A2AC3713831264ADB47FB6BD1E058D5F004";
             HashOfDefaultData =
@@ -1176,7 +1177,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSHA3_512();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "A69F73CCA23A9AC5C8B567DC185A756E97C982164FE25859E0D1DCC1475C80A615B2123AF1F5F94C11E3E9402C3AC558F500199D95B6D3E301758586281DCD26";
             HashOfDefaultData =
@@ -1199,7 +1200,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSnefru_8_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "8617F366566A011837F4FB4BA5BEDEA2";
             HashOfDefaultData = "1EA32485C121D07D1BD22FC4EDCF554F";
             HashOfOneToNine = "486D27B1F5F4A20DEE14CC466EDA9069";
@@ -1216,7 +1217,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateSnefru_8_256();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "8617F366566A011837F4FB4BA5BEDEA2B892F3ED8B894023D16AE344B2BE5881";
             HashOfDefaultData = "230826DA59215F22AF36663491AECC4872F663722A5A7932428CB8196F7AF78D";
             HashOfOneToNine = "1C7DEDC33125AF7517970B97B635777FFBA8905D7A0B359776E3E683B115F992";
@@ -1233,7 +1234,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_3_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "3293AC630C13F0245F92BBB1766E1616";
             HashOfDefaultData = "C76C85CE853F6E9858B507DA64E33DA2";
             HashOfOneToNine = "0672665140A491BB35040AA9943D769A";
@@ -1250,7 +1251,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_4_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "24CC78A7F6FF3546E7984E59695CA13D";
             HashOfDefaultData = "42CAAEB3A7218E379A78E4F1F7FBADA4";
             HashOfOneToNine = "D9902D13011BD217DE965A3BA709F5CE";
@@ -1267,7 +1268,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_5_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "E765EBE4C351724A1B99F96F2D7E62C9";
             HashOfDefaultData = "D6B8DCEA252160A4CBBF6A57DA9ABA78";
             HashOfOneToNine = "BCCCB6421B3EC291A062A33DFF21BA76";
@@ -1283,7 +1284,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_3_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "3293AC630C13F0245F92BBB1766E16167A4E5849";
             HashOfDefaultData = "C76C85CE853F6E9858B507DA64E33DA27DE49F86";
             HashOfOneToNine = "0672665140A491BB35040AA9943D769A47BE83FE";
@@ -1299,7 +1300,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_4_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "24CC78A7F6FF3546E7984E59695CA13D804E0B68";
             HashOfDefaultData = "42CAAEB3A7218E379A78E4F1F7FBADA432E1D4B6";
             HashOfOneToNine = "D9902D13011BD217DE965A3BA709F5CE7E75ED2C";
@@ -1315,7 +1316,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_5_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "E765EBE4C351724A1B99F96F2D7E62C9AACBE64C";
             HashOfDefaultData = "D6B8DCEA252160A4CBBF6A57DA9ABA78E4564864";
             HashOfOneToNine = "BCCCB6421B3EC291A062A33DFF21BA764596C58E";
@@ -1331,7 +1332,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_3_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "3293AC630C13F0245F92BBB1766E16167A4E58492DDE73F3";
             HashOfDefaultData = "C76C85CE853F6E9858B507DA64E33DA27DE49F8601F6A830";
             HashOfOneToNine = "0672665140A491BB35040AA9943D769A47BE83FEF2126E50";
@@ -1347,7 +1348,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_4_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "24CC78A7F6FF3546E7984E59695CA13D804E0B686E255194";
             HashOfDefaultData = "42CAAEB3A7218E379A78E4F1F7FBADA432E1D4B6A41827B0";
             HashOfOneToNine = "D9902D13011BD217DE965A3BA709F5CE7E75ED2CB791FEA6";
@@ -1363,7 +1364,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger_5_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "E765EBE4C351724A1B99F96F2D7E62C9AACBE64C63B5BCA2";
             HashOfDefaultData = "D6B8DCEA252160A4CBBF6A57DA9ABA78E45648645715E3CE";
             HashOfOneToNine = "BCCCB6421B3EC291A062A33DFF21BA764596C58E30854A92";
@@ -1380,7 +1381,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_3_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4441BE75F6018773C206C22745374B92";
             HashOfDefaultData = "DEB1924D290E3D5567792A8171BFC44F";
             HashOfOneToNine = "82FAF69673762B9FD8A0C902BDB395C1";
@@ -1397,7 +1398,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_4_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "6A7201A47AAC2065913811175553489A";
             HashOfDefaultData = "22EE5BFE174B8C1C23361306C3E8F32C";
             HashOfOneToNine = "75B7D71ACD40FE5B5D3263C1F68F4CF5";
@@ -1414,7 +1415,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_5_128();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "61C657CC0C3C147ED90779B36A1E811F";
             HashOfDefaultData = "7F71F95B346733E7022D4B85BDA9C51E";
             HashOfOneToNine = "F720446C9BFDC8479D9FA53BC8B9144F";
@@ -1430,7 +1431,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_3_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4441BE75F6018773C206C22745374B924AA8313F";
             HashOfDefaultData = "DEB1924D290E3D5567792A8171BFC44F70B5CD13";
             HashOfOneToNine = "82FAF69673762B9FD8A0C902BDB395C12B0CBDDC";
@@ -1446,7 +1447,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_4_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "6A7201A47AAC2065913811175553489ADD0F8B99";
             HashOfDefaultData = "22EE5BFE174B8C1C23361306C3E8F32C92075577";
             HashOfOneToNine = "75B7D71ACD40FE5B5D3263C1F68F4CF5A5DA963B";
@@ -1462,7 +1463,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_5_160();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "61C657CC0C3C147ED90779B36A1E811F1D27F406";
             HashOfDefaultData = "7F71F95B346733E7022D4B85BDA9C51E904825F7";
             HashOfOneToNine = "F720446C9BFDC8479D9FA53BC8B9144FC3FE42ED";
@@ -1478,7 +1479,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_3_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "4441BE75F6018773C206C22745374B924AA8313FEF919F41";
             HashOfDefaultData = "DEB1924D290E3D5567792A8171BFC44F70B5CD13480D6D5C";
             HashOfOneToNine = "82FAF69673762B9FD8A0C902BDB395C12B0CBDDC66957838";
@@ -1494,7 +1495,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_4_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "6A7201A47AAC2065913811175553489ADD0F8B99E65A0955";
             HashOfDefaultData = "22EE5BFE174B8C1C23361306C3E8F32C92075577F9115C2A";
             HashOfOneToNine = "75B7D71ACD40FE5B5D3263C1F68F4CF5A5DA963B39413ACA";
@@ -1510,7 +1511,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateTiger2_5_192();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData = "61C657CC0C3C147ED90779B36A1E811F1D27F406E3F37010";
             HashOfDefaultData = "7F71F95B346733E7022D4B85BDA9C51E904825F73AF0E8AE";
             HashOfOneToNine = "F720446C9BFDC8479D9FA53BC8B9144FC3FE42ED1440C213";
@@ -1526,7 +1527,7 @@ namespace HashLib4CSharp.Tests
         public void Setup()
         {
             HashInstance = HashFactory.Crypto.CreateWhirlPool();
-            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, EmptyBytes);
+            HMACInstance = HashFactory.HMAC.CreateHMAC(HashInstance, ZeroByteArray);
             HashOfEmptyData =
                 "19FA61D75522A4669B44E39C1D2E1726C530232130D407F89AFEE0964997F7A73E83BE698B288FEBCF88E3E03C4F0757EA8964E59B63D93708B138CC42A66EB3";
             HashOfDefaultData =

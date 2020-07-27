@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Enum;
 using HashLib4CSharp.Interfaces;
@@ -26,9 +27,9 @@ namespace HashLib4CSharp.Crypto
         private const int HavalVersion = 1;
 
         protected Haval(HashRounds rounds, HashSize hashSize)
-            : base((int) hashSize, 128)
+            : base((int)hashSize, 128)
         {
-            Rounds = (int) rounds;
+            Rounds = (int)rounds;
             State = new uint[8];
         }
 
@@ -69,22 +70,22 @@ namespace HashLib4CSharp.Crypto
             var bits = ProcessedBytesCount * 8;
             var padIndex = Buffer.Position < 118 ? 118 - Buffer.Position : 246 - Buffer.Position;
 
-            var pad = new byte[padIndex + 10];
+            Span<byte> pad = stackalloc byte[padIndex + 10];
 
             pad[0] = 0x01;
 
-            pad[padIndex] = (byte) ((Rounds << 3) | (HavalVersion & 0x07));
+            pad[padIndex] = (byte)((Rounds << 3) | (HavalVersion & 0x07));
             padIndex++;
-            pad[padIndex] = (byte) (HashSize << 1);
+            pad[padIndex] = (byte)(HashSize << 1);
             padIndex++;
 
             bits = Converters.le2me_64(bits);
 
-            Converters.ReadUInt64AsBytesLE(bits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(bits, pad.Slice(padIndex));
 
             padIndex += 8;
 
-            TransformBytes(pad, 0, padIndex);
+            TransformByteSpan(pad.Slice(0, padIndex));
         }
 
         private void TailorDigestBits()
@@ -108,11 +109,11 @@ namespace HashLib4CSharp.Crypto
                     State[3] = State[3] + t;
                     break;
                 case 20:
-                    t = State[7] & 0x3F | (uint) (State[6] & (0x7F << 25))
+                    t = State[7] & 0x3F | (uint)(State[6] & (0x7F << 25))
                                         | State[5] & (0x3F << 19);
                     State[0] = State[0] + Bits.RotateRight32(t, 19);
                     t = State[7] & (0x3F << 6) | State[6] & 0x3F |
-                        (uint) (State[5] & (0x7F << 25));
+                        (uint)(State[5] & (0x7F << 25));
                     State[1] = State[1] + Bits.RotateRight32(t, 25);
                     t = (State[7] & (0x7F << 12)) | (State[6] & (0x3F << 6)) |
                         (State[5] & 0x3F);
@@ -120,13 +121,13 @@ namespace HashLib4CSharp.Crypto
                     t = (State[7] & (0x3F << 19)) | (State[6] & (0x7F << 12)) |
                         (State[5] & (0x3F << 6));
                     State[3] = State[3] + (t >> 6);
-                    t = (State[7] & ((uint) (0x7F) << 25)) |
+                    t = (State[7] & ((uint)(0x7F) << 25)) |
                         State[6] & (0x3F << 19) |
                         State[5] & (0x7F << 12);
                     State[4] = State[4] + (t >> 12);
                     break;
                 case 24:
-                    t = State[7] & 0x1F | (uint) (State[6] & (0x3F << 26));
+                    t = State[7] & 0x1F | (uint)(State[6] & (0x3F << 26));
                     State[0] = State[0] + Bits.RotateRight32(t, 26);
                     t = (State[7] & (0x1F << 5)) | (State[6] & 0x1F);
                     State[1] = State[1] + t;
@@ -136,7 +137,7 @@ namespace HashLib4CSharp.Crypto
                     State[3] = State[3] + (t >> 10);
                     t = (State[7] & (0x1F << 21)) | (State[6] & (0x1F << 16));
                     State[4] = State[4] + (t >> 16);
-                    t = (uint) (State[7] & (0x3F << 26)) |
+                    t = (uint)(State[7] & (0x3F << 26)) |
                         State[6] & (0x1F << 21);
                     State[5] = State[5] + (t >> 21);
                     break;
@@ -163,12 +164,9 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new uint[32];
+            var buffer = stackalloc uint[32];
 
-            fixed (uint* bufferPtr = buffer)
-            {
-                Converters.le32_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.le32_copy(data, index, buffer, 0, dataLength);
 
             var a = State[0];
             var b = State[1];
@@ -571,8 +569,6 @@ namespace HashLib4CSharp.Crypto
             State[5] = State[5] + f;
             State[6] = State[6] + g;
             State[7] = State[7] + h;
-
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 

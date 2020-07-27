@@ -310,8 +310,8 @@ namespace HashLib4CSharp.Crypto
 
             var block = Buffer.GetBytesZeroPadded();
 
-            block[bufferPos] = (byte) GetHashMode();
-            block[BlockSize - 1] = (byte) (block[BlockSize - 1] ^ 0x80);
+            block[bufferPos] = (byte)GetHashMode();
+            block[BlockSize - 1] = (byte)(block[BlockSize - 1] ^ 0x80);
 
             fixed (byte* blockPtr = block)
             {
@@ -337,12 +337,9 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new ulong[21];
+            var buffer = stackalloc ulong[21];
 
-            fixed (ulong* bufferPtr = buffer)
-            {
-                Converters.le64_copy(data, index, bufferPtr, 0, dataLength);
-            }
+            Converters.le64_copy(data, index, buffer, 0, dataLength);
 
             var j = 0;
             var blockCount = BlockSize >> 3;
@@ -353,15 +350,13 @@ namespace HashLib4CSharp.Crypto
             }
 
             KeccakF1600StatePermute();
-
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 
     internal sealed class SHA3_224 : SHA3
     {
         internal SHA3_224() :
-            base((int) Enum.HashSize.HashSize224)
+            base((int)Enum.HashSize.HashSize224)
         {
         }
 
@@ -378,7 +373,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class SHA3_256 : SHA3
     {
         internal SHA3_256() :
-            base((int) Enum.HashSize.HashSize256)
+            base((int)Enum.HashSize.HashSize256)
         {
         }
 
@@ -395,7 +390,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class SHA3_384 : SHA3
     {
         internal SHA3_384() :
-            base((int) Enum.HashSize.HashSize384)
+            base((int)Enum.HashSize.HashSize384)
         {
         }
 
@@ -412,7 +407,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class SHA3_512 : SHA3
     {
         internal SHA3_512() :
-            base((int) Enum.HashSize.HashSize512)
+            base((int)Enum.HashSize.HashSize512)
         {
         }
 
@@ -438,7 +433,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class Keccak_224 : Keccak
     {
         internal Keccak_224() :
-            base((int) Enum.HashSize.HashSize224)
+            base((int)Enum.HashSize.HashSize224)
         {
         }
 
@@ -455,7 +450,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class Keccak_256 : Keccak
     {
         internal Keccak_256() :
-            base((int) Enum.HashSize.HashSize256)
+            base((int)Enum.HashSize.HashSize256)
         {
         }
 
@@ -472,7 +467,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class Keccak_288 : Keccak
     {
         internal Keccak_288() :
-            base((int) Enum.HashSize.HashSize288)
+            base((int)Enum.HashSize.HashSize288)
         {
         }
 
@@ -489,7 +484,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class Keccak_384 : Keccak
     {
         internal Keccak_384() :
-            base((int) Enum.HashSize.HashSize384)
+            base((int)Enum.HashSize.HashSize384)
         {
         }
 
@@ -506,7 +501,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class Keccak_512 : Keccak
     {
         internal Keccak_512() :
-            base((int) Enum.HashSize.HashSize512)
+            base((int)Enum.HashSize.HashSize512)
         {
         }
 
@@ -553,7 +548,7 @@ namespace HashLib4CSharp.Crypto
         public override IHashResult TransformFinal()
         {
             var buffer = GetResult();
-            Debug.Assert((ulong) buffer.Length == XofSizeInBits >> 3);
+            Debug.Assert((ulong)buffer.Length == XofSizeInBits >> 3);
             Initialize();
 
             return new HashResult(buffer);
@@ -591,7 +586,7 @@ namespace HashLib4CSharp.Crypto
         {
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            if ((ulong) dest.Length - destOffset < outputLength)
+            if ((ulong)dest.Length - destOffset < outputLength)
                 throw new ArgumentException(OutputBufferTooShort);
 
             if (DigestPosition + outputLength > XofSizeInBits >> 3)
@@ -607,7 +602,7 @@ namespace HashLib4CSharp.Crypto
             {
                 if ((DigestPosition & 7) == 0)
                 {
-                    if (BufferPosition * 8 >= (ulong) BlockSize)
+                    if (BufferPosition * 8 >= (ulong)BlockSize)
                     {
                         KeccakF1600StatePermute();
                         BufferPosition = 0;
@@ -619,12 +614,12 @@ namespace HashLib4CSharp.Crypto
                 }
 
                 var blockOffset = DigestPosition & 7;
-                var diff = (ulong) ShakeBuffer.Length - blockOffset;
+                var diff = (ulong)ShakeBuffer.Length - blockOffset;
                 var count = Math.Min(outputLength, diff);
 
                 fixed (byte* destPtr = &dest[destOffset], srcPtr = &ShakeBuffer[blockOffset])
                 {
-                    PointerUtils.MemMove(destPtr, srcPtr, (int) count);
+                    PointerUtils.MemMove(destPtr, srcPtr, (int)count);
                 }
 
                 outputLength -= count;
@@ -632,21 +627,20 @@ namespace HashLib4CSharp.Crypto
                 DigestPosition += count;
             }
         }
-
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (Finalized)
                 throw new InvalidOperationException(
                     string.Format(WriteToXofAfterRead, Name));
 
-            base.TransformBytes(data, index, length);
+            base.TransformByteSpan(data);
         }
     }
 
     internal sealed class Shake_128 : Shake
     {
         internal Shake_128() :
-            base((int) Enum.HashSize.HashSize128)
+            base((int)Enum.HashSize.HashSize128)
         {
         }
 
@@ -671,7 +665,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class Shake_256 : Shake
     {
         internal Shake_256() :
-            base((int) Enum.HashSize.HashSize256)
+            base((int)Enum.HashSize.HashSize256)
         {
         }
 
@@ -743,7 +737,7 @@ namespace HashLib4CSharp.Crypto
             result[0] = n;
 
             for (idx = 1; idx <= n; idx++)
-                result[idx] = (byte) (input >> (8 * (n - idx)));
+                result[idx] = (byte)(input >> (8 * (n - idx)));
 
             return result;
         }
@@ -752,7 +746,7 @@ namespace HashLib4CSharp.Crypto
         {
             base.Initialize();
             if (InitBlock.Length > 0)
-                TransformBytes(BytePad(InitBlock, BlockSize));
+                TransformByteSpan(BytePad(InitBlock, BlockSize));
         }
 
         public static byte[] RightEncode(ulong input)
@@ -773,7 +767,7 @@ namespace HashLib4CSharp.Crypto
             result[n] = n;
 
             for (idx = 1; idx <= n; idx++)
-                result[idx - 1] = (byte) (input >> (8 * (n - idx)));
+                result[idx - 1] = (byte)(input >> (8 * (n - idx)));
 
             return result;
         }
@@ -781,7 +775,7 @@ namespace HashLib4CSharp.Crypto
         public static byte[] BytePad(byte[] input, int w)
         {
             if (input == null) throw new ArgumentNullException(nameof(input));
-            var buffer = ArrayUtils.Concatenate(LeftEncode((ulong) w), input);
+            var buffer = ArrayUtils.Concatenate(LeftEncode((ulong)w), input);
             var padLength = w - buffer.Length % w;
             return ArrayUtils.Concatenate(buffer, new byte[padLength]);
         }
@@ -791,14 +785,14 @@ namespace HashLib4CSharp.Crypto
             if (input == null) throw new ArgumentNullException(nameof(input));
             return input.Length == 0
                 ? LeftEncode(0)
-                : ArrayUtils.Concatenate(LeftEncode((ulong) input.Length * 8), input);
+                : ArrayUtils.Concatenate(LeftEncode((ulong)input.Length * 8), input);
         }
     }
 
     internal sealed class CShake_128 : CShake
     {
         internal CShake_128(byte[] n, byte[] s) :
-            base((int) Enum.HashSize.HashSize128, n, s)
+            base((int)Enum.HashSize.HashSize128, n, s)
         {
         }
 
@@ -824,7 +818,7 @@ namespace HashLib4CSharp.Crypto
     internal sealed class CShake_256 : CShake
     {
         internal CShake_256(byte[] n, byte[] s) :
-            base((int) Enum.HashSize.HashSize256, n, s)
+            base((int)Enum.HashSize.HashSize256, n, s)
         {
         }
 

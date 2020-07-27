@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -93,13 +92,10 @@ namespace HashLib4CSharp.MAC
             return result;
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
-            _hash.TransformBytes(data, index, length);
+            _hash.TransformByteSpan(data);
         }
 
         public override string ToString() => Name;
@@ -113,7 +109,7 @@ namespace HashLib4CSharp.MAC
         {
             return hmacKey == null ? throw new ArgumentNullException(nameof(hmacKey)) :
                 hash == null ? throw new ArgumentNullException(nameof(hash)) :
-                hash is IHMACNotBuiltIn hmacNotBuiltIn ? (IHMACNotBuiltIn) hmacNotBuiltIn.Clone() :
+                hash is IHMACNotBuiltIn hmacNotBuiltIn ? (IHMACNotBuiltIn)hmacNotBuiltIn.Clone() :
                 new HMACNotBuiltIn(hash, hmacKey);
         }
 
@@ -128,8 +124,8 @@ namespace HashLib4CSharp.MAC
             var length = _workingKey.Length;
             while (idx < length && idx < _hash.BlockSize)
             {
-                _ipad[idx] = (byte) (_ipad[idx] ^ _workingKey[idx]);
-                _opad[idx] = (byte) (_opad[idx] ^ _workingKey[idx]);
+                _ipad[idx] = (byte)(_ipad[idx] ^ _workingKey[idx]);
+                _opad[idx] = (byte)(_opad[idx] ^ _workingKey[idx]);
                 idx++;
             }
         }

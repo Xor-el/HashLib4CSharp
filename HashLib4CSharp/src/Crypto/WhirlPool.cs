@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -137,17 +138,17 @@ namespace HashLib4CSharp.Crypto
             var bits = ProcessedBytesCount * 8;
             var padIndex = Buffer.Position > 31 ? 120 - Buffer.Position : 56 - Buffer.Position;
 
-            var pad = new byte[padIndex + 8];
+            Span<byte> pad = stackalloc byte[padIndex + 8];
 
             pad[0] = 0x80;
 
             bits = Converters.be2me_64(bits);
 
-            Converters.ReadUInt64AsBytesLE(bits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(bits, pad.Slice(padIndex));
 
             padIndex += 8;
 
-            TransformBytes(pad, 0, padIndex);
+            TransformByteSpan(pad.Slice(0, padIndex));
         }
 
         protected override unsafe void TransformBlock(void* data,
@@ -173,14 +174,14 @@ namespace HashLib4CSharp.Crypto
                     for (var i = 0; i < 8; i++)
                     {
                         m[i] = 0;
-                        m[i] = m[i] ^ (C0[(byte) (k[(i - 0) & 7] >> 56)]);
-                        m[i] = m[i] ^ (C1[(byte) (k[(i - 1) & 7] >> 48)]);
-                        m[i] = m[i] ^ (C2[(byte) (k[(i - 2) & 7] >> 40)]);
-                        m[i] = m[i] ^ (C3[(byte) (k[(i - 3) & 7] >> 32)]);
-                        m[i] = m[i] ^ (C4[(byte) (k[(i - 4) & 7] >> 24)]);
-                        m[i] = m[i] ^ (C5[(byte) (k[(i - 5) & 7] >> 16)]);
-                        m[i] = m[i] ^ (C6[(byte) (k[(i - 6) & 7] >> 8)]);
-                        m[i] = m[i] ^ (C7[(byte) (k[(i - 7) & 7])]);
+                        m[i] = m[i] ^ (C0[(byte)(k[(i - 0) & 7] >> 56)]);
+                        m[i] = m[i] ^ (C1[(byte)(k[(i - 1) & 7] >> 48)]);
+                        m[i] = m[i] ^ (C2[(byte)(k[(i - 2) & 7] >> 40)]);
+                        m[i] = m[i] ^ (C3[(byte)(k[(i - 3) & 7] >> 32)]);
+                        m[i] = m[i] ^ (C4[(byte)(k[(i - 4) & 7] >> 24)]);
+                        m[i] = m[i] ^ (C5[(byte)(k[(i - 5) & 7] >> 16)]);
+                        m[i] = m[i] ^ (C6[(byte)(k[(i - 6) & 7] >> 8)]);
+                        m[i] = m[i] ^ (C7[(byte)(k[(i - 7) & 7])]);
                     }
 
                     PointerUtils.MemMove(kPtr, mPtr, m.Length * sizeof(ulong));
@@ -190,14 +191,14 @@ namespace HashLib4CSharp.Crypto
                     for (var i = 0; i < 8; i++)
                     {
                         m[i] = k[i];
-                        m[i] = m[i] ^ (C0[(byte) (temp[(i - 0) & 7] >> 56)]);
-                        m[i] = m[i] ^ (C1[(byte) (temp[(i - 1) & 7] >> 48)]);
-                        m[i] = m[i] ^ (C2[(byte) (temp[(i - 2) & 7] >> 40)]);
-                        m[i] = m[i] ^ (C3[(byte) (temp[(i - 3) & 7] >> 32)]);
-                        m[i] = m[i] ^ (C4[(byte) (temp[(i - 4) & 7] >> 24)]);
-                        m[i] = m[i] ^ (C5[(byte) (temp[(i - 5) & 7] >> 16)]);
-                        m[i] = m[i] ^ (C6[(byte) (temp[(i - 6) & 7] >> 8)]);
-                        m[i] = m[i] ^ (C7[(byte) (temp[(i - 7) & 7])]);
+                        m[i] = m[i] ^ (C0[(byte)(temp[(i - 0) & 7] >> 56)]);
+                        m[i] = m[i] ^ (C1[(byte)(temp[(i - 1) & 7] >> 48)]);
+                        m[i] = m[i] ^ (C2[(byte)(temp[(i - 2) & 7] >> 40)]);
+                        m[i] = m[i] ^ (C3[(byte)(temp[(i - 3) & 7] >> 32)]);
+                        m[i] = m[i] ^ (C4[(byte)(temp[(i - 4) & 7] >> 24)]);
+                        m[i] = m[i] ^ (C5[(byte)(temp[(i - 5) & 7] >> 16)]);
+                        m[i] = m[i] ^ (C6[(byte)(temp[(i - 6) & 7] >> 8)]);
+                        m[i] = m[i] ^ (C7[(byte)(temp[(i - 7) & 7])]);
                     }
 
                     PointerUtils.MemMove(tempPtr, mPtr, m.Length * sizeof(ulong));
@@ -225,9 +226,9 @@ namespace HashLib4CSharp.Crypto
         private static ulong PackIntoUInt64(uint b7, uint b6, uint b5, uint b4,
             uint b3, uint b2, uint b1, uint b0)
         {
-            return ((ulong) b7 << 56) ^ ((ulong) b6 << 48) ^ ((ulong) b5 << 40)
-                   ^ ((ulong) b4 << 32) ^ ((ulong) b3 << 24) ^ ((ulong) b2 << 16)
-                   ^ ((ulong) b1 << 8) ^ b0;
+            return ((ulong)b7 << 56) ^ ((ulong)b6 << 48) ^ ((ulong)b5 << 40)
+                   ^ ((ulong)b4 << 32) ^ ((ulong)b3 << 24) ^ ((ulong)b2 << 16)
+                   ^ ((ulong)b1 << 8) ^ b0;
         }
     }
 }

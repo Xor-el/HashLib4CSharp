@@ -16,7 +16,7 @@ namespace HashLib4CSharp.Tests
         protected static readonly int[] ChunkSizes = GenerateIntArrayInRange(1, 260);
         protected static byte[] NullBytes => null;
 
-        protected static readonly byte[] EmptyBytes = new byte[0];
+        protected static readonly byte[] ZeroByteArray = new byte[0];
 
         // "HashLib4Pascal"
         protected static readonly byte[] DefaultDataBytes =
@@ -161,9 +161,9 @@ namespace HashLib4CSharp.Tests
             });
 
         [Test]
-        public void TestHashingEmptyReadOnlySpanVsEmptyArray() => AssertAreEqual(
-            HashInstance.ComputeByteSpan(ReadOnlySpan<byte>.Empty).ToString(),
-            HashInstance.ComputeBytes(EmptyBytes).ToString());
+        public void TestHashingZeroByteReadOnlySpanVsZeroByteArray() => AssertAreEqual(
+            HashInstance.ComputeByteSpan(ZeroByteArray).ToString(),
+            HashInstance.ComputeBytes(ZeroByteArray).ToString());
 
         [Test]
         public void TestHashingReadOnlySpanVsArray() =>
@@ -224,7 +224,7 @@ namespace HashLib4CSharp.Tests
                 HashInstance.TransformBytes(temp);
 
                 ExpectedString = hashInstanceClone.ComputeBytes(ChunkedDataBytes).ToString();
-                ActualString = HashInstance.TransformFinal().ToString();
+               ActualString = HashInstance.TransformFinal().ToString();
                 AssertAreEqual(ExpectedString, ActualString);
             }
         }
@@ -337,7 +337,7 @@ namespace HashLib4CSharp.Tests
         public void TestHashOfEmptyData()
         {
             ExpectedString = HashOfEmptyData;
-            ActualString = HashInstance.ComputeBytes(EmptyBytes).ToString();
+            ActualString = HashInstance.ComputeBytes(ZeroByteArray).ToString();
             AssertAreEqual(ExpectedString, ActualString);
         }
 
@@ -368,7 +368,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestHashOfEmptyStream()
         {
-            using (var stream = new MemoryStream(EmptyBytes))
+            using (var stream = new MemoryStream(ZeroByteArray))
             {
                 ExpectedString = HashOfEmptyData;
                 ActualString = HashInstance.ComputeStream(stream).ToString();
@@ -390,7 +390,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public async Task TestHashOfEmptyStreamAsync()
         {
-            using (var stream = new MemoryStream(EmptyBytes))
+            using (var stream = new MemoryStream(ZeroByteArray))
             {
                 ExpectedString = HashOfEmptyData;
                 var hashResult = await HashInstance.ComputeStreamAsync(stream);
@@ -441,14 +441,14 @@ namespace HashLib4CSharp.Tests
     {
         [Test]
         public void TestSettingEmptyKeyDoesNotThrow() =>
-            Assert.DoesNotThrow(() => ((IHashWithKey) HashInstance).Key = EmptyBytes);
+            Assert.DoesNotThrow(() => ((IHashWithKey) HashInstance).Key = ZeroByteArray);
 
         [Test]
         public void TestEmptyKeyShouldBeSameAsDefaultKey()
         {
             ExpectedString = HashOfDefaultData;
             var hashWithKey = (IHashWithKey) HashInstance;
-            hashWithKey.Key = EmptyBytes;
+            hashWithKey.Key = ZeroByteArray;
             ActualString = hashWithKey.ComputeBytes(DefaultDataBytes)
                 .ToString();
 
@@ -573,7 +573,7 @@ namespace HashLib4CSharp.Tests
         [Test]
         public void TestSettingNullHashInstanceInHMACThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
-                HashFactory.HMAC.CreateHMAC(NullHashInstance, EmptyBytes));
+                HashFactory.HMAC.CreateHMAC(NullHashInstance, ZeroByteArray));
 
         [Test]
         public void TestSettingNullKeyInHMACThrowsCorrectException() =>

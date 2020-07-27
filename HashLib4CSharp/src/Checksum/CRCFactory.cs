@@ -13,7 +13,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
@@ -38,7 +37,7 @@ namespace HashLib4CSharp.Checksum
 
         private static ulong ReflectBits(ulong value, int bitLength)
         {
-            var reflectedValue = (ulong) 0;
+            var reflectedValue = (ulong)0;
 
             for (var idx = 0; idx < bitLength; idx++)
             {
@@ -56,7 +55,7 @@ namespace HashLib4CSharp.Checksum
         private static ulong[] GetComputationTable(int width, ulong polynomial, bool reflectIn) =>
             ComputationTableCache.GetOrAdd(
                 new Tuple<int, ulong, bool>(width, polynomial, reflectIn),
-                GetComputationTableInternal);
+                tuple => GetComputationTableInternal(tuple));
 
         private static ulong[] GetComputationTableInternal(Tuple<int, ulong, bool> cacheKey)
         {
@@ -69,12 +68,12 @@ namespace HashLib4CSharp.Checksum
 
 
             var crcTable = new ulong[1 << bitCount];
-            var mostSignificantBit = (ulong) 1 << (width - 1);
+            var mostSignificantBit = (ulong)1 << (width - 1);
 
 
             for (var idx = 0; idx < crcTable.Length; idx++)
             {
-                var value = (ulong) idx;
+                var value = (ulong)idx;
 
                 if (bitCount > 1 && reflectIn)
                     value = ReflectBits(value, bitCount);
@@ -139,12 +138,9 @@ namespace HashLib4CSharp.Checksum
                 _hashValue = ReflectBits(_hashValue, _width);
         }
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
             var hashValue = _hashValue;
 
@@ -152,17 +148,19 @@ namespace HashLib4CSharp.Checksum
             var reflectIn = _reflectIn;
             var crcTable = _crcTable;
             var mostSignificantShift = _mostSignificantShift;
+    
+            var length = data.Length;
 
-            for (var currentOffset = index; currentOffset < index + length; currentOffset++)
+            for (var currentOffset = 0; currentOffset < length; currentOffset++)
             {
                 if (width >= 8)
                 {
                     // Process per byte
                     hashValue = reflectIn
-                        ? (hashValue >> 8) ^ crcTable[(byte) hashValue ^ data[currentOffset]]
+                        ? (hashValue >> 8) ^ crcTable[(byte)hashValue ^ data[currentOffset]]
                         : (hashValue << 8) ^
                           crcTable[
-                              (byte) (hashValue >> mostSignificantShift) ^ data[currentOffset]];
+                              (byte)(hashValue >> mostSignificantShift) ^ data[currentOffset]];
                 }
                 else
                 {
@@ -172,12 +170,12 @@ namespace HashLib4CSharp.Checksum
                         hashValue = reflectIn
                             ? (hashValue >> 1) ^
                               crcTable[
-                                  (byte) (hashValue & 1) ^
-                                  ((byte) (data[currentOffset] >> currentBit) & 1)]
+                                  (byte)(hashValue & 1) ^
+                                  ((byte)(data[currentOffset] >> currentBit) & 1)]
                             : (hashValue << 1) ^
                               crcTable[
-                                  (byte) ((hashValue >> mostSignificantShift) & 1) ^
-                                  ((byte) (data[currentOffset] >> (7 - currentBit)) & 1)];
+                                  (byte)((hashValue >> mostSignificantShift) & 1) ^
+                                  ((byte)(data[currentOffset] >> (7 - currentBit)) & 1)];
                     }
                 }
             }
@@ -197,14 +195,14 @@ namespace HashLib4CSharp.Checksum
             switch (CalculateHashSize(_width))
             {
                 case 1:
-                    result = new HashResult((byte) _hashValue);
+                    result = new HashResult((byte)_hashValue);
                     break;
                 case 2:
-                    result = new HashResult((ushort) _hashValue);
+                    result = new HashResult((ushort)_hashValue);
                     break;
                 case 3:
                 case 4:
-                    result = new HashResult((uint) _hashValue);
+                    result = new HashResult((uint)_hashValue);
                     break;
                 default:
                     result = new HashResult(_hashValue);

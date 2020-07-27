@@ -583,7 +583,7 @@ namespace HashLib4CSharp.Crypto
                 case HashRounds.Rounds3:
                 case HashRounds.Rounds4:
                 case HashRounds.Rounds5:
-                    Rounds = (int) rounds;
+                    Rounds = (int)rounds;
                     State = new ulong[3];
                     break;
                 default:
@@ -628,17 +628,17 @@ namespace HashLib4CSharp.Crypto
             var bits = ProcessedBytesCount * 8;
             var padIndex = Buffer.Position < 56 ? 56 - Buffer.Position : 120 - Buffer.Position;
 
-            var pad = new byte[padIndex + 8];
+            Span<byte> pad = stackalloc byte[padIndex + 8];
 
             pad[0] = PaddingValue();
 
             bits = Converters.le2me_64(bits);
 
-            Converters.ReadUInt64AsBytesLE(bits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(bits, pad.Slice(padIndex));
 
             padIndex += 8;
 
-            TransformBytes(pad, 0, padIndex);
+            TransformByteSpan(pad.Slice(0, padIndex));
         }
 
         protected override unsafe byte[] GetResult()
@@ -660,71 +660,68 @@ namespace HashLib4CSharp.Crypto
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new ulong[8];
+            var buffer = stackalloc ulong[8];
 
-            fixed (ulong* dataPtr = buffer)
-            {
-                Converters.le64_copy(data, index, dataPtr, 0, dataLength);
-            }
+            Converters.le64_copy(data, index, buffer, 0, dataLength);
 
             var a = State[0];
             var b = State[1];
             var c = State[2];
 
             c ^= buffer[0];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 5;
 
             a ^= buffer[1];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 5;
 
             b ^= buffer[2];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 5;
 
             c ^= buffer[3];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 5;
 
             a ^= buffer[4];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 5;
 
             b ^= buffer[5];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 5;
 
             c ^= buffer[6];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 5;
 
             a ^= buffer[7];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 5;
 
             buffer[0] = buffer[0] - (buffer[7] ^ C1);
@@ -745,59 +742,59 @@ namespace HashLib4CSharp.Crypto
             buffer[7] = buffer[7] - (buffer[6] ^ C2);
 
             b ^= buffer[0];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 7;
 
             c ^= buffer[1];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 7;
 
             a ^= buffer[2];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 7;
 
             b ^= buffer[3];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 7;
 
             c ^= buffer[4];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 7;
 
             a ^= buffer[5];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 7;
 
             b ^= buffer[6];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 7;
 
             c ^= buffer[7];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 7;
 
             buffer[0] = buffer[0] - (buffer[7] ^ C1);
@@ -818,59 +815,59 @@ namespace HashLib4CSharp.Crypto
             buffer[7] = buffer[7] - (buffer[6] ^ C2);
 
             a ^= buffer[0];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 9;
 
             b ^= buffer[1];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 9;
 
             c ^= buffer[2];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 9;
 
             a ^= buffer[3];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 9;
 
             b ^= buffer[4];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 9;
 
             c ^= buffer[5];
-            a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-            ] ^ T4[(byte) (c >> 48)];
-            b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-            ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+            a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+            ] ^ T4[(byte)(c >> 48)];
+            b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+            ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
             b *= 9;
 
             a ^= buffer[6];
-            b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-            ] ^ T4[(byte) (a >> 48)];
-            c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2[(byte) (a >> 40)
-            ] ^ T1[(byte) (a >> 56)];
+            b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+            ] ^ T4[(byte)(a >> 48)];
+            c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2[(byte)(a >> 40)
+            ] ^ T1[(byte)(a >> 56)];
             c *= 9;
 
             b ^= buffer[7];
-            c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-            ] ^ T4[(byte) (b >> 48)];
-            a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2[(byte) (b >> 40)
-            ] ^ T1[(byte) (b >> 56)];
+            c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+            ] ^ T4[(byte)(b >> 48)];
+            a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2[(byte)(b >> 40)
+            ] ^ T1[(byte)(b >> 56)];
             a *= 9;
 
             uint rounds = 3;
@@ -894,59 +891,59 @@ namespace HashLib4CSharp.Crypto
                 buffer[7] = buffer[7] - (buffer[6] ^ C2);
 
                 c ^= buffer[0];
-                a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-                ] ^ T4[(byte) (c >> 48)];
-                b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-                ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+                a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+                ] ^ T4[(byte)(c >> 48)];
+                b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+                ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
                 b *= 9;
 
                 a ^= buffer[1];
-                b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-                ] ^ T4[(byte) (a >> 48)];
-                c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2
-                    [(byte) (a >> 40)] ^ T1[(byte) (a >> 56)];
+                b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+                ] ^ T4[(byte)(a >> 48)];
+                c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2
+                    [(byte)(a >> 40)] ^ T1[(byte)(a >> 56)];
                 c *= 9;
 
                 b ^= buffer[2];
-                c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-                ] ^ T4[(byte) (b >> 48)];
-                a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2
-                    [(byte) (b >> 40)] ^ T1[(byte) (b >> 56)];
+                c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+                ] ^ T4[(byte)(b >> 48)];
+                a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2
+                    [(byte)(b >> 40)] ^ T1[(byte)(b >> 56)];
                 a *= 9;
 
                 c ^= buffer[3];
-                a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-                ] ^ T4[(byte) (c >> 48)];
-                b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-                ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+                a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+                ] ^ T4[(byte)(c >> 48)];
+                b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+                ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
                 b *= 9;
 
                 a ^= buffer[4];
-                b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-                ] ^ T4[(byte) (a >> 48)];
-                c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2
-                    [(byte) (a >> 40)] ^ T1[(byte) (a >> 56)];
+                b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+                ] ^ T4[(byte)(a >> 48)];
+                c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2
+                    [(byte)(a >> 40)] ^ T1[(byte)(a >> 56)];
                 c *= 9;
 
                 b ^= buffer[5];
-                c -= T1[(byte) b] ^ T2[(byte) (b >> 16)] ^ T3[(byte) (b >> 32)
-                ] ^ T4[(byte) (b >> 48)];
-                a += T4[(byte) (b >> 8)] ^ T3[(byte) (b >> 24)] ^ T2
-                    [(byte) (b >> 40)] ^ T1[(byte) (b >> 56)];
+                c -= T1[(byte)b] ^ T2[(byte)(b >> 16)] ^ T3[(byte)(b >> 32)
+                ] ^ T4[(byte)(b >> 48)];
+                a += T4[(byte)(b >> 8)] ^ T3[(byte)(b >> 24)] ^ T2
+                    [(byte)(b >> 40)] ^ T1[(byte)(b >> 56)];
                 a *= 9;
 
                 c ^= buffer[6];
-                a -= T1[(byte) c] ^ T2[(byte) (c >> 16)] ^ T3[(byte) (c >> 32)
-                ] ^ T4[(byte) (c >> 48)];
-                b += T4[(byte) (c >> 8) & 0xFF] ^ T3[(byte) (c >> 24)
-                ] ^ T2[(byte) (c >> 40)] ^ T1[(byte) (c >> 56)];
+                a -= T1[(byte)c] ^ T2[(byte)(c >> 16)] ^ T3[(byte)(c >> 32)
+                ] ^ T4[(byte)(c >> 48)];
+                b += T4[(byte)(c >> 8) & 0xFF] ^ T3[(byte)(c >> 24)
+                ] ^ T2[(byte)(c >> 40)] ^ T1[(byte)(c >> 56)];
                 b *= 9;
 
                 a ^= buffer[7];
-                b -= T1[(byte) a] ^ T2[(byte) (a >> 16)] ^ T3[(byte) (a >> 32)
-                ] ^ T4[(byte) (a >> 48)];
-                c += T4[(byte) (a >> 8)] ^ T3[(byte) (a >> 24)] ^ T2
-                    [(byte) (a >> 40)] ^ T1[(byte) (a >> 56)];
+                b -= T1[(byte)a] ^ T2[(byte)(a >> 16)] ^ T3[(byte)(a >> 32)
+                ] ^ T4[(byte)(a >> 48)];
+                c += T4[(byte)(a >> 8)] ^ T3[(byte)(a >> 24)] ^ T2
+                    [(byte)(a >> 40)] ^ T1[(byte)(a >> 56)];
                 c *= 9;
 
                 var temp = a;
@@ -960,8 +957,6 @@ namespace HashLib4CSharp.Crypto
             State[0] = State[0] ^ a;
             State[1] = b - State[1];
             State[2] = State[2] + c;
-
-            ArrayUtils.ZeroFill(buffer);
         }
     }
 
@@ -977,7 +972,7 @@ namespace HashLib4CSharp.Crypto
             };
 
         private Tiger_128(HashSize hashSize, HashRounds rounds)
-            : base((int) hashSize, rounds)
+            : base((int)hashSize, rounds)
         {
         }
 
@@ -1000,7 +995,7 @@ namespace HashLib4CSharp.Crypto
             };
 
         private Tiger_160(HashSize hashSize, HashRounds rounds)
-            : base((int) hashSize, rounds)
+            : base((int)hashSize, rounds)
         {
         }
 
@@ -1023,7 +1018,7 @@ namespace HashLib4CSharp.Crypto
             };
 
         private Tiger_192(HashSize hashSize, HashRounds rounds)
-            : base((int) hashSize, rounds)
+            : base((int)hashSize, rounds)
         {
         }
 

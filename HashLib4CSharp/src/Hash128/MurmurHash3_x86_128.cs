@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -88,24 +87,22 @@ namespace HashLib4CSharp.Hash128
             return result;
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
+            var length = data.Length;
+            var index = 0;
             var len = length;
             var i = index;
             var idx = 0;
-            _totalLength += (uint) len;
+            _totalLength += (uint)len;
 
             fixed (byte* dataPtr = data)
             {
                 //consume last pending bytes
                 if (_idx != 0 && len != 0)
                 {
-                    Debug.Assert(index == 0); // nothing would work anyways if index != 0
                     while (_idx < 16 && len != 0)
                     {
                         _buffer[_idx++] = *(dataPtr + index);
@@ -126,7 +123,7 @@ namespace HashLib4CSharp.Hash128
                 var h2 = _h2;
                 var h3 = _h3;
                 var h4 = _h4;
-                var dataPtr2 = (uint*) (dataPtr + index);
+                var dataPtr2 = (uint*)(dataPtr + index);
                 while (i < nBlocks)
                 {
                     var block1 = Converters.ReadPCardinalAsUInt32LE(dataPtr2 + idx);
@@ -293,9 +290,9 @@ namespace HashLib4CSharp.Hash128
                 switch (length)
                 {
                     case 15:
-                        k4 ^= (uint) (_buffer[14] << 16);
-                        k4 ^= (uint) (_buffer[13] << 8);
-                        k4 ^= (uint) (_buffer[12] << 0);
+                        k4 ^= (uint)(_buffer[14] << 16);
+                        k4 ^= (uint)(_buffer[13] << 8);
+                        k4 ^= (uint)(_buffer[12] << 0);
 
                         k4 *= C4;
                         k4 = Bits.RotateLeft32(k4, 18);
@@ -304,8 +301,8 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 14:
-                        k4 ^= (uint) (_buffer[13] << 8);
-                        k4 ^= (uint) (_buffer[12] << 0);
+                        k4 ^= (uint)(_buffer[13] << 8);
+                        k4 ^= (uint)(_buffer[12] << 0);
                         k4 *= C4;
                         k4 = Bits.RotateLeft32(k4, 18);
                         k4 *= C1;
@@ -313,7 +310,7 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 13:
-                        k4 ^= (uint) (_buffer[12] << 0);
+                        k4 ^= (uint)(_buffer[12] << 0);
                         k4 *= C4;
                         k4 = Bits.RotateLeft32(k4, 18);
                         k4 *= C1;
@@ -327,10 +324,10 @@ namespace HashLib4CSharp.Hash128
                 switch (length)
                 {
                     case 12:
-                        k3 ^= (uint) (_buffer[11] << 24);
-                        k3 ^= (uint) (_buffer[10] << 16);
-                        k3 ^= (uint) (_buffer[9] << 8);
-                        k3 ^= (uint) (_buffer[8] << 0);
+                        k3 ^= (uint)(_buffer[11] << 24);
+                        k3 ^= (uint)(_buffer[10] << 16);
+                        k3 ^= (uint)(_buffer[9] << 8);
+                        k3 ^= (uint)(_buffer[8] << 0);
 
                         k3 *= C3;
                         k3 = Bits.RotateLeft32(k3, 17);
@@ -339,9 +336,9 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 11:
-                        k3 ^= (uint) (_buffer[10] << 16);
-                        k3 ^= (uint) (_buffer[9] << 8);
-                        k3 ^= (uint) (_buffer[8] << 0);
+                        k3 ^= (uint)(_buffer[10] << 16);
+                        k3 ^= (uint)(_buffer[9] << 8);
+                        k3 ^= (uint)(_buffer[8] << 0);
 
                         k3 *= C3;
                         k3 = Bits.RotateLeft32(k3, 17);
@@ -350,8 +347,8 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 10:
-                        k3 ^= (uint) (_buffer[9] << 8);
-                        k3 ^= (uint) (_buffer[8] << 0);
+                        k3 ^= (uint)(_buffer[9] << 8);
+                        k3 ^= (uint)(_buffer[8] << 0);
 
                         k3 *= C3;
                         k3 = Bits.RotateLeft32(k3, 17);
@@ -360,7 +357,7 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 9:
-                        k3 ^= (uint) (_buffer[8] << 0);
+                        k3 ^= (uint)(_buffer[8] << 0);
 
                         k3 *= C3;
                         k3 = Bits.RotateLeft32(k3, 17);
@@ -375,10 +372,10 @@ namespace HashLib4CSharp.Hash128
                 switch (length)
                 {
                     case 8:
-                        k2 ^= (uint) (_buffer[7] << 24);
-                        k2 ^= (uint) (_buffer[6] << 16);
-                        k2 ^= (uint) (_buffer[5] << 8);
-                        k2 ^= (uint) (_buffer[4] << 0);
+                        k2 ^= (uint)(_buffer[7] << 24);
+                        k2 ^= (uint)(_buffer[6] << 16);
+                        k2 ^= (uint)(_buffer[5] << 8);
+                        k2 ^= (uint)(_buffer[4] << 0);
 
                         k2 *= C2;
                         k2 = Bits.RotateLeft32(k2, 16);
@@ -387,9 +384,9 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 7:
-                        k2 ^= (uint) (_buffer[6] << 16);
-                        k2 ^= (uint) (_buffer[5] << 8);
-                        k2 ^= (uint) (_buffer[4] << 0);
+                        k2 ^= (uint)(_buffer[6] << 16);
+                        k2 ^= (uint)(_buffer[5] << 8);
+                        k2 ^= (uint)(_buffer[4] << 0);
 
                         k2 *= C2;
                         k2 = Bits.RotateLeft32(k2, 16);
@@ -398,8 +395,8 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 6:
-                        k2 ^= (uint) (_buffer[5] << 8);
-                        k2 ^= (uint) (_buffer[4] << 0);
+                        k2 ^= (uint)(_buffer[5] << 8);
+                        k2 ^= (uint)(_buffer[4] << 0);
 
                         k2 *= C2;
                         k2 = Bits.RotateLeft32(k2, 16);
@@ -408,7 +405,7 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 5:
-                        k2 ^= (uint) (_buffer[4] << 0);
+                        k2 ^= (uint)(_buffer[4] << 0);
 
                         k2 *= C2;
                         k2 = Bits.RotateLeft32(k2, 16);
@@ -423,10 +420,10 @@ namespace HashLib4CSharp.Hash128
                 switch (length)
                 {
                     case 4:
-                        k1 ^= (uint) (_buffer[3] << 24);
-                        k1 ^= (uint) (_buffer[2] << 16);
-                        k1 ^= (uint) (_buffer[1] << 8);
-                        k1 ^= (uint) (_buffer[0] << 0);
+                        k1 ^= (uint)(_buffer[3] << 24);
+                        k1 ^= (uint)(_buffer[2] << 16);
+                        k1 ^= (uint)(_buffer[1] << 8);
+                        k1 ^= (uint)(_buffer[0] << 0);
 
                         k1 *= C1;
                         k1 = Bits.RotateLeft32(k1, 15);
@@ -435,9 +432,9 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 3:
-                        k1 ^= (uint) (_buffer[2] << 16);
-                        k1 ^= (uint) (_buffer[1] << 8);
-                        k1 ^= (uint) (_buffer[0] << 0);
+                        k1 ^= (uint)(_buffer[2] << 16);
+                        k1 ^= (uint)(_buffer[1] << 8);
+                        k1 ^= (uint)(_buffer[0] << 0);
 
                         k1 *= C1;
                         k1 = Bits.RotateLeft32(k1, 15);
@@ -446,8 +443,8 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 2:
-                        k1 ^= (uint) (_buffer[1] << 8);
-                        k1 ^= (uint) (_buffer[0] << 0);
+                        k1 ^= (uint)(_buffer[1] << 8);
+                        k1 ^= (uint)(_buffer[0] << 0);
 
                         k1 *= C1;
                         k1 = Bits.RotateLeft32(k1, 15);
@@ -456,7 +453,7 @@ namespace HashLib4CSharp.Hash128
                         break;
 
                     case 1:
-                        k1 ^= (uint) (_buffer[0] << 0);
+                        k1 ^= (uint)(_buffer[0] << 0);
 
                         k1 *= C1;
                         k1 = Bits.RotateLeft32(k1, 15);

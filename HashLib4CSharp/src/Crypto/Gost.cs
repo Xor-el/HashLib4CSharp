@@ -11,6 +11,7 @@ This library was sponsored by Sphere 10 Software (https://www.sphere10.com)
 for the purposes of supporting the XXX (https://YYY) project.
 */
 
+using System;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
 using HashLib4CSharp.Utils;
@@ -100,56 +101,59 @@ namespace HashLib4CSharp.Crypto
             return result;
         }
 
-        protected override void Finish()
+        protected override unsafe void Finish()
         {
             var bits = ProcessedBytesCount * 8;
 
             if (Buffer.Position > 0)
             {
-                var pad = new byte[32 - Buffer.Position];
-                TransformBytes(pad, 0, 32 - Buffer.Position);
+                Span<byte> pad = stackalloc byte[32 - Buffer.Position];
+                TransformByteSpan(pad.Slice(0, 32 - Buffer.Position));
             }
 
-            var length = new uint[8];
-            length[0] = (uint) bits;
-            length[1] = (uint) (bits >> 32);
+            var length = stackalloc uint[8];
+            length[0] = (uint)bits;
+            length[1] = (uint)(bits >> 32);
+            length[2] = 0;
+            length[3] = 0;
+            length[4] = 0;
+            length[5] = 0;
+            length[6] = 0;
+            length[7] = 0;
 
             Compress(length);
-
-            Compress(_state);
+            fixed (uint* ptrState = _state)
+            {
+                Compress(ptrState);
+            }
         }
 
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            uint[] m = new uint[8], buffer = new uint[8];
+            var m = stackalloc uint[8];
+            var buffer = stackalloc uint[8];
 
-            fixed (uint* bufferPtr = buffer)
+            uint c = 0;
+            Converters.le32_copy(data, index, buffer, 0, dataLength);
+
+            for (var i = 0; i < 8; i++)
             {
-                uint c = 0;
-                Converters.le32_copy(data, index, bufferPtr, 0, dataLength);
+                var a = buffer[i];
+                m[i] = a;
+                var b = _state[i];
+                c = a + c + _state[i];
+                _state[i] = c;
 
-                for (var i = 0; i < 8; i++)
-                {
-                    var a = buffer[i];
-                    m[i] = a;
-                    var b = _state[i];
-                    c = a + c + _state[i];
-                    _state[i] = c;
-
-                    c = c < a || c < b ? 1 : (uint) 0;
-                }
-
-                Compress(m);
-
-                ArrayUtils.ZeroFill(buffer);
-                ArrayUtils.ZeroFill(m);
+                c = c < a || c < b ? 1 : (uint)0;
             }
+
+            Compress(m);
         }
 
-        private void Compress(uint[] m)
+        private unsafe void Compress(uint* m)
         {
-            var s = new uint[8];
+            var s = stackalloc uint[8];
 
             var u0 = _hash[0];
             var u1 = _hash[1];
@@ -181,19 +185,19 @@ namespace HashLib4CSharp.Crypto
                 var w6 = u6 ^ v6;
                 var w7 = u7 ^ v7;
 
-                var key0 = (byte) w0 | ((uint) (byte) w2 << 8) |
-                           ((uint) (byte) w4 << 16) | ((uint) (byte) w6 << 24);
-                var key1 = (byte) (w0 >> 8) | (w2 & 0x0000FF00) |
+                var key0 = (byte)w0 | ((uint)(byte)w2 << 8) |
+                           ((uint)(byte)w4 << 16) | ((uint)(byte)w6 << 24);
+                var key1 = (byte)(w0 >> 8) | (w2 & 0x0000FF00) |
                            ((w4 & 0x0000FF00) << 8) | ((w6 & 0x0000FF00) << 16);
-                var key2 = (byte) (w0 >> 16) | ((w2 & 0x00FF0000) >> 8) |
+                var key2 = (byte)(w0 >> 16) | ((w2 & 0x00FF0000) >> 8) |
                            (w4 & 0x00FF0000) | ((w6 & 0x00FF0000) << 8);
                 var key3 = (w0 >> 24) | ((w2 & 0xFF000000) >> 16) |
                            ((w4 & 0xFF000000) >> 8) | (w6 & 0xFF000000);
-                var key4 = (byte) w1 | ((w3 & 0x000000FF) << 8) |
+                var key4 = (byte)w1 | ((w3 & 0x000000FF) << 8) |
                            ((w5 & 0x000000FF) << 16) | ((w7 & 0x000000FF) << 24);
-                var key5 = (byte) (w1 >> 8) | (w3 & 0x0000FF00) |
+                var key5 = (byte)(w1 >> 8) | (w3 & 0x0000FF00) |
                            ((w5 & 0x0000FF00) << 8) | ((w7 & 0x0000FF00) << 16);
-                var key6 = (byte) (w1 >> 16) | ((w3 & 0x00FF0000) >> 8) |
+                var key6 = (byte)(w1 >> 16) | ((w3 & 0x00FF0000) >> 8) |
                            (w5 & 0x00FF0000) | ((w7 & 0x00FF0000) << 8);
                 var key7 = (w1 >> 24) | ((w3 & 0xFF000000) >> 16) |
                            ((w5 & 0xFF000000) >> 8) | (w7 & 0xFF000000);
@@ -202,101 +206,101 @@ namespace HashLib4CSharp.Crypto
                 var l = _hash[i + 1];
 
                 var t = key0 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key1 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key2 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key3 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key4 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key5 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key6 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key7 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key0 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key1 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key2 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key3 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key4 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key5 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key6 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key7 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key0 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key1 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key2 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key3 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key4 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key5 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key6 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key7 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key7 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key6 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key5 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key4 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key3 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key2 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key1 + r;
-                l = l ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                l = l ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
                 t = key0 + l;
-                r = r ^ Sbox1[(byte) t] ^ Sbox2[(byte) (t >> 8)] ^ Sbox3
-                    [(byte) (t >> 16)] ^ Sbox4[t >> 24];
+                r = r ^ Sbox1[(byte)t] ^ Sbox2[(byte)(t >> 8)] ^ Sbox3
+                    [(byte)(t >> 16)] ^ Sbox4[t >> 24];
 
                 t = r;
                 r = l;

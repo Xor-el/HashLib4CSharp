@@ -67,35 +67,30 @@ namespace HashLib4CSharp.Crypto
         // repeatedly merging these nodes into parent nodes, until only a single "root"
         // node remains. The root node can then be used to generate up to 2^64 - 1 bytes
         // of pseudorandom output.
-        protected sealed class Blake3Node
+        // protected sealed class Blake3Node
+        protected unsafe struct Blake3Node
         {
             // the chaining value from the previous state
-            public uint[] CV;
-
+            public fixed uint CV[8];
             // the current state
-            public uint[] Block;
+            public fixed uint Block[16];
             public ulong Counter;
             public uint BlockLen, Flags;
 
-
-            private Blake3Node()
+            public Blake3Node Clone()
             {
-                CV = new uint[8];
-                Block = new uint[16];
-                Counter = 0;
-                BlockLen = 0;
-                Flags = 0;
-            }
-
-            public Blake3Node Clone() =>
-                new Blake3Node
+                var result = DefaultBlake3Node();
+                fixed (uint* ptrCV = CV, ptrBlock = Block)
                 {
-                    CV = ArrayUtils.Clone(CV),
-                    Block = ArrayUtils.Clone(Block),
-                    Counter = Counter,
-                    BlockLen = BlockLen,
-                    Flags = Flags
-                };
+                    PointerUtils.MemMove(result.CV, ptrCV, 8 * sizeof(uint));
+                    PointerUtils.MemMove(result.Block, ptrBlock, 16 * sizeof(uint));
+                }
+
+                result.Counter = Counter;
+                result.BlockLen = BlockLen;
+                result.Flags = Flags;
+                return result;
+            }
 
             // ChainingValue returns the first 8 words of the compressed node. This is used
             // in two places. First, when a chunk node is being constructed, its cv is
@@ -103,21 +98,18 @@ namespace HashLib4CSharp.Crypto
             // when two nodes are merged into a parent, each of their chaining values
             // supplies half of the new node's block.
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void ChainingValue(uint* result)
+            public void ChainingValue(uint* result)
             {
-                var full = new uint[16];
-                fixed (uint* ptrFull = full)
-                {
-                    Compress(ptrFull);
-                    PointerUtils.MemMove(&result[0], ptrFull, 8 * sizeof(uint));
-                }
+                var full = stackalloc uint[16];
+                Compress(full);
+                PointerUtils.MemMove(&result[0], full, 8 * sizeof(uint));
             }
 
             // compress is the core hash function, generating 16 pseudorandom words from a
             // node.
             // NOTE: we unroll all of the rounds, as well as the permutations that occur
             // between rounds.
-            public unsafe void Compress(uint* state)
+            public void Compress(uint* state)
             {
                 // initializes state here
                 state[0] = CV[0];
@@ -132,8 +124,8 @@ namespace HashLib4CSharp.Crypto
                 state[9] = IV[1];
                 state[10] = IV[2];
                 state[11] = IV[3];
-                state[12] = (uint) Counter;
-                state[13] = (uint) (Counter >> 32);
+                state[12] = (uint)Counter;
+                state[13] = (uint)(Counter >> 32);
                 state[14] = BlockLen;
                 state[15] = Flags;
 
@@ -251,7 +243,7 @@ namespace HashLib4CSharp.Crypto
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static unsafe void G(uint* state, uint a, uint b, uint c, uint d, uint x, uint y)
+            private static void G(uint* state, uint a, uint b, uint c, uint d, uint x, uint y)
             {
                 var aa = state[a];
                 var bb = state[b];
@@ -275,45 +267,50 @@ namespace HashLib4CSharp.Crypto
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static Blake3Node CreateBlake3Node(uint[] cv, uint[] block,
-                ulong counter, uint blockLen, uint flags) =>
-                new Blake3Node
+                ulong counter, uint blockLen, uint flags)
+            {
+                var result = DefaultBlake3Node();
+                fixed (uint* ptrCV = cv, ptrBlock = block)
                 {
-                    CV = ArrayUtils.Clone(cv),
-                    Block = ArrayUtils.Clone(block),
-                    Counter = counter,
-                    BlockLen = blockLen,
-                    Flags = flags
-                };
+                    PointerUtils.MemMove(result.CV, ptrCV, 8 * sizeof(uint));
+                    PointerUtils.MemMove(result.Block, ptrBlock, 16 * sizeof(uint));
+                }
+
+                result.Counter = counter;
+                result.BlockLen = blockLen;
+                result.Flags = flags;
+                return result;
+            }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static Blake3Node ParentNode(uint[] left, uint[] right, uint[] key, uint flags) =>
                 CreateBlake3Node(key, ArrayUtils.Concatenate(left, right), 0, BlockSizeInBytes, flags | flagParent);
 
-            public static Blake3Node DefaultBlake3Node() => new Blake3Node();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static Blake3Node DefaultBlake3Node() => default;
         }
 
         // Blake3ChunkState manages the state involved in hashing a single chunk of input.
-        protected sealed class Blake3ChunkState
+        protected unsafe struct Blake3ChunkState
         {
             private Blake3Node _n;
-            private byte[] _block;
+            private fixed byte _block[BlockSizeInBytes];
             private int _blockLen;
             public int BytesConsumed;
 
-            private Blake3ChunkState()
+            public Blake3ChunkState Clone()
             {
-                _n = Blake3Node.DefaultBlake3Node();
-                _block = new byte[BlockSizeInBytes];
-                _blockLen = 0;
-                BytesConsumed = 0;
-            }
-
-            public Blake3ChunkState Clone() =>
-                new Blake3ChunkState
+                var result = DefaultBlake3ChunkState();
+                fixed (byte* ptrBlock = _block)
                 {
-                    _n = _n.Clone(), _block = ArrayUtils.Clone(_block), _blockLen = _blockLen,
-                    BytesConsumed = BytesConsumed
-                };
+                    PointerUtils.MemMove(result._block, ptrBlock, BlockSizeInBytes);
+                }
+
+                result._n = _n.Clone();
+                result._blockLen = _blockLen;
+                result.BytesConsumed = BytesConsumed;
+                return result;
+            }
 
             // ChunkCounter is the index of this chunk, i.e. the number of chunks that have
             // been processed prior to this one.
@@ -325,28 +322,25 @@ namespace HashLib4CSharp.Crypto
 
             // node returns a node containing the chunkState's current state, with the
             // ChunkEnd flag set.
-            public unsafe Blake3Node Node()
+            public Blake3Node Node()
             {
                 var result = _n.Clone();
 
                 fixed (byte* blockPtr = _block)
                 {
-                    fixed (uint* resultPtr = result.Block)
-                    {
-                        // pad the remaining space in the block with zeros
-                        PointerUtils.MemSet(blockPtr + _blockLen, 0, _block.Length - _blockLen);
-                        Converters.le32_copy(blockPtr, 0, resultPtr, 0, BlockSizeInBytes);
-                    }
+                    // pad the remaining space in the block with zeros
+                    PointerUtils.MemSet(blockPtr + _blockLen, 0, BlockSizeInBytes - _blockLen);
+                    Converters.le32_copy(blockPtr, 0, result.Block, 0, BlockSizeInBytes);
                 }
 
-                result.BlockLen = (uint) _blockLen;
+                result.BlockLen = (uint)_blockLen;
                 result.Flags |= flagChunkEnd;
 
                 return result;
             }
 
             // update incorporates input into the chunkState.
-            public unsafe void Update(byte* dataPtr, int dataLength)
+            public void Update(byte* dataPtr, int dataLength)
             {
                 var index = 0;
 
@@ -386,78 +380,87 @@ namespace HashLib4CSharp.Crypto
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static Blake3ChunkState CreateBlake3ChunkState(uint[] iv, ulong chunkCounter, uint flags) =>
-                new Blake3ChunkState
+            public static Blake3ChunkState CreateBlake3ChunkState(uint[] iv, ulong chunkCounter, uint flags)
+            {
+                var result = new Blake3ChunkState
                 {
                     _n =
                     {
-                        CV = ArrayUtils.Clone(iv),
                         Counter = chunkCounter,
                         BlockLen = BlockSizeInBytes,
                         // compress the first block with the start flag set
                         Flags = flags | flagChunkStart
                     }
                 };
+                fixed (uint* ptrSrc = iv)
+                {
+                    PointerUtils.MemMove(result._n.CV, ptrSrc, 8 * sizeof(uint));
+                }
+
+                return result;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static Blake3ChunkState DefaultBlake3ChunkState() => default;
+
         }
 
-        protected sealed class Blake3OutputReader
+        protected unsafe struct Blake3OutputReader
         {
-            private byte[] _block;
+            private fixed byte _block[BlockSizeInBytes];
             public Blake3Node N;
             public ulong Offset;
 
-            private Blake3OutputReader()
+            public Blake3OutputReader Clone()
             {
-                N = Blake3Node.DefaultBlake3Node();
-                _block = new byte[BlockSizeInBytes];
-                Offset = 0;
+                var result = DefaultBlake3OutputReader();
+                result.N = N.Clone();
+                fixed (byte* ptrBlock = _block)
+                {
+                    PointerUtils.MemMove(result._block, ptrBlock, BlockSizeInBytes);
+                }
+
+                result.Offset = Offset;
+                return result;
             }
 
-            public Blake3OutputReader Clone() =>
-                new Blake3OutputReader
-                {
-                    N = N.Clone(), _block = ArrayUtils.Clone(_block), Offset = Offset
-                };
-
-            public unsafe void Read(byte[] dest, ulong destOffset, ulong outputLength)
+            public void Read(byte[] dest, ulong destOffset, ulong outputLength)
             {
-                var words = new uint[16];
+                var words = stackalloc uint[16];
 
                 if (Offset == MaxDigestLengthInBytes)
                     throw new ArgumentException(MaximumOutputLengthExceeded);
                 var remainder = MaxDigestLengthInBytes - Offset;
                 outputLength = Math.Min(outputLength, remainder);
 
-                fixed (uint* wordsPtr = words)
+                fixed (byte* blockPtr = _block, destPtr = dest)
                 {
-                    fixed (byte* blockPtr = _block, destPtr = dest)
+                    while (outputLength > 0)
                     {
-                        while (outputLength > 0)
+                        if ((Offset & (BlockSizeInBytes - 1)) == 0)
                         {
-                            if ((Offset & (BlockSizeInBytes - 1)) == 0)
-                            {
-                                N.Counter = Offset / BlockSizeInBytes;
-                                N.Compress(wordsPtr);
-                                Converters.le32_copy(wordsPtr, 0, blockPtr, 0, BlockSizeInBytes);
-                            }
-
-                            var blockOffset = Offset & (BlockSizeInBytes - 1);
-
-                            var diff = (ulong) _block.Length - blockOffset;
-
-                            var count = (int) Math.Min(outputLength, diff);
-
-                            PointerUtils.MemMove(destPtr + destOffset, blockPtr + blockOffset, count);
-
-                            outputLength -= (ulong) count;
-                            destOffset += (ulong) count;
-                            Offset += (ulong) count;
+                            N.Counter = Offset / BlockSizeInBytes;
+                            N.Compress(words);
+                            Converters.le32_copy(words, 0, blockPtr, 0, BlockSizeInBytes);
                         }
+
+                        var blockOffset = Offset & (BlockSizeInBytes - 1);
+
+                        var diff = BlockSizeInBytes - blockOffset;
+
+                        var count = (int)Math.Min(outputLength, diff);
+
+                        PointerUtils.MemMove(destPtr + destOffset, blockPtr + blockOffset, count);
+
+                        outputLength -= (ulong)count;
+                        destOffset += (ulong)count;
+                        Offset += (ulong)count;
                     }
                 }
             }
 
-            public static Blake3OutputReader DefaultBlake3OutputReader() => new Blake3OutputReader();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static Blake3OutputReader DefaultBlake3OutputReader() => default;
         }
 
         private unsafe Blake3Node RootNode()
@@ -485,7 +488,7 @@ namespace HashLib4CSharp.Crypto
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool HasSubTreeAtHeight(int idx) => (Used & ((uint) 1 << idx)) != 0;
+        private bool HasSubTreeAtHeight(int idx) => (Used & ((uint)1 << idx)) != 0;
 
         // AddChunkChainingValue appends a chunk to the right edge of the Merkle tree.
         private unsafe void AddChunkChainingValue(uint[] cv)
@@ -510,7 +513,7 @@ namespace HashLib4CSharp.Crypto
             byte result = 0;
             while (value != 0)
             {
-                value = (byte) (value >> 1);
+                value = (byte)(value >> 1);
                 result++;
             }
 
@@ -533,11 +536,11 @@ namespace HashLib4CSharp.Crypto
                 result += 16;
             }
 
-            if (value < 1 << 8) return result + Len8((byte) value);
+            if (value < 1 << 8) return result + Len8((byte)value);
             value >>= 8;
             result += 8;
 
-            return result + Len8((byte) value);
+            return result + Len8((byte)value);
         }
 
         private static int TrailingZeros64(ulong value)
@@ -604,7 +607,7 @@ namespace HashLib4CSharp.Crypto
         {
         }
 
-        internal Blake3(HashSize hashSize, byte[] key) : this((int) hashSize,
+        internal Blake3(HashSize hashSize, byte[] key) : this((int)hashSize,
             key ?? throw new ArgumentNullException(nameof(key)))
         {
         }
@@ -617,20 +620,19 @@ namespace HashLib4CSharp.Crypto
             Used = 0;
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
             var chainingValue = new uint[8];
+
+            var length = data.Length;
 
             fixed (uint* chainingValuePtr = chainingValue)
             {
                 fixed (byte* dataPtr = data)
                 {
-                    var dataPtr2 = dataPtr + index;
+                    var dataPtr2 = dataPtr;
 
                     while (length > 0)
                     {
@@ -662,7 +664,7 @@ namespace HashLib4CSharp.Crypto
 
             var buffer = new byte[HashSize];
 
-            InternalDoOutput(buffer, 0, (ulong) buffer.Length);
+            InternalDoOutput(buffer, 0, (ulong)buffer.Length);
 
             IHashResult result = new HashResult(buffer);
 
@@ -674,8 +676,8 @@ namespace HashLib4CSharp.Crypto
         public override IHash Clone() =>
             new Blake3(HashSize, Key, Flags)
             {
-                ChunkState = ChunkState?.Clone(),
-                OutputReader = OutputReader?.Clone(),
+                ChunkState = ChunkState.Clone(),
+                OutputReader = OutputReader.Clone(),
                 Stack = ArrayUtils.Clone(Stack),
                 Used = Used,
                 BufferSize = BufferSize
@@ -719,8 +721,8 @@ namespace HashLib4CSharp.Crypto
             new Blake3XOF(HashSize, new byte[0])
             {
                 // Blake3 Cloning
-                ChunkState = ChunkState?.Clone(),
-                OutputReader = OutputReader?.Clone(),
+                ChunkState = ChunkState.Clone(),
+                OutputReader = OutputReader.Clone(),
                 Stack = ArrayUtils.Clone(Stack),
                 Used = Used,
                 Flags = Flags,
@@ -732,19 +734,19 @@ namespace HashLib4CSharp.Crypto
                 XofSizeInBits = XofSizeInBits
             };
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (_finalized)
                 throw new InvalidOperationException(
                     string.Format(WriteToXofAfterReadError, Name));
 
-            base.TransformBytes(data, index, length);
+            base.TransformByteSpan(data);
         }
 
         public override IHashResult TransformFinal()
         {
             var buffer = GetResult();
-            Debug.Assert((ulong) buffer.Length == XofSizeInBits >> 3);
+            Debug.Assert((ulong)buffer.Length == XofSizeInBits >> 3);
             Initialize();
 
             var result = new HashResult(buffer);
@@ -756,7 +758,7 @@ namespace HashLib4CSharp.Crypto
         {
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            if ((ulong) dest.Length - destOffset < outputLength)
+            if ((ulong)dest.Length - destOffset < outputLength)
                 throw new ArgumentException(OutputBufferTooShort);
 
             if (OutputReader.Offset + outputLength > XofSizeInBits >> 3)

@@ -29,7 +29,7 @@ namespace HashLib4CSharp.Crypto
 
         private const string InvalidSnefruLevel = "Security Level Cannot be Less than 1. Standard Level is 8";
 
-        private static readonly int[] Shifts = {16, 8, 16, 24};
+        private static readonly int[] Shifts = { 16, 8, 16, 24 };
 
         private static readonly uint[][] Boxes =
         {
@@ -698,7 +698,7 @@ namespace HashLib4CSharp.Crypto
         /// <param name="hashSize">128bit, 256bit</param>
         /// <returns></returns>
         internal Snefru(int securityLevel, HashSize hashSize)
-            : base((int) hashSize, 64 - (int) hashSize)
+            : base((int)hashSize, 64 - (int)hashSize)
         {
             if (securityLevel < 1) throw new ArgumentException(InvalidSnefruLevel);
             switch (hashSize)
@@ -706,7 +706,7 @@ namespace HashLib4CSharp.Crypto
                 case Enum.HashSize.HashSize128:
                 case Enum.HashSize.HashSize256:
                     _securityLevel = securityLevel;
-                    State = new uint[(int) hashSize >> 2];
+                    State = new uint[(int)hashSize >> 2];
                     break;
                 default:
                     throw new ArgumentException(InvalidSnefruHashSize);
@@ -743,26 +743,26 @@ namespace HashLib4CSharp.Crypto
             var bits = ProcessedBytesCount * 8;
             var padIndex = Buffer.Position > 0 ? 2 * BlockSize - Buffer.Position - 8 : BlockSize - Buffer.Position - 8;
 
-            var pad = new byte[padIndex + 8];
+            Span<byte> pad = stackalloc byte[padIndex + 8];
 
             bits = Converters.be2me_64(bits);
 
-            Converters.ReadUInt64AsBytesLE(bits, pad, padIndex);
+            Converters.ReadUInt64AsBytesLE(bits, pad.Slice(padIndex));
 
             padIndex += 8;
 
-            TransformBytes(pad, 0, padIndex);
+            TransformByteSpan(pad.Slice(0, padIndex));
         }
 
         protected override unsafe void TransformBlock(void* data,
             int dataLength, int index)
         {
-            var buffer = new uint[16];
+            var buffer = stackalloc uint[16];
 
-            fixed (uint* statePtr = State, bufferPtr = buffer)
+            fixed (uint* statePtr = State)
             {
-                PointerUtils.MemMove(bufferPtr, statePtr, State.Length * sizeof(uint));
-                Converters.be32_copy(data, index, (bufferPtr + State.Length), 0, dataLength);
+                PointerUtils.MemMove(buffer, statePtr, State.Length * sizeof(uint));
+                Converters.be32_copy(data, index, (buffer + State.Length), 0, dataLength);
             }
 
             var i = 0;
@@ -774,38 +774,38 @@ namespace HashLib4CSharp.Crypto
                 var j = 0;
                 while (j < 4)
                 {
-                    buffer[15] = buffer[15] ^ sbox0[(byte) buffer[0]];
-                    buffer[1] = buffer[1] ^ sbox0[(byte) buffer[0]];
-                    buffer[0] = buffer[0] ^ sbox0[(byte) buffer[1]];
-                    buffer[2] = buffer[2] ^ sbox0[(byte) buffer[1]];
-                    buffer[1] = buffer[1] ^ sbox1[(byte) buffer[2]];
-                    buffer[3] = buffer[3] ^ sbox1[(byte) buffer[2]];
-                    buffer[2] = buffer[2] ^ sbox1[(byte) buffer[3]];
-                    buffer[4] = buffer[4] ^ sbox1[(byte) buffer[3]];
-                    buffer[3] = buffer[3] ^ sbox0[(byte) buffer[4]];
-                    buffer[5] = buffer[5] ^ sbox0[(byte) buffer[4]];
-                    buffer[4] = buffer[4] ^ sbox0[(byte) buffer[5]];
-                    buffer[6] = buffer[6] ^ sbox0[(byte) buffer[5]];
-                    buffer[5] = buffer[5] ^ sbox1[(byte) buffer[6]];
-                    buffer[7] = buffer[7] ^ sbox1[(byte) buffer[6]];
-                    buffer[6] = buffer[6] ^ sbox1[(byte) buffer[7]];
-                    buffer[8] = buffer[8] ^ sbox1[(byte) buffer[7]];
-                    buffer[7] = buffer[7] ^ sbox0[(byte) buffer[8]];
-                    buffer[9] = buffer[9] ^ sbox0[(byte) buffer[8]];
-                    buffer[8] = buffer[8] ^ sbox0[(byte) buffer[9]];
-                    buffer[10] = buffer[10] ^ sbox0[(byte) buffer[9]];
-                    buffer[9] = buffer[9] ^ sbox1[(byte) buffer[10]];
-                    buffer[11] = buffer[11] ^ sbox1[(byte) buffer[10]];
-                    buffer[10] = buffer[10] ^ sbox1[(byte) buffer[11]];
-                    buffer[12] = buffer[12] ^ sbox1[(byte) buffer[11]];
-                    buffer[11] = buffer[11] ^ sbox0[(byte) buffer[12]];
-                    buffer[13] = buffer[13] ^ sbox0[(byte) buffer[12]];
-                    buffer[12] = buffer[12] ^ sbox0[(byte) buffer[13]];
-                    buffer[14] = buffer[14] ^ sbox0[(byte) buffer[13]];
-                    buffer[13] = buffer[13] ^ sbox1[(byte) buffer[14]];
-                    buffer[15] = buffer[15] ^ sbox1[(byte) buffer[14]];
-                    buffer[14] = buffer[14] ^ sbox1[(byte) buffer[15]];
-                    buffer[0] = buffer[0] ^ sbox1[(byte) buffer[15]];
+                    buffer[15] = buffer[15] ^ sbox0[(byte)buffer[0]];
+                    buffer[1] = buffer[1] ^ sbox0[(byte)buffer[0]];
+                    buffer[0] = buffer[0] ^ sbox0[(byte)buffer[1]];
+                    buffer[2] = buffer[2] ^ sbox0[(byte)buffer[1]];
+                    buffer[1] = buffer[1] ^ sbox1[(byte)buffer[2]];
+                    buffer[3] = buffer[3] ^ sbox1[(byte)buffer[2]];
+                    buffer[2] = buffer[2] ^ sbox1[(byte)buffer[3]];
+                    buffer[4] = buffer[4] ^ sbox1[(byte)buffer[3]];
+                    buffer[3] = buffer[3] ^ sbox0[(byte)buffer[4]];
+                    buffer[5] = buffer[5] ^ sbox0[(byte)buffer[4]];
+                    buffer[4] = buffer[4] ^ sbox0[(byte)buffer[5]];
+                    buffer[6] = buffer[6] ^ sbox0[(byte)buffer[5]];
+                    buffer[5] = buffer[5] ^ sbox1[(byte)buffer[6]];
+                    buffer[7] = buffer[7] ^ sbox1[(byte)buffer[6]];
+                    buffer[6] = buffer[6] ^ sbox1[(byte)buffer[7]];
+                    buffer[8] = buffer[8] ^ sbox1[(byte)buffer[7]];
+                    buffer[7] = buffer[7] ^ sbox0[(byte)buffer[8]];
+                    buffer[9] = buffer[9] ^ sbox0[(byte)buffer[8]];
+                    buffer[8] = buffer[8] ^ sbox0[(byte)buffer[9]];
+                    buffer[10] = buffer[10] ^ sbox0[(byte)buffer[9]];
+                    buffer[9] = buffer[9] ^ sbox1[(byte)buffer[10]];
+                    buffer[11] = buffer[11] ^ sbox1[(byte)buffer[10]];
+                    buffer[10] = buffer[10] ^ sbox1[(byte)buffer[11]];
+                    buffer[12] = buffer[12] ^ sbox1[(byte)buffer[11]];
+                    buffer[11] = buffer[11] ^ sbox0[(byte)buffer[12]];
+                    buffer[13] = buffer[13] ^ sbox0[(byte)buffer[12]];
+                    buffer[12] = buffer[12] ^ sbox0[(byte)buffer[13]];
+                    buffer[14] = buffer[14] ^ sbox0[(byte)buffer[13]];
+                    buffer[13] = buffer[13] ^ sbox1[(byte)buffer[14]];
+                    buffer[15] = buffer[15] ^ sbox1[(byte)buffer[14]];
+                    buffer[14] = buffer[14] ^ sbox1[(byte)buffer[15]];
+                    buffer[0] = buffer[0] ^ sbox1[(byte)buffer[15]];
 
                     var shift = Shifts[j];
 
@@ -834,8 +834,6 @@ namespace HashLib4CSharp.Crypto
                 State[6] = State[6] ^ buffer[9];
                 State[7] = State[7] ^ buffer[8];
             }
-
-            ArrayUtils.ZeroFill(buffer);
         }
 
         protected static HashSize GetHashSize(int hashSize)

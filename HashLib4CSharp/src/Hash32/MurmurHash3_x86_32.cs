@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -61,16 +60,15 @@ namespace HashLib4CSharp.Hash32
                 BufferSize = BufferSize
             };
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
+            var index = 0;
+            var length = data.Length;
             var len = length;
             var idx = index;
-            _totalLength += (uint) len;
+            _totalLength += (uint)len;
 
             fixed (byte* dataPtr = data, bufferPtr = _buffer)
             {
@@ -78,7 +76,6 @@ namespace HashLib4CSharp.Hash32
                 uint block;
                 if (_idx != 0 && length != 0)
                 {
-                    Debug.Assert(index == 0); // nothing would work anyways if index is !=0
                     while (_idx < 4 && len != 0)
                     {
                         _buffer[_idx++] = *(dataPtr + index);
@@ -102,7 +99,7 @@ namespace HashLib4CSharp.Hash32
 
                 // body
                 var h = _h;
-                var dataPtr2 = (uint*) (dataPtr + index);
+                var dataPtr2 = (uint*)(dataPtr + index);
                 while (idx < nBlocks)
                 {
                     block = Converters.ReadPCardinalAsUInt32LE(dataPtr2 + idx);
@@ -177,8 +174,8 @@ namespace HashLib4CSharp.Hash32
                 switch (_idx)
                 {
                     case 3:
-                        finalBlock ^= (uint) (_buffer[2] << 16);
-                        finalBlock ^= (uint) (_buffer[1] << 8);
+                        finalBlock ^= (uint)(_buffer[2] << 16);
+                        finalBlock ^= (uint)(_buffer[1] << 8);
                         finalBlock ^= _buffer[0];
                         finalBlock *= C1;
                         finalBlock = Bits.RotateLeft32(finalBlock, 15);
@@ -187,7 +184,7 @@ namespace HashLib4CSharp.Hash32
                         break;
 
                     case 2:
-                        finalBlock ^= (uint) (_buffer[1] << 8);
+                        finalBlock ^= (uint)(_buffer[1] << 8);
                         finalBlock ^= _buffer[0];
                         finalBlock *= C1;
                         finalBlock = Bits.RotateLeft32(finalBlock, 15);

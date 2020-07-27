@@ -80,9 +80,9 @@ namespace HashLib4CSharp.Crypto
         public override unsafe void Initialize()
         {
             int idx;
-            byte[] block = null;
+            Span<byte> block = null;
 
-            var rawConfig = Blake2SIvBuilder.ConfigB(Config, ref TreeConfig);
+            Span<uint> rawConfig = Blake2SIvBuilder.ConfigB(Config, ref TreeConfig);
 
             if (_doTransformKeyBlock)
             {
@@ -123,18 +123,15 @@ namespace HashLib4CSharp.Crypto
 
             if (!_doTransformKeyBlock) return;
             if (block == null) return;
-            TransformBytes(block, 0, block.Length);
-            ArrayUtils.ZeroFill(block); // burn key from memory
+            TransformByteSpan(block.Slice(0, block.Length));
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
 
-            var offset = index;
+            var length = data.Length;
+            var offset = 0;
             var bufferRemaining = BlockSizeInBytes - FilledBufferCount;
 
             if (FilledBufferCount > 0 && length > bufferRemaining)
@@ -202,41 +199,40 @@ namespace HashLib4CSharp.Crypto
 
         private unsafe void Compress(byte* block, int start)
         {
-            fixed (uint* ptrM = M)
+            fixed (uint* ptrState = State, ptrM = M)
             {
                 Converters.le32_copy(block, start, ptrM, 0, BlockSize);
+                MixScalar(ptrState, ptrM);
             }
-
-            MixScalar();
         }
 
-        private void MixScalar()
+        private unsafe void MixScalar(uint* ptrState, uint* ptrM)
         {
-            var m0 = M[0];
-            var m1 = M[1];
-            var m2 = M[2];
-            var m3 = M[3];
-            var m4 = M[4];
-            var m5 = M[5];
-            var m6 = M[6];
-            var m7 = M[7];
-            var m8 = M[8];
-            var m9 = M[9];
-            var m10 = M[10];
-            var m11 = M[11];
-            var m12 = M[12];
-            var m13 = M[13];
-            var m14 = M[14];
-            var m15 = M[15];
+            var m0 = ptrM[0];
+            var m1 = ptrM[1];
+            var m2 = ptrM[2];
+            var m3 = ptrM[3];
+            var m4 = ptrM[4];
+            var m5 = ptrM[5];
+            var m6 = ptrM[6];
+            var m7 = ptrM[7];
+            var m8 = ptrM[8];
+            var m9 = ptrM[9];
+            var m10 = ptrM[10];
+            var m11 = ptrM[11];
+            var m12 = ptrM[12];
+            var m13 = ptrM[13];
+            var m14 = ptrM[14];
+            var m15 = ptrM[15];
 
-            var v0 = State[0];
-            var v1 = State[1];
-            var v2 = State[2];
-            var v3 = State[3];
-            var v4 = State[4];
-            var v5 = State[5];
-            var v6 = State[6];
-            var v7 = State[7];
+            var v0 = ptrState[0];
+            var v1 = ptrState[1];
+            var v2 = ptrState[2];
+            var v3 = ptrState[3];
+            var v4 = ptrState[4];
+            var v5 = ptrState[5];
+            var v6 = ptrState[6];
+            var v7 = ptrState[7];
 
             var v8 = IV0;
             var v9 = IV1;
@@ -1390,20 +1386,20 @@ namespace HashLib4CSharp.Crypto
             v5 = Bits.RotateRight32(v5, 7);
             // Finalization
 
-            State[0] = State[0] ^ v0 ^ v8;
-            State[1] = State[1] ^ v1 ^ v9;
-            State[2] = State[2] ^ v2 ^ v10;
-            State[3] = State[3] ^ v3 ^ v11;
-            State[4] = State[4] ^ v4 ^ v12;
-            State[5] = State[5] ^ v5 ^ v13;
-            State[6] = State[6] ^ v6 ^ v14;
-            State[7] = State[7] ^ v7 ^ v15;
+            ptrState[0] = ptrState[0] ^ v0 ^ v8;
+            ptrState[1] = ptrState[1] ^ v1 ^ v9;
+            ptrState[2] = ptrState[2] ^ v2 ^ v10;
+            ptrState[3] = ptrState[3] ^ v3 ^ v11;
+            ptrState[4] = ptrState[4] ^ v4 ^ v12;
+            ptrState[5] = ptrState[5] ^ v5 ^ v13;
+            ptrState[6] = ptrState[6] ^ v6 ^ v14;
+            ptrState[7] = ptrState[7] ^ v7 ^ v15;
         }
 
         protected unsafe void Finish()
         {
             // Last compression
-            Blake2SIncrementCounter((uint) FilledBufferCount);
+            Blake2SIncrementCounter((uint)FilledBufferCount);
 
             FinalizationFlag0 = uint.MaxValue;
 
@@ -1413,7 +1409,7 @@ namespace HashLib4CSharp.Crypto
             var count = Buffer.Length - FilledBufferCount;
 
             if (count > 0)
-                ArrayUtils.Fill(Buffer, FilledBufferCount, count + FilledBufferCount, (byte) 0);
+                ArrayUtils.Fill(Buffer, FilledBufferCount, count + FilledBufferCount, (byte)0);
 
             fixed (byte* bufferPtr = Buffer)
             {
@@ -1440,8 +1436,8 @@ namespace HashLib4CSharp.Crypto
         private const int Blake2SHashSize = 32;
 
         // Magic number to indicate an unknown length of digest
-        private const uint UnknownDigestLengthInBytes = (ushort) (((uint) 1 << 16) - 1);
-        private const ulong MaxNumberBlocks = (ulong) 1 << 32;
+        private const uint UnknownDigestLengthInBytes = (ushort)(((uint)1 << 16) - 1);
+        private const ulong MaxNumberBlocks = (ulong)1 << 32;
 
         // 2^32 blocks of 32 bytes (128GiB)
         // the maximum size in bytes the digest can produce when the length is unknown
@@ -1465,7 +1461,7 @@ namespace HashLib4CSharp.Crypto
         {
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            if ((ulong) dest.Length - destOffset < outputLength)
+            if ((ulong)dest.Length - destOffset < outputLength)
                 throw new ArgumentException(OutputBufferTooShort);
 
             if (XofSizeInBits >> 3 != UnknownDigestLengthInBytes)
@@ -1510,13 +1506,13 @@ namespace HashLib4CSharp.Crypto
 
                 var blockOffset = _digestPosition & (Blake2SHashSize - 1);
 
-                var diff = (ulong) _buffer.Length - blockOffset;
+                var diff = (ulong)_buffer.Length - blockOffset;
 
                 var count = Math.Min(outputLength, diff);
 
                 fixed (byte* bufferPtr = &_buffer[blockOffset], destPtr = &dest[destOffset])
                 {
-                    PointerUtils.MemMove(destPtr, bufferPtr, (int) count);
+                    PointerUtils.MemMove(destPtr, bufferPtr, (int)count);
                 }
 
                 outputLength -= count;
@@ -1589,18 +1585,18 @@ namespace HashLib4CSharp.Crypto
                 XofSizeInBits = XofSizeInBits
             };
 
-        public override void TransformBytes(byte[] data, int index, int length)
+        public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (_finalized)
                 throw new InvalidOperationException(string.Format(WriteToXofAfterReadError, Name));
 
-            base.TransformBytes(data, index, length);
+            base.TransformByteSpan(data);
         }
 
         public override IHashResult TransformFinal()
         {
             var buffer = GetResult();
-            Debug.Assert((ulong) buffer.Length == XofSizeInBits >> 3);
+            Debug.Assert((ulong)buffer.Length == XofSizeInBits >> 3);
             Initialize();
 
             return new HashResult(buffer);
@@ -1612,7 +1608,7 @@ namespace HashLib4CSharp.Crypto
             if ((xofSizeInBits & 0x7) != 0 || xofSizeInBytes < 1 ||
                 xofSizeInBytes > UnknownDigestLengthInBytes)
                 throw new ArgumentException(
-                    string.Format(InvalidXofSize, 1, (ulong) UnknownDigestLengthInBytes));
+                    string.Format(InvalidXofSize, 1, (ulong)UnknownDigestLengthInBytes));
 
             _xofSizeInBits = xofSizeInBits;
         }
@@ -1629,7 +1625,7 @@ namespace HashLib4CSharp.Crypto
             if (xofSizeInBytes == UnknownDigestLengthInBytes)
                 return Blake2SHashSize;
 
-            return (int) Math.Min(Blake2SHashSize, diff);
+            return (int)Math.Min(Blake2SHashSize, diff);
         }
 
         private byte[] GetResult()

@@ -12,7 +12,6 @@ for the purposes of supporting the XXX (https://YYY) project.
 */
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HashLib4CSharp.Base;
 using HashLib4CSharp.Interfaces;
@@ -1308,12 +1307,12 @@ namespace HashLib4CSharp.Crypto
             ArrayUtils.ZeroFill(Block);
         }
 
-        public override unsafe void TransformBytes(byte[] data, int index, int length)
+        public override unsafe void TransformByteSpan(ReadOnlySpan<byte> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
-            Debug.Assert(index >= 0);
-            Debug.Assert(length >= 0);
-            Debug.Assert(index + length <= data.Length);
+
+            var length = data.Length;
+            var index = 0;
 
             while (Offset != 64 && length > 0)
             {
@@ -1429,12 +1428,12 @@ namespace HashLib4CSharp.Crypto
         private static void Xor512(byte[] a, byte[] b)
         {
             var i = 0;
-            for (; i < 64; i++) a[i] = (byte) (a[i] ^ b[i]);
+            for (; i < 64; i++) a[i] = (byte)(a[i] ^ b[i]);
         }
 
-        private static void F(byte[] v)
+        private static unsafe void F(byte[] v)
         {
-            var res = new ulong[8];
+            var res = stackalloc ulong[8];
 
             ulong r = 0;
             r ^= T[0][v[56] & 0xFF];
@@ -1525,101 +1524,99 @@ namespace HashLib4CSharp.Crypto
             res[7] = r;
 
             r = res[0];
-            v[7] = (byte) (r >> 56);
-            v[6] = (byte) (r >> 48);
-            v[5] = (byte) (r >> 40);
-            v[4] = (byte) (r >> 32);
-            v[3] = (byte) (r >> 24);
-            v[2] = (byte) (r >> 16);
-            v[1] = (byte) (r >> 8);
-            v[0] = (byte) r;
+            v[7] = (byte)(r >> 56);
+            v[6] = (byte)(r >> 48);
+            v[5] = (byte)(r >> 40);
+            v[4] = (byte)(r >> 32);
+            v[3] = (byte)(r >> 24);
+            v[2] = (byte)(r >> 16);
+            v[1] = (byte)(r >> 8);
+            v[0] = (byte)r;
 
             r = res[1];
-            v[15] = (byte) (r >> 56);
-            v[14] = (byte) (r >> 48);
-            v[13] = (byte) (r >> 40);
-            v[12] = (byte) (r >> 32);
-            v[11] = (byte) (r >> 24);
-            v[10] = (byte) (r >> 16);
-            v[9] = (byte) (r >> 8);
-            v[8] = (byte) r;
+            v[15] = (byte)(r >> 56);
+            v[14] = (byte)(r >> 48);
+            v[13] = (byte)(r >> 40);
+            v[12] = (byte)(r >> 32);
+            v[11] = (byte)(r >> 24);
+            v[10] = (byte)(r >> 16);
+            v[9] = (byte)(r >> 8);
+            v[8] = (byte)r;
 
             r = res[2];
-            v[23] = (byte) (r >> 56);
-            v[22] = (byte) (r >> 48);
-            v[21] = (byte) (r >> 40);
-            v[20] = (byte) (r >> 32);
-            v[19] = (byte) (r >> 24);
-            v[18] = (byte) (r >> 16);
-            v[17] = (byte) (r >> 8);
-            v[16] = (byte) r;
+            v[23] = (byte)(r >> 56);
+            v[22] = (byte)(r >> 48);
+            v[21] = (byte)(r >> 40);
+            v[20] = (byte)(r >> 32);
+            v[19] = (byte)(r >> 24);
+            v[18] = (byte)(r >> 16);
+            v[17] = (byte)(r >> 8);
+            v[16] = (byte)r;
 
             r = res[3];
-            v[31] = (byte) (r >> 56);
-            v[30] = (byte) (r >> 48);
-            v[29] = (byte) (r >> 40);
-            v[28] = (byte) (r >> 32);
-            v[27] = (byte) (r >> 24);
-            v[26] = (byte) (r >> 16);
-            v[25] = (byte) (r >> 8);
-            v[24] = (byte) r;
+            v[31] = (byte)(r >> 56);
+            v[30] = (byte)(r >> 48);
+            v[29] = (byte)(r >> 40);
+            v[28] = (byte)(r >> 32);
+            v[27] = (byte)(r >> 24);
+            v[26] = (byte)(r >> 16);
+            v[25] = (byte)(r >> 8);
+            v[24] = (byte)r;
 
             r = res[4];
-            v[39] = (byte) (r >> 56);
-            v[38] = (byte) (r >> 48);
-            v[37] = (byte) (r >> 40);
-            v[36] = (byte) (r >> 32);
-            v[35] = (byte) (r >> 24);
-            v[34] = (byte) (r >> 16);
-            v[33] = (byte) (r >> 8);
-            v[32] = (byte) r;
+            v[39] = (byte)(r >> 56);
+            v[38] = (byte)(r >> 48);
+            v[37] = (byte)(r >> 40);
+            v[36] = (byte)(r >> 32);
+            v[35] = (byte)(r >> 24);
+            v[34] = (byte)(r >> 16);
+            v[33] = (byte)(r >> 8);
+            v[32] = (byte)r;
 
             r = res[5];
-            v[47] = (byte) (r >> 56);
-            v[46] = (byte) (r >> 48);
-            v[45] = (byte) (r >> 40);
-            v[44] = (byte) (r >> 32);
-            v[43] = (byte) (r >> 24);
-            v[42] = (byte) (r >> 16);
-            v[41] = (byte) (r >> 8);
-            v[40] = (byte) r;
+            v[47] = (byte)(r >> 56);
+            v[46] = (byte)(r >> 48);
+            v[45] = (byte)(r >> 40);
+            v[44] = (byte)(r >> 32);
+            v[43] = (byte)(r >> 24);
+            v[42] = (byte)(r >> 16);
+            v[41] = (byte)(r >> 8);
+            v[40] = (byte)r;
 
             r = res[6];
-            v[55] = (byte) (r >> 56);
-            v[54] = (byte) (r >> 48);
-            v[53] = (byte) (r >> 40);
-            v[52] = (byte) (r >> 32);
-            v[51] = (byte) (r >> 24);
-            v[50] = (byte) (r >> 16);
-            v[49] = (byte) (r >> 8);
-            v[48] = (byte) r;
+            v[55] = (byte)(r >> 56);
+            v[54] = (byte)(r >> 48);
+            v[53] = (byte)(r >> 40);
+            v[52] = (byte)(r >> 32);
+            v[51] = (byte)(r >> 24);
+            v[50] = (byte)(r >> 16);
+            v[49] = (byte)(r >> 8);
+            v[48] = (byte)r;
 
             r = res[7];
-            v[63] = (byte) (r >> 56);
-            v[62] = (byte) (r >> 48);
-            v[61] = (byte) (r >> 40);
-            v[60] = (byte) (r >> 32);
-            v[59] = (byte) (r >> 24);
-            v[58] = (byte) (r >> 16);
-            v[57] = (byte) (r >> 8);
-            v[56] = (byte) r;
-
-            ArrayUtils.ZeroFill(res);
+            v[63] = (byte)(r >> 56);
+            v[62] = (byte)(r >> 48);
+            v[61] = (byte)(r >> 40);
+            v[60] = (byte)(r >> 32);
+            v[59] = (byte)(r >> 24);
+            v[58] = (byte)(r >> 16);
+            v[57] = (byte)(r >> 8);
+            v[56] = (byte)r;
         }
 
         private static void AddMod512(byte[] a, int num)
         {
             var c = (a[63] & 0xFF) + (num & 0xFF);
-            a[63] = (byte) c;
+            a[63] = (byte)c;
 
             c = (a[62] & 0xFF) + (Bits.Asr32(num, 8) & 0xFF) + Bits.Asr32(c, 8);
-            a[62] = (byte) c;
+            a[62] = (byte)c;
 
             var i = 61;
             while (i >= 0 && c > 0)
             {
                 c = (a[i] & 0xFF) + Bits.Asr32(c, 8);
-                a[i] = (byte) c;
+                a[i] = (byte)c;
                 i--;
             }
         }
@@ -1632,7 +1629,7 @@ namespace HashLib4CSharp.Crypto
             while (i >= 0)
             {
                 c = (a[i] & 0xFF) + (b[i] & 0xFF) + Bits.Asr32(c, 8);
-                a[i] = (byte) c;
+                a[i] = (byte)c;
                 i--;
             }
         }

@@ -151,7 +151,7 @@ namespace HashLib4CSharp.KDF
         }
 
         public override async Task<byte[]> GetBytesAsync(int byteCount,
-            CancellationToken cancellationToken = default(CancellationToken)) =>
+            CancellationToken cancellationToken = default) =>
             await Task.Run(() => GetBytes(byteCount), cancellationToken);
 
         public override string Name => $"{GetType().Name}({_hmacNotBuiltIn.Name})";
