@@ -245,7 +245,7 @@ namespace HashLib4CSharp.Crypto
                 state[15] = state[15] ^ CV[7];
             }
 
-            public void CompressWithHalfFinalization(uint* state)
+            private void CompressWithHalfFinalization(uint* state)
             {
                 Mixing(state);
                 // compression finalization
