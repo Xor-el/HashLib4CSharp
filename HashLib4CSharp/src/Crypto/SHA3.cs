@@ -519,7 +519,6 @@ namespace HashLib4CSharp.Crypto
     {
         private const string InvalidXofSize = "XofSizeInBits must be multiples of 8 & be greater than 0";
         private const string OutputLengthOverflow = "Output length is above the digest length";
-        private const string OutputBufferTooShort = "Output buffer too short";
         private const string WriteToXofAfterRead = "'{0}' Write to Xof after read not allowed";
 
         private ulong _xofSizeInBits;
@@ -556,7 +555,7 @@ namespace HashLib4CSharp.Crypto
 
         protected override byte[] GetResult()
         {
-            var xofSizeInBytes = XofSizeInBits >> 3;
+            var xofSizeInBytes = (int)(XofSizeInBits >> 3);
 
             var result = new byte[xofSizeInBytes];
 
@@ -581,15 +580,14 @@ namespace HashLib4CSharp.Crypto
             set => SetXofSizeInBitsInternal(value);
         }
 
-        public virtual unsafe void DoOutput(byte[] dest, ulong destOffset,
-            ulong outputLength)
+        public unsafe void DoOutput(Span<byte> dest)
         {
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            if ((ulong)dest.Length - destOffset < outputLength)
-                throw new ArgumentException(OutputBufferTooShort);
+            var outputLength = dest.Length;
+            var destOffset = 0;
 
-            if (DigestPosition + outputLength > XofSizeInBits >> 3)
+            if (DigestPosition + (ulong) outputLength > XofSizeInBits >> 3)
                 throw new ArgumentException(OutputLengthOverflow);
 
             if (!Finalized)
@@ -613,19 +611,25 @@ namespace HashLib4CSharp.Crypto
                     BufferPosition++;
                 }
 
-                var blockOffset = DigestPosition & 7;
-                var diff = (ulong)ShakeBuffer.Length - blockOffset;
+                var blockOffset = (int)(DigestPosition & 7);
+                var diff = ShakeBuffer.Length - blockOffset;
                 var count = Math.Min(outputLength, diff);
 
                 fixed (byte* destPtr = &dest[destOffset], srcPtr = &ShakeBuffer[blockOffset])
                 {
-                    PointerUtils.MemMove(destPtr, srcPtr, (int)count);
+                    PointerUtils.MemMove(destPtr, srcPtr, count);
                 }
 
                 outputLength -= count;
                 destOffset += count;
-                DigestPosition += count;
+                DigestPosition += (ulong) count;
             }
+        }
+
+        public virtual void DoOutput(byte[] dest, int destOffset,
+            int outputLength)
+        {
+            DoOutput(dest.AsSpan().Slice(destOffset, outputLength));
         }
         public override void TransformByteSpan(ReadOnlySpan<byte> data)
         {

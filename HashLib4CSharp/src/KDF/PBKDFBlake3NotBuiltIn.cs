@@ -56,7 +56,7 @@ namespace HashLib4CSharp.KDF
 
             // construct the derivation Hasher and get the derivationIV
             var derivationIv = new Blake3(derivationIVLen, ivWords, flagDeriveKeyContext)
-                .ComputeBytes(ctx).GetBytes();
+                .ComputeByteSpan(ctx).GetBytes();
 
             fixed (byte* srcPtr = derivationIv)
             {
@@ -85,9 +85,9 @@ namespace HashLib4CSharp.KDF
             var result = new byte[byteCount];
             _xof.XofSizeInBits = (ulong) byteCount * 8;
             _xof.Initialize();
-            _xof.TransformBytes(_srcKey);
+            _xof.TransformByteSpan(_srcKey);
             // derive the SubKey
-            _xof.DoOutput(result, 0, (ulong) result.Length);
+            _xof.DoOutput(result.AsSpan());
             _xof.Initialize();
             return result;
         }

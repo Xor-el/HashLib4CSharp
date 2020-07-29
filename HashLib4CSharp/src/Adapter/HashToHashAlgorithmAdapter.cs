@@ -39,7 +39,7 @@ namespace HashLib4CSharp.Adapter
             Debug.Assert(ibStart >= 0);
             Debug.Assert(ibStart + cbSize <= array.Length);
 
-            _hash.TransformBytes(array, ibStart, cbSize);
+            _hash.TransformByteSpan(array.AsSpan().Slice( ibStart, cbSize));
         }
 
         protected override byte[] HashFinal()

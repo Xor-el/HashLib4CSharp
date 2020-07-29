@@ -47,11 +47,11 @@ namespace HashLib4CSharp.MAC
 
         private byte[] GetResult()
         {
-            var xofSizeInBytes = ((IXOF)Hash).XofSizeInBits >> 3;
+            var xofSizeInBytes = (int)(((IXOF)Hash).XofSizeInBits >> 3);
 
             var result = new byte[xofSizeInBytes];
 
-            DoOutput(result, 0, xofSizeInBytes);
+            DoOutput(result.AsSpan().Slice(0, xofSizeInBytes));
 
             return result;
         }
@@ -85,7 +85,7 @@ namespace HashLib4CSharp.MAC
 
         public override string ToString() => Name;
 
-        public void DoOutput(byte[] dest, ulong destOffset, ulong outputLength)
+        public void DoOutput(Span<byte> dest)
         {
             if (!Finalized)
             {
@@ -93,7 +93,7 @@ namespace HashLib4CSharp.MAC
                 Finalized = true;
             }
 
-            ((IXOF)Hash).DoOutput(dest, destOffset, outputLength);
+            ((IXOF)Hash).DoOutput(dest);
         }
 
         public static IKMACNotBuiltIn CreateKMAC128(byte[] kmacKey, byte[] customization,

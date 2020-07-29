@@ -109,7 +109,7 @@ namespace HashLib4CSharp.KDF
 
             while (offset < byteCount)
             {
-                var block = Func();
+                ReadOnlySpan<byte> block = Func();
                 var remainder = byteCount - offset;
                 if (remainder > _blockSize)
                 {
@@ -161,7 +161,7 @@ namespace HashLib4CSharp.KDF
         public override IKDFNotBuiltIn Clone() =>
             new PBKDF2HMACNotBuiltIn
             {
-                _hmacNotBuiltIn = (IHMACNotBuiltIn) _hmacNotBuiltIn.Clone(),
+                _hmacNotBuiltIn = (IHMACNotBuiltIn)_hmacNotBuiltIn.Clone(),
                 _password = ArrayUtils.Clone(_password),
                 _salt = ArrayUtils.Clone(_salt),
                 _buffer = ArrayUtils.Clone(_buffer),
@@ -183,25 +183,25 @@ namespace HashLib4CSharp.KDF
 
 
         // iterative hash function
-        private byte[] Func()
+        private Span<byte> Func()
         {
             var intBlock = GetBigEndianBytes(_block);
             _hmacNotBuiltIn.Initialize();
 
-            _hmacNotBuiltIn.TransformBytes(_salt, 0, _salt.Length);
-            _hmacNotBuiltIn.TransformBytes(intBlock, 0, intBlock.Length);
+            _hmacNotBuiltIn.TransformByteSpan(_salt);
+            _hmacNotBuiltIn.TransformByteSpan(intBlock);
 
-            var temp = _hmacNotBuiltIn.TransformFinal().GetBytes();
-            var result = ArrayUtils.Clone(temp);
+            Span<byte> temp = _hmacNotBuiltIn.TransformFinal().GetBytes();
+            Span<byte> result = temp.ToArray();
 
             uint i = 2;
             while (i <= _iterations)
             {
-                temp = _hmacNotBuiltIn.ComputeBytes(temp).GetBytes();
+                temp = _hmacNotBuiltIn.ComputeByteSpan(temp).GetBytes();
                 var j = 0;
                 while (j < _blockSize)
                 {
-                    result[j] = (byte) (result[j] ^ temp[j]);
+                    result[j] = (byte)(result[j] ^ temp[j]);
                     j++;
                 }
 
@@ -218,10 +218,10 @@ namespace HashLib4CSharp.KDF
         /// <param name="input">The integer to encode.</param>
         /// <returns>array of bytes, in big endian.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte[] GetBigEndianBytes(uint input)
+        private static ReadOnlySpan<byte> GetBigEndianBytes(uint input)
         {
-            var result = new byte[sizeof(uint)];
-            Converters.ReadUInt32AsBytesBE(input, result, 0);
+            Span<byte> result = new byte[sizeof(uint)];
+            Converters.ReadUInt32AsBytesBE(input, result);
             return result;
         }
     }

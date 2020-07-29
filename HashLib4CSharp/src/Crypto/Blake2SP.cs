@@ -108,7 +108,7 @@ namespace HashLib4CSharp.Crypto
 
                     for (var idx = 0; idx < ParallelismDegree; idx++)
                     {
-                        _leafHashes[idx].TransformBytes(_buffer, idx * BlockSizeInBytes, BlockSizeInBytes);
+                        _leafHashes[idx].TransformByteSpan(_buffer.AsSpan().Slice(idx * BlockSizeInBytes, BlockSizeInBytes));
                     }
 
                     dataPtr2 += fill;
@@ -145,14 +145,14 @@ namespace HashLib4CSharp.Crypto
                 {
                     var left = _bufferLength - (ulong)(idx * BlockSizeInBytes);
                     left = Math.Min(left, BlockSizeInBytes);
-                    _leafHashes[idx].TransformBytes(_buffer, idx * BlockSizeInBytes, (int)left);
+                    _leafHashes[idx].TransformByteSpan(_buffer.AsSpan().Slice(idx * BlockSizeInBytes, (int)left));
                 }
 
                 hash[idx] = _leafHashes[idx].TransformFinal().GetBytes();
             }
 
             for (idx = 0; idx < ParallelismDegree; idx++)
-                _rootHash.TransformBytes(hash[idx], 0, OutSizeInBytes);
+                _rootHash.TransformByteSpan(hash[idx].AsSpan().Slice(0, OutSizeInBytes));
 
             var result = _rootHash.TransformFinal();
 

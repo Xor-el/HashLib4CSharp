@@ -441,9 +441,12 @@ namespace HashLib4CSharp.Crypto
                 return result;
             }
 
-            public void Read(byte[] dest, ulong destOffset, ulong outputLength)
+            public void Read(Span<byte> dest)
             {
                 var words = stackalloc uint[16];
+
+                var outputLength = (ulong)dest.Length;
+                var destOffset = 0;
 
                 if (Offset == MaxDigestLengthInBytes)
                     throw new ArgumentException(MaximumOutputLengthExceeded);
@@ -470,7 +473,7 @@ namespace HashLib4CSharp.Crypto
                         PointerUtils.MemMove(destPtr + destOffset, blockPtr + blockOffset, count);
 
                         outputLength -= (ulong)count;
-                        destOffset += (ulong)count;
+                        destOffset += count;
                         Offset += (ulong)count;
                     }
                 }
@@ -577,8 +580,8 @@ namespace HashLib4CSharp.Crypto
         public override string Name => $"{GetType().Name}_{HashSize * 8}";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void InternalDoOutput(byte[] dest, ulong destOffset, ulong outputLength) =>
-            OutputReader.Read(dest, destOffset, outputLength);
+        protected void InternalDoOutput(Span<byte> dest) =>
+            OutputReader.Read(dest);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void Finish() => OutputReader.N = RootNode();
@@ -681,7 +684,7 @@ namespace HashLib4CSharp.Crypto
 
             var buffer = new byte[HashSize];
 
-            InternalDoOutput(buffer, 0, (ulong)buffer.Length);
+            InternalDoOutput(buffer.AsSpan());
 
             IHashResult result = new HashResult(buffer);
 
@@ -705,7 +708,6 @@ namespace HashLib4CSharp.Crypto
     {
         private const string InvalidXofSize = "XOFSizeInBits must be multiples of 8 and be greater than zero bytes";
         private const string InvalidOutputLength = "Output length is above the digest length";
-        private const string OutputBufferTooShort = "Output buffer too short";
         private const string WriteToXofAfterReadError = "'{0}' write to Xof after read not allowed";
 
         private bool _finalized;
@@ -771,14 +773,13 @@ namespace HashLib4CSharp.Crypto
             return result;
         }
 
-        public void DoOutput(byte[] dest, ulong destOffset, ulong outputLength)
+        public void DoOutput(Span<byte> dest)
         {
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            if ((ulong)dest.Length - destOffset < outputLength)
-                throw new ArgumentException(OutputBufferTooShort);
+            var outputLength = dest.Length;
 
-            if (OutputReader.Offset + outputLength > XofSizeInBits >> 3)
+            if (OutputReader.Offset + (ulong)outputLength > XofSizeInBits >> 3)
                 throw new ArgumentException(InvalidOutputLength);
 
             if (!_finalized)
@@ -787,7 +788,12 @@ namespace HashLib4CSharp.Crypto
                 _finalized = true;
             }
 
-            InternalDoOutput(dest, destOffset, outputLength);
+            InternalDoOutput(dest);
+        }
+
+        public void DoOutput(byte[] dest, int destOffset, int outputLength)
+        {
+            DoOutput(dest.AsSpan().Slice(destOffset, outputLength));
         }
 
         private void SetXofSizeInBitsInternal(ulong xofSizeInBits)
@@ -801,7 +807,7 @@ namespace HashLib4CSharp.Crypto
 
         private byte[] GetResult()
         {
-            var xofSizeInBytes = XofSizeInBits >> 3;
+            var xofSizeInBytes = (int)(XofSizeInBits >> 3);
 
             var result = new byte[xofSizeInBytes];
 

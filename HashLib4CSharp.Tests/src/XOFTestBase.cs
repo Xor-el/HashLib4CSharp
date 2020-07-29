@@ -25,7 +25,7 @@ namespace HashLib4CSharp.Tests
             var output = new byte[(XofInstance.XofSizeInBits >> 3) + 1];
             XofInstance.TransformBytes(SmallLettersAToEBytes);
             Assert.Throws<ArgumentException>(() =>
-                XofInstance.DoOutput(output, 0, (ulong) output.Length));
+                XofInstance.DoOutput(output, 0, output.Length));
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace HashLib4CSharp.Tests
             var output = new byte[XofInstance.XofSizeInBits >> 3];
             XofInstance.TransformBytes(SmallLettersAToEBytes);
             Assert.Throws<ArgumentException>(() =>
-                XofInstance.DoOutput(output, 1, (ulong) output.Length));
+                XofInstance.DoOutput(output, 1, output.Length));
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace HashLib4CSharp.Tests
             XofInstance.Initialize();
             var output = new byte[XofInstance.XofSizeInBits >> 3];
             XofInstance.TransformBytes(SmallLettersAToEBytes);
-            XofInstance.DoOutput(output, 0, (ulong) output.Length);
+            XofInstance.DoOutput(output, 0, output.Length);
             // this call below should raise exception since we have already read from the Xof
             Assert.Throws<InvalidOperationException>(() => XofInstance.TransformBytes(SmallLettersAToEBytes));
         }
@@ -125,13 +125,13 @@ namespace HashLib4CSharp.Tests
         {
             XofInstance.Initialize();
             XofInstance.TransformBytes(ZeroToOneHundredAndNinetyNineBytes);
-            var xofInstanceClone = (IXOF) XofInstance.Clone();
+            var xofInstanceClone = (IXOF)XofInstance.Clone();
 
             var result = new byte[XofInstance.XofSizeInBits >> 3];
             var resultClone = new byte[xofInstanceClone.XofSizeInBits >> 3];
 
-            XofInstance.DoOutput(result, 0, (ulong) result.Length);
-            xofInstanceClone.DoOutput(resultClone, 0, (ulong) resultClone.Length);
+            XofInstance.DoOutput(result, 0, result.Length);
+            xofInstanceClone.DoOutput(resultClone, 0, resultClone.Length);
 
             AssertAreEqual(result, resultClone, $"Error in '{XofInstance.Name}' cloning");
         }
@@ -192,7 +192,7 @@ namespace HashLib4CSharp.Tests
 
             xofInstance.Initialize();
             xofInstance.TransformBytes(data);
-            xofInstance.DoOutput(result, 0, (ulong) result.Length);
+            xofInstance.DoOutput(result, 0, result.Length);
 
             ActualString = Converters.ConvertBytesToHexString(result);
 

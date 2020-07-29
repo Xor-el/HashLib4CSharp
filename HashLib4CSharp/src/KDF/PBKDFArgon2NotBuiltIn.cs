@@ -393,7 +393,7 @@ namespace HashLib4CSharp.KDF
             if (octets.Length > 0)
             {
                 AddIntToLittleEndian(hashInstance, octets.Length);
-                hashInstance.TransformBytes(octets, 0, octets.Length);
+                hashInstance.TransformByteSpan(octets);
             }
             else
             {
@@ -403,7 +403,7 @@ namespace HashLib4CSharp.KDF
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void AddIntToLittleEndian(Blake2B hashInstance, int lanes) =>
-            hashInstance.TransformBytes(Converters.ReadUInt32AsBytesLE((uint)lanes));
+            hashInstance.TransformByteSpan(Converters.ReadUInt32AsBytesLE((uint)lanes));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Blake2B MakeBlake2BInstanceAndInitialize(int hashSize)
@@ -440,16 +440,16 @@ namespace HashLib4CSharp.KDF
             {
                 blake2B = MakeBlake2BInstanceAndInitialize(outputLength);
 
-                blake2B.TransformBytes(outputLengthBytes, 0, outputLengthBytes.Length);
-                blake2B.TransformBytes(input, 0, input.Length);
+                blake2B.TransformByteSpan(outputLengthBytes);
+                blake2B.TransformByteSpan(input);
                 result = blake2B.TransformFinal().GetBytes();
             }
             else
             {
                 blake2B = MakeBlake2BInstanceAndInitialize(blake2BLength);
 
-                blake2B.TransformBytes(outputLengthBytes, 0, outputLengthBytes.Length);
-                blake2B.TransformBytes(input, 0, input.Length);
+                blake2B.TransformByteSpan(outputLengthBytes);
+                blake2B.TransformByteSpan(input);
                 var buffer = blake2B.TransformFinal().GetBytes();
 
                 fixed (byte* bufferPtr = buffer, resultPtr = result)
@@ -465,7 +465,7 @@ namespace HashLib4CSharp.KDF
 
                 while (idx <= count)
                 {
-                    blake2B.TransformBytes(buffer, 0, buffer.Length);
+                    blake2B.TransformByteSpan(buffer);
                     buffer = blake2B.TransformFinal().GetBytes();
 
                     fixed (byte* bufferPtr = buffer, resultPtr = result)
@@ -481,7 +481,7 @@ namespace HashLib4CSharp.KDF
 
                 blake2B = MakeBlake2BInstanceAndInitialize(lastLength);
 
-                blake2B.TransformBytes(buffer, 0, buffer.Length);
+                blake2B.TransformByteSpan(buffer);
                 buffer = blake2B.TransformFinal().GetBytes();
 
                 fixed (byte* bufferPtr = buffer, resultPtr = result)

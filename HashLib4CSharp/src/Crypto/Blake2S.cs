@@ -1429,7 +1429,6 @@ namespace HashLib4CSharp.Crypto
     {
         private const string InvalidXofSize = "XOFSizeInBits must be multiples of 8 and be between {0} and {1} bytes.";
         private const string InvalidOutputLength = "Output length is above the digest length";
-        private const string OutputBufferTooShort = "Output buffer too short";
         private const string MaximumOutputLengthExceeded = "Maximum length is 2^32 blocks of 32 bytes";
         private const string WriteToXofAfterReadError = "'{0}' write to Xof after read not allowed";
 
@@ -1455,18 +1454,16 @@ namespace HashLib4CSharp.Crypto
             set => SetXofSizeInBitsInternal(value);
         }
 
-        public override string Name => GetType().Name;
-
-        public unsafe void DoOutput(byte[] dest, ulong destOffset, ulong outputLength)
+        public unsafe void DoOutput(Span<byte> dest)
         {
             if (dest == null) throw new ArgumentNullException(nameof(dest));
 
-            if ((ulong)dest.Length - destOffset < outputLength)
-                throw new ArgumentException(OutputBufferTooShort);
+            var outputLength = dest.Length;
+            var destOffset = 0;
 
             if (XofSizeInBits >> 3 != UnknownDigestLengthInBytes)
             {
-                if (_digestPosition + outputLength > XofSizeInBits >> 3)
+                if (_digestPosition + (ulong)outputLength > XofSizeInBits >> 3)
                     throw new ArgumentException(InvalidOutputLength);
             }
             else if (_digestPosition == UnknownMaxDigestLengthInBytes)
@@ -1500,25 +1497,32 @@ namespace HashLib4CSharp.Crypto
                     _outputConfig.TreeConfig.InnerHashSize = Blake2SHashSize;
 
                     _buffer = new Blake2S(_outputConfig.Config, _outputConfig.TreeConfig)
-                        .ComputeBytes(_rootHashDigest).GetBytes();
+                        .ComputeByteSpan(_rootHashDigest).GetBytes();
                     _outputConfig.TreeConfig.NodeOffset += 1;
                 }
 
-                var blockOffset = _digestPosition & (Blake2SHashSize - 1);
+                var blockOffset = (int)(_digestPosition & (Blake2SHashSize - 1));
 
-                var diff = (ulong)_buffer.Length - blockOffset;
+                var diff = _buffer.Length - blockOffset;
 
                 var count = Math.Min(outputLength, diff);
 
                 fixed (byte* bufferPtr = &_buffer[blockOffset], destPtr = &dest[destOffset])
                 {
-                    PointerUtils.MemMove(destPtr, bufferPtr, (int)count);
+                    PointerUtils.MemMove(destPtr, bufferPtr, count);
                 }
 
                 outputLength -= count;
                 destOffset += count;
-                _digestPosition += count;
+                _digestPosition += (ulong)count;
             }
+        }
+
+        public override string Name => GetType().Name;
+
+        public void DoOutput(byte[] dest, int destOffset, int outputLength)
+        {
+            DoOutput(dest.AsSpan().Slice(destOffset, outputLength));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1630,7 +1634,7 @@ namespace HashLib4CSharp.Crypto
 
         private byte[] GetResult()
         {
-            var xofSizeInBytes = XofSizeInBits >> 3;
+            var xofSizeInBytes = (int)(XofSizeInBits >> 3);
 
             var result = new byte[xofSizeInBytes];
 

@@ -391,25 +391,25 @@ namespace HashLib4CSharp.Tests
         public void TestSettingOutOfRangeSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = new byte[17]}, null), 512));
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) { Salt = new byte[17] }, null), 512));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = NullBytes}, null), 512));
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) { Salt = NullBytes }, null), 512));
 
         [Test]
         public void TestSettingEmptySaltDoesNotThrow() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Salt = ZeroByteArray}, null), 512));
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) { Salt = ZeroByteArray }, null), 512));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = NullBytes},
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) { Personalization = NullBytes },
                         null),
                     512));
 
@@ -417,7 +417,7 @@ namespace HashLib4CSharp.Tests
         public void TestSettingOutOfRangePersonalizationThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = new byte[17]},
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) { Personalization = new byte[17] },
                         null),
                     512));
 
@@ -425,7 +425,7 @@ namespace HashLib4CSharp.Tests
         public void TestSettingEmptyPersonalizationDoesNotThrowsException() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XB(
-                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) {Personalization = ZeroByteArray},
+                    Blake2XBConfig.CreateBlake2XBConfig(new Blake2BConfig(HashSize) { Personalization = ZeroByteArray },
                         null),
                     512));
 
@@ -442,7 +442,7 @@ namespace HashLib4CSharp.Tests
             {
                 var key = Converters.ConvertHexStringToBytes(vector[0]);
 
-                ActualString = HashFactory.XOF.CreateBlake2XB(key, (ulong) ((vector[1].Length >> 1) * 8))
+                ActualString = HashFactory.XOF.CreateBlake2XB(key, (ulong)((vector[1].Length >> 1) * 8))
                     .ComputeBytes(data).ToString();
                 ExpectedString = vector[1];
 
@@ -506,25 +506,25 @@ namespace HashLib4CSharp.Tests
         public void TestSettingOutOfRangeSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = new byte[9]}, null), 256));
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) { Salt = new byte[9] }, null), 256));
 
         [Test]
         public void TestSettingNullSaltThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = NullBytes}, null), 256));
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) { Salt = NullBytes }, null), 256));
 
         [Test]
         public void TestSettingEmptySaltDoesNotThrow() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Salt = ZeroByteArray}, null), 256));
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) { Salt = ZeroByteArray }, null), 256));
 
         [Test]
         public void TestSettingNullPersonalizationThrowsCorrectException() =>
             Assert.Throws<ArgumentNullException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = NullBytes},
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) { Personalization = NullBytes },
                         null),
                     256));
 
@@ -532,7 +532,7 @@ namespace HashLib4CSharp.Tests
         public void TestSettingOutOfRangePersonalizationThrowsCorrectException() =>
             Assert.Throws<ArgumentException>(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = new byte[9]},
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) { Personalization = new byte[9] },
                         null),
                     256));
 
@@ -540,7 +540,7 @@ namespace HashLib4CSharp.Tests
         public void TestSettingEmptyPersonalizationDoesNotThrowsException() =>
             Assert.DoesNotThrow(() =>
                 _ = HashFactory.XOF.CreateBlake2XS(
-                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) {Personalization = ZeroByteArray},
+                    Blake2XSConfig.CreateBlake2XSConfig(new Blake2SConfig(HashSize) { Personalization = ZeroByteArray },
                         null),
                     256));
 
@@ -557,7 +557,7 @@ namespace HashLib4CSharp.Tests
             {
                 var key = Converters.ConvertHexStringToBytes(vector[0]);
 
-                ActualString = HashFactory.XOF.CreateBlake2XS(key, (ulong) ((vector[1].Length >> 1) * 8))
+                ActualString = HashFactory.XOF.CreateBlake2XS(key, (ulong)((vector[1].Length >> 1) * 8))
                     .ComputeBytes(data).ToString();
                 ExpectedString = vector[1];
 
@@ -616,7 +616,7 @@ namespace HashLib4CSharp.Tests
         {
             const string keyString = "whats the Elvish word for friend";
 
-            var fullInput = Enumerable.Range(0, 1 << 15).Select(i => (byte) (i % 251)).ToArray();
+            var fullInput = Enumerable.Range(0, 1 << 15).Select(i => (byte)(i % 251)).ToArray();
 
             var key = Converters.ConvertStringToBytes(keyString, Encoding.UTF8);
 
@@ -625,8 +625,8 @@ namespace HashLib4CSharp.Tests
                 var chunkedInput = new byte[Convert.ToInt32(vector[0])];
                 Array.Copy(fullInput, chunkedInput, chunkedInput.Length);
 
-                var xof = HashFactory.XOF.CreateBlake3XOF(ZeroByteArray, (ulong) ((vector[1].Length >> 1) * 8));
-                var keyedXof = HashFactory.XOF.CreateBlake3XOF(key, (ulong) ((vector[2].Length >> 1) * 8));
+                var xof = HashFactory.XOF.CreateBlake3XOF(ZeroByteArray, (ulong)((vector[1].Length >> 1) * 8));
+                var keyedXof = HashFactory.XOF.CreateBlake3XOF(key, (ulong)((vector[2].Length >> 1) * 8));
 
                 var output = new byte[xof.XofSizeInBits / 8];
                 var keyedOutput = new byte[keyedXof.XofSizeInBits / 8];
@@ -637,8 +637,8 @@ namespace HashLib4CSharp.Tests
                 xof.TransformBytes(chunkedInput);
                 keyedXof.TransformBytes(chunkedInput);
 
-                xof.DoOutput(output, 0, (ulong) output.Length);
-                keyedXof.DoOutput(keyedOutput, 0, (ulong) keyedOutput.Length);
+                xof.DoOutput(output, 0, output.Length);
+                keyedXof.DoOutput(keyedOutput, 0, keyedOutput.Length);
 
                 AssertAreEqual(output, Converters.ConvertHexStringToBytes(vector[1]),
                     $"{xof.Name} mismatch on xof Test");

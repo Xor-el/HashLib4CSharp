@@ -79,14 +79,14 @@ namespace HashLib4CSharp.MAC
         {
             _hash.Initialize();
             UpdatePads();
-            _hash.TransformBytes(_ipad);
+            _hash.TransformByteSpan(_ipad);
         }
 
         public override IHashResult TransformFinal()
         {
             var result = _hash.TransformFinal();
-            _hash.TransformBytes(_opad);
-            _hash.TransformBytes(result.GetBytes());
+            _hash.TransformByteSpan(_opad);
+            _hash.TransformByteSpan(result.GetBytes());
             result = _hash.TransformFinal();
             Initialize();
             return result;
@@ -139,7 +139,7 @@ namespace HashLib4CSharp.MAC
         {
             var blockSize = _hash.BlockSize;
             // Perform RFC 2104, section 2 key adjustment.
-            WorkingKey = _key.Length > blockSize ? _hash.ComputeBytes(_key).GetBytes() : _key;
+            WorkingKey = _key.Length > blockSize ? _hash.ComputeByteSpan(_key).GetBytes() : _key;
         }
     }
 }
