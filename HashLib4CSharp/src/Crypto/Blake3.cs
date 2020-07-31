@@ -418,7 +418,7 @@ namespace HashLib4CSharp.Crypto
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal static Blake3ChunkState DefaultBlake3ChunkState() => default;
+            private static Blake3ChunkState DefaultBlake3ChunkState() => default;
 
         }
 
@@ -791,7 +791,7 @@ namespace HashLib4CSharp.Crypto
             InternalDoOutput(dest);
         }
 
-        public void DoOutput(byte[] dest, int destOffset, int outputLength)
+        private void DoOutput(byte[] dest, int destOffset, int outputLength)
         {
             DoOutput(dest.AsSpan().Slice(destOffset, outputLength));
         }

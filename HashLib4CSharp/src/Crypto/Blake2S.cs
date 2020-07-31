@@ -1520,7 +1520,7 @@ namespace HashLib4CSharp.Crypto
 
         public override string Name => GetType().Name;
 
-        public void DoOutput(byte[] dest, int destOffset, int outputLength)
+        private void DoOutput(byte[] dest, int destOffset, int outputLength)
         {
             DoOutput(dest.AsSpan().Slice(destOffset, outputLength));
         }

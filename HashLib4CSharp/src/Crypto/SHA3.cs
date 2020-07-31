@@ -626,7 +626,7 @@ namespace HashLib4CSharp.Crypto
             }
         }
 
-        public virtual void DoOutput(byte[] dest, int destOffset,
+        private void DoOutput(byte[] dest, int destOffset,
             int outputLength)
         {
             DoOutput(dest.AsSpan().Slice(destOffset, outputLength));
