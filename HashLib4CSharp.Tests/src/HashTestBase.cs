@@ -8,6 +8,7 @@ using HashLib4CSharp.Base;
 using HashLib4CSharp.Checksum;
 using HashLib4CSharp.Interfaces;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace HashLib4CSharp.Tests
 {
@@ -75,11 +76,11 @@ namespace HashLib4CSharp.Tests
         protected static bool AreEqual(byte[] a, byte[] b) => a.SequenceEqual(b);
 
         protected void AssertAreEqual<T>(T a, T b, string message = "") =>
-            Assert.AreEqual(a, b,
+            ClassicAssert.AreEqual(a, b,
                 typeof(T) == typeof(string) ? $"expected '{ExpectedString}' but got '{ActualString}'." : message);
 
         protected void AssertAreNotEqual<T>(T a, T b, string message = "") =>
-            Assert.AreNotEqual(a, b,
+            ClassicAssert.AreNotEqual(a, b,
                 typeof(T) == typeof(string)
                     ? $"'{ExpectedString}' and '{ActualString}' are not supposed to match."
                     : message);
@@ -277,7 +278,7 @@ namespace HashLib4CSharp.Tests
 
             Task.WaitAll(t1, t2, t3, t4);
 
-            Assert.IsTrue(AreEqual(a, b) == AreEqual(c, d),
+            ClassicAssert.IsTrue(AreEqual(a, b) == AreEqual(c, d),
                 $"MultiThreading and Clone test failed for '{HashInstance.Name}'");
         }
 
@@ -325,7 +326,7 @@ namespace HashLib4CSharp.Tests
                 var crcInstance = HashFactory.Checksum.CRC.CreateCRC(crcModel);
                 ExpectedString = $"{((ICRCFactory) crcInstance).CheckValue:X16}";
                 ActualString = crcInstance.ComputeBytes(OneToNineBytes).ToString().PadLeft(16, '0');
-                Assert.AreEqual(ExpectedString, ActualString,
+                ClassicAssert.AreEqual(ExpectedString, ActualString,
                     $"{crcInstance.Name}: expected {ExpectedString} but got {ActualString}");
             }
         }
