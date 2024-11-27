@@ -58,14 +58,16 @@ namespace HashLib4CSharp.Base
                         !c.IsStatic);
 
 
-            dynamic hashInstance =
+            var hashInstance =
                 constructorInfo.Invoke(BindingFlags.CreateInstance, null, constructorInfo.GetParameters().Length == 0
                     ? null
-                    : Enumerable.Repeat(Type.Missing, constructorInfo.GetParameters().Length).ToArray(), null);
+                    : Enumerable.Repeat(Type.Missing, constructorInfo.GetParameters().Length).ToArray(), null) as MultipleTransformNonBlock;
 
             if (hashInstance == null) throw new NullReferenceException(UnExpectedError);
 
             var buffer = Buffer.ToArray();
+
+
 
             hashInstance.Buffer.Write(buffer, 0, buffer.Length);
 
