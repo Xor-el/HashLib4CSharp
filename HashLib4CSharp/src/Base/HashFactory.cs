@@ -119,7 +119,11 @@ namespace HashLib4CSharp.Base
             public static IHash CreateBlake2B(Blake2BConfig config = null, Blake2BTreeConfig treeConfig = null) =>
                 new Blake2B(config ?? Blake2BConfig.DefaultConfig, treeConfig);
 
+			public static IHash CreateBlake2B_128() => CreateBlake2B(new Blake2BConfig(HashSize.HashSize128));
+
             public static IHash CreateBlake2B_160() => CreateBlake2B(new Blake2BConfig(HashSize.HashSize160));
+
+			public static IHash CreateBlake2B_224() => CreateBlake2B(new Blake2BConfig(HashSize.HashSize224));
 
             public static IHash CreateBlake2B_256() => CreateBlake2B(new Blake2BConfig(HashSize.HashSize256));
 
