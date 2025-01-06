@@ -35,17 +35,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
 
-    - name: Build on Linux
+    - name: Build
       shell: bash
       run: |
         cd HashLib4CSharp
         dotnet build
         dotnet test
-
-    - name: Build on Windows
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: |
-        cd HashLib4CSharp
-        & dotnet build | Out-Host
-        & dotnet test | Out-Host
