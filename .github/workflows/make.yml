@@ -37,6 +37,7 @@ jobs:
     - name: Build on Linux
       shell: bash
       run: |
+        cd HashLib4CSharp
         dotnet build
         dotnet test
 
@@ -44,5 +45,6 @@ jobs:
       if: runner.os == 'Windows'
       shell: powershell
       run: |
+        cd HashLib4CSharp
         & dotnet build | Out-Host
         & dotnet test | Out-Host
