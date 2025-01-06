@@ -1,0 +1,48 @@
+---
+name: Make
+
+on:
+  schedule:
+    - cron:  '0 0 1 * *'
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+
+    - name: Build
+      shell: bash
+      run: |
+        cd HashLib4CSharp
+        dotnet build
+
+    - name: Test
+      shell: bash
+      run: |
+        cd HashLib4CSharp.Tests
+        dotnet test
