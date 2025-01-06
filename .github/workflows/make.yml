@@ -40,4 +40,9 @@ jobs:
       run: |
         cd HashLib4CSharp
         dotnet build
+
+    - name: Test
+      shell: bash
+      run: |
+        cd HashLib4CSharp.Tests
         dotnet test
